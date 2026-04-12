@@ -47,7 +47,7 @@ export default function ScreenerPage() {
     else { setSortKey(key); setSortDir("desc"); }
   }
 
-  const sortIcon = (k: SortKey) =>
+  const renderSortIcon = (k: SortKey) =>
     sortKey === k ? (sortDir === "asc" ? <ChevronUp size={10} /> : <ChevronDown size={10} />) : null;
 
   const avgChange = filtered.length ? (filtered.reduce((s, x) => s + x.dayChangePercent, 0) / filtered.length) : 0;
@@ -182,11 +182,11 @@ export default function ScreenerPage() {
         <div>
           <div className="hidden md:block">
             <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_60px] gap-2 px-4 py-2 border-b border-white/8 text-[9px] tracking-[0.15em] text-[#666]">
-              <button onClick={() => toggleSort("ticker")} className="flex items-center gap-1 text-left hover:text-white transition-colors">TICKER {sortIcon("ticker")}</button>
-              <button onClick={() => toggleSort("price")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">PRICE {sortIcon("price")}</button>
-              <button onClick={() => toggleSort("change")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">CHG% {sortIcon("change")}</button>
-              <button onClick={() => toggleSort("volume")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">VOL {sortIcon("volume")}</button>
-              <button onClick={() => toggleSort("pe")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">P/E {sortIcon("pe")}</button>
+              <button onClick={() => toggleSort("ticker")} className="flex items-center gap-1 text-left hover:text-white transition-colors">TICKER {renderSortIcon("ticker")}</button>
+              <button onClick={() => toggleSort("price")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">PRICE {renderSortIcon("price")}</button>
+              <button onClick={() => toggleSort("change")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">CHG% {renderSortIcon("change")}</button>
+              <button onClick={() => toggleSort("volume")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">VOL {renderSortIcon("volume")}</button>
+              <button onClick={() => toggleSort("pe")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">P/E {renderSortIcon("pe")}</button>
               <span />
             </div>
             {filtered.map((s) => (

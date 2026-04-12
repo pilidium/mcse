@@ -47,7 +47,7 @@ export default function WatchlistPage() {
     else { setSortKey(key); setSortDir("desc"); }
   }
 
-  const sortIcon = (col: SortKey) =>
+  const renderSortIcon = (col: SortKey) =>
     sortKey === col
       ? sortDir === "asc" ? <ChevronUp size={10} className="inline ml-0.5" /> : <ChevronDown size={10} className="inline ml-0.5" />
       : <ChevronDown size={10} className="inline ml-0.5 opacity-30" />;
@@ -214,17 +214,17 @@ export default function WatchlistPage() {
       <div className="hidden md:block">
         <div className="grid grid-cols-[1fr_80px_100px_90px_80px_120px] gap-4 px-4 py-2 border-b border-white/12">
           <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-left hover:text-white transition-colors">
-            COMPANY {sortIcon("ticker")}
+            COMPANY {renderSortIcon("ticker")}
           </button>
           <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">TREND</span>
           <button onClick={() => toggleSort("price")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
-            MKT PRICE {sortIcon("price")}
+            MKT PRICE {renderSortIcon("price")}
           </button>
           <button onClick={() => toggleSort("dayChangePercent")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
-            1D CHANGE {sortIcon("dayChangePercent")}
+            1D CHANGE {renderSortIcon("dayChangePercent")}
           </button>
           <button onClick={() => toggleSort("volume")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
-            1D VOL {sortIcon("volume")}
+            1D VOL {renderSortIcon("volume")}
           </button>
           <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">52W PERF</span>
         </div>
