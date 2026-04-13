@@ -69,7 +69,7 @@ export default function ETFsPage() {
   const filteredEtfs = category === "ALL" ? etfs : etfs.filter((e) => e.category === category);
 
   return (
-    <div className="pb-20 md:pb-12 py-6">
+    <div className="pb-24 md:pb-12 py-6">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <button onClick={() => router.back()} className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white transition-colors">

@@ -101,11 +101,12 @@ export default function StockDetailPage({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`fixed top-20 left-1/2 -translate-x-1/2 z-[70] px-6 py-3 border text-[11px] tracking-[0.1em] ${
+            className={`fixed left-1/2 -translate-x-1/2 z-[70] px-6 py-3 border text-[11px] tracking-[0.1em] ${
               orderMsg.success
                 ? "bg-[#00D26A]/10 border-[#00D26A]/30 text-[#00D26A]"
                 : "bg-[#FF5252]/10 border-[#FF5252]/30 text-[#FF5252]"
             }`}
+            style={{ top: 'calc(env(safe-area-inset-top) + 5rem)' }}
           >
             {orderMsg.text}
           </motion.div>
@@ -600,7 +601,7 @@ export default function StockDetailPage({
       </div>
 
       {/* Mobile fixed bottom buy/sell bar */}
-      <div className="fixed bottom-14 left-0 right-0 z-50 md:hidden border-t border-white/12 bg-bg/95 backdrop-blur-md" style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}>
+      <div className="fixed left-0 right-0 z-[55] md:hidden border-t border-white/12 bg-bg/95 backdrop-blur-md" style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}>
         <div className="flex">
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -628,14 +629,14 @@ export default function StockDetailPage({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOrderOpen(false)}
-              className="fixed inset-0 z-50 bg-black/60 md:hidden"
+              className="fixed inset-0 z-[60] bg-black/60 md:hidden"
             />
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "tween", duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-              className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-bg border-t border-white/12 max-h-[85vh] overflow-hidden flex flex-col"
+              className="fixed bottom-0 left-0 right-0 z-[60] md:hidden bg-bg border-t border-white/12 max-h-[85dvh] overflow-hidden flex flex-col"
               style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
             >
               {/* Panel header */}

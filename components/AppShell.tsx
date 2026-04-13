@@ -28,7 +28,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </AnimatePresence>
 
       <div
-        className={`relative flex flex-col h-screen overflow-hidden transition-opacity duration-700 ease-out ${loading ? "opacity-0" : "opacity-100"}`}
+        className={`relative flex flex-col overflow-hidden transition-opacity duration-700 ease-out ${loading ? "opacity-0" : "opacity-100"}`}
+        style={{ height: '100dvh' }}
       >
         {/* Grain overlay */}
         <div
@@ -60,8 +61,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <TopNav />
           <TickerTape />
         </div>
-        <main className="flex-1 overflow-y-auto relative z-10">
-          <div className="max-w-[1280px] mx-auto w-full px-4 md:px-12 pb-20 md:pb-0">
+        <main className="flex-1 overflow-y-auto relative z-10" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
+          <div className="max-w-[1280px] mx-auto w-full px-4 md:px-12 pb-24 md:pb-0">
             {children}
           </div>
         </main>

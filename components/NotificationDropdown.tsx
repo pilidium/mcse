@@ -98,7 +98,7 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.97 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="absolute right-0 top-10 w-[min(380px,calc(100vw-2rem))] bg-bg border border-white/15 z-50 max-h-[28rem] flex flex-col"
+      className="absolute right-0 top-10 w-[min(380px,calc(100vw-2rem))] bg-bg border border-white/15 z-50 max-h-[min(28rem,calc(100dvh-8rem))] flex flex-col"
     >
       {/* Header */}
       <div className="px-5 py-3.5 border-b border-white/10 shrink-0 flex items-center justify-between">

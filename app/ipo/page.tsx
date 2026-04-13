@@ -305,7 +305,7 @@ export default function IPOPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="md:hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+              className="md:hidden fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm"
               onClick={() => setMobileDetailOpen(false)}
             >
               <motion.div
@@ -315,12 +315,13 @@ export default function IPOPage() {
                 transition={{ type: "spring", damping: 28, stiffness: 300 }}
                 className="absolute bottom-0 left-0 right-0 max-h-[92vh] bg-[#0a0a0a] border-t border-white/10 overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
+                style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
               >
                 <div className="sticky top-0 bg-[#0a0a0a] z-10 flex items-center justify-between px-5 py-3 border-b border-white/8">
                   <span className="font-[var(--font-anton)] text-sm tracking-[0.06em]">{selected.name}</span>
                   <button
                     onClick={() => setMobileDetailOpen(false)}
-                    className="w-8 h-8 flex items-center justify-center border border-white/15 hover:border-white/30 transition-colors"
+                    className="w-10 h-10 flex items-center justify-center border border-white/15 hover:border-white/30 transition-colors"
                   >
                     <X size={14} />
                   </button>
@@ -349,7 +350,8 @@ export default function IPOPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-[#00D26A] text-black text-[11px] tracking-[0.08em] font-semibold flex items-center gap-2"
+            className="fixed left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-[#00D26A] text-black text-[11px] tracking-[0.08em] font-semibold flex items-center gap-2"
+            style={{ bottom: 'calc(env(safe-area-inset-bottom) + 5rem)' }}
           >
             <CheckCircle size={14} />
             {toast}

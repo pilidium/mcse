@@ -178,10 +178,20 @@ body {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Touch scrolling optimization for iOS */
+/* Touch scrolling optimization for iOS & Android TWA */
 .overflow-x-auto, .overflow-y-auto, .overflow-auto {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+
+/* Prevent pull-to-refresh on mobile (TWA) */
+html, body {
+  overscroll-behavior-y: contain;
+}
+
+/* Ensure fixed elements respect safe areas */
+.fixed {
+  /* Safe area handled inline where needed */
 }
 
 /* Thin scrollbar for main content area */

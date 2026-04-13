@@ -59,7 +59,7 @@ export default function StocksPage() {
     );
 
   return (
-    <div className="pb-20 md:pb-12 px-5 md:px-6 py-6 max-w-4xl">
+    <div className="pb-24 md:pb-12 px-5 md:px-6 py-6 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-[var(--font-anton)] text-lg md:text-xl tracking-[0.1em] uppercase">
           ALL STOCKS

@@ -52,7 +52,7 @@ export default function SearchModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 z-50"
+            className="fixed inset-0 bg-black/70 z-[60]"
             onClick={onClose}
           />
           <motion.div
@@ -60,7 +60,8 @@ export default function SearchModal({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.97 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-[10%] left-1/2 -translate-x-1/2 w-[90%] max-w-lg bg-bg border border-white/15 z-50 overflow-hidden"
+            className="fixed left-1/2 -translate-x-1/2 w-[90%] max-w-lg bg-bg border border-white/15 z-[60] overflow-hidden"
+            style={{ top: 'max(env(safe-area-inset-top, 0px) + 1rem, 10%)' }}
           >
             {/* Search input */}
             <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10">

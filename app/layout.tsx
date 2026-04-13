@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   other: {
     "apple-mobile-web-app-title": "MCSE",
     "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "default",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
   },
 };
 
@@ -57,8 +57,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${anton.variable} ${inter.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full bg-bg text-white overflow-hidden" style={{ overflowX: 'clip' }}>
+    <html lang="en" className={`${anton.variable} ${inter.variable} antialiased`} suppressHydrationWarning>
+      <body className="bg-bg text-white overflow-hidden h-dvh" style={{ overflowX: 'clip' }}>
         <PreferencesProvider>
           <AuthProvider>
             <TradingProvider>
