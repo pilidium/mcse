@@ -50,7 +50,7 @@ export default function OrderConfirmModal({
                 </span>
                 <span className="text-[11px] tracking-[0.1em] text-white/60">CONFIRM ORDER</span>
               </div>
-              <button onClick={onCancel} className="w-7 h-7 flex items-center justify-center border border-white/15 hover:border-white/40 transition-colors">
+              <button onClick={onCancel} className="w-9 h-9 flex items-center justify-center border border-white/15 hover:border-white/40 transition-colors">
                 <X size={12} className="text-white/50" />
               </button>
             </div>

@@ -154,7 +154,7 @@ export default function IPOPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
-            className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-white transition-colors"
+            className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white transition-colors"
           >
             <ArrowLeft size={15} />
           </button>

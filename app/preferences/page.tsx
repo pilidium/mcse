@@ -38,7 +38,7 @@ export default function PreferencesPage() {
       >
         <Link
           href="/"
-          className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-white transition-colors"
+          className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white transition-colors"
         >
           <ArrowLeft size={15} />
         </Link>

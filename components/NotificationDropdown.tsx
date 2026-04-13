@@ -98,21 +98,21 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.97 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="absolute right-0 top-10 w-[380px] bg-bg border border-white/15 z-50 max-h-[28rem] flex flex-col"
+      className="absolute right-0 top-10 w-[min(380px,calc(100vw-2rem))] bg-bg border border-white/15 z-50 max-h-[28rem] flex flex-col"
     >
       {/* Header */}
       <div className="px-5 py-3.5 border-b border-white/10 shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-[10px] tracking-[0.2em] text-white/40">ALERTS</span>
           {unreadCount > 0 && (
-            <span className="text-[8px] tracking-[0.08em] bg-white/10 text-white/60 font-medium px-2 py-0.5">
+            <span className="text-[9px] tracking-[0.08em] bg-white/10 text-white/60 font-medium px-2 py-0.5">
               {unreadCount} NEW
             </span>
           )}
         </div>
         <button
           onClick={markAllRead}
-          className="flex items-center gap-1.5 text-[8px] tracking-[0.1em] text-white/20 hover:text-white/50 transition-colors duration-300"
+          className="flex items-center gap-1.5 text-[9px] tracking-[0.1em] text-white/20 hover:text-white/50 transition-colors duration-300 min-h-[44px] min-w-[44px] justify-center"
         >
           <CheckCheck size={10} />
           MARK READ

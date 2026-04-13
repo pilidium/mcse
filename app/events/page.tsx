@@ -94,7 +94,7 @@ export default function EventsPage() {
     <div className="py-6 pb-24 md:pb-12">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-white transition-colors">
+          <button onClick={() => router.back()} className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white transition-colors">
             <ArrowLeft size={15} />
           </button>
           <div>
@@ -133,11 +133,11 @@ export default function EventsPage() {
             <div className="md:grid md:grid-cols-[13fr_7fr] md:gap-8">
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <button onClick={prevMonth} className="w-8 h-8 border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors">
+                  <button onClick={prevMonth} className="w-10 h-10 border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors">
                     <ChevronLeft size={14} className="text-white/40" />
                   </button>
                   <p className="font-[var(--font-anton)] text-lg tracking-[0.15em]">{MONTH_NAMES[viewMonth]} {viewYear}</p>
-                  <button onClick={nextMonth} className="w-8 h-8 border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors">
+                  <button onClick={nextMonth} className="w-10 h-10 border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors">
                     <ChevronRight size={14} className="text-white/40" />
                   </button>
                 </div>
@@ -145,7 +145,7 @@ export default function EventsPage() {
                 <div className="border border-white/8 mb-6">
                   <div className="grid grid-cols-7">
                     {DAY_NAMES.map((d) => (
-                      <div key={d} className="text-center py-2 text-[8px] tracking-[0.2em] text-white/20 border-b border-white/6">{d}</div>
+                      <div key={d} className="text-center py-2 text-[9px] tracking-[0.2em] text-white/20 border-b border-white/6">{d}</div>
                     ))}
                   </div>
                   <div className="grid grid-cols-7">

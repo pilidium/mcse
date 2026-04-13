@@ -110,7 +110,7 @@ export default function HoldingsPage() {
         </h1>
         <button
           onClick={() => setShowValues(!showValues)}
-          className="w-8 h-8 border border-white/20 flex items-center justify-center hover:border-white transition-colors duration-300"
+          className="w-10 h-10 border border-white/20 flex items-center justify-center hover:border-white transition-colors duration-300"
         >
           {showValues ? <Eye size={13} /> : <EyeOff size={13} />}
         </button>

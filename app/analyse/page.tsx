@@ -44,7 +44,7 @@ export default function AnalysePage() {
         transition={{ duration: 0.4 }}
         className="flex items-center gap-4 mb-8"
       >
-        <button onClick={() => router.back()} className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-white transition-colors">
+        <button onClick={() => router.back()} className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white transition-colors">
           <ArrowLeft size={15} />
         </button>
         <h1 className="font-[var(--font-anton)] text-lg md:text-xl tracking-[0.1em]">PORTFOLIO ANALYSIS</h1>

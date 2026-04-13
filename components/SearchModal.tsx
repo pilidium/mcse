@@ -74,7 +74,7 @@ export default function SearchModal({
               />
               <button
                 onClick={onClose}
-                className="w-7 h-7 border border-white/15 flex items-center justify-center hover:border-white transition-colors shrink-0"
+                className="w-9 h-9 border border-white/15 flex items-center justify-center hover:border-white transition-colors shrink-0"
               >
                 <X size={12} />
               </button>

@@ -56,7 +56,7 @@ export default function ScreenerPage() {
     <div className="py-6 pb-24 md:pb-12">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-white transition-colors">
+          <button onClick={() => router.back()} className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white transition-colors">
             <ArrowLeft size={15} />
           </button>
           <div>
@@ -95,8 +95,8 @@ export default function ScreenerPage() {
             <div className="border border-white/8 p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-[9px] tracking-[0.2em] text-white/25">FILTERS</p>
-                <button onClick={() => setMobileFiltersOpen(false)} className="w-6 h-6 flex items-center justify-center">
-                  <X size={12} className="text-white/30" />
+                <button onClick={() => setMobileFiltersOpen(false)} className="w-8 h-8 flex items-center justify-center">
+                  <X size={14} className="text-white/30" />
                 </button>
               </div>
               <div>

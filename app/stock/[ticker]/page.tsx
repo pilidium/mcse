@@ -122,7 +122,7 @@ export default function StockDetailPage({
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-white transition-colors duration-150"
+            className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white transition-colors duration-150"
           >
             <ArrowLeft size={15} />
           </button>
@@ -195,7 +195,7 @@ export default function StockDetailPage({
             <Sparkline data={chartValues} width={600} height={180} strokeWidth={1.5} positive={stock.changePercent >= 0} />
             <div className="flex justify-between mt-3">
               {chartData.map((d) => (
-                <span key={d.day} className="text-[8px] text-white/20">{d.day}</span>
+                <span key={d.day} className="text-[9px] text-white/20">{d.day}</span>
               ))}
             </div>
           </motion.div>
@@ -644,7 +644,7 @@ export default function StockDetailPage({
                   <span className="font-[var(--font-anton)] text-base tracking-[0.05em]">{stock.ticker}</span>
                   <span className="text-[10px] text-white/40">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                 </div>
-                <button onClick={() => setMobileOrderOpen(false)} className="w-8 h-8 flex items-center justify-center border border-white/15 hover:border-white/40 transition-colors">
+                <button onClick={() => setMobileOrderOpen(false)} className="w-10 h-10 flex items-center justify-center border border-white/15 hover:border-white/40 transition-colors">
                   <X size={14} className="text-white/50" />
                 </button>
               </div>

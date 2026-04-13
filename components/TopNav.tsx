@@ -146,7 +146,7 @@ export default function TopNav() {
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); }}
-                className="w-8 h-8 border border-white/20 flex items-center justify-center hover:border-white/60 transition-colors duration-300 relative"
+                className="w-10 h-10 border border-white/20 flex items-center justify-center hover:border-white/60 transition-colors duration-300 relative"
               >
                 <Bell size={14} strokeWidth={1.5} />
                 <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-white" />
@@ -162,7 +162,7 @@ export default function TopNav() {
                   <motion.button
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
-                    className="w-8 h-8 border border-white flex items-center justify-center text-[10px] font-[var(--font-anton)] tracking-wider hover:bg-white hover:text-black transition-all duration-300"
+                    className="w-10 h-10 border border-white flex items-center justify-center text-[10px] font-[var(--font-anton)] tracking-wider hover:bg-white hover:text-black transition-all duration-300"
                   >
                     {initials}
                   </motion.button>
@@ -173,9 +173,9 @@ export default function TopNav() {
               ) : (
                 <Link
                   href="/login"
-                  className="h-8 px-4 bg-white text-black flex items-center justify-center text-[10px] tracking-[0.12em] font-semibold hover:bg-transparent hover:text-white border border-white transition-all duration-300"
+                  className="h-10 px-4 bg-white text-black flex items-center justify-center text-[10px] tracking-[0.12em] font-semibold hover:bg-transparent hover:text-white border border-white transition-all duration-300"
                 >
-                  LOG IN
+                satyaisgay
                 </Link>
               )}
             </div>
@@ -211,7 +211,7 @@ export default function TopNav() {
                 }`}
               >
                 <Icon size={18} strokeWidth={active ? 2 : 1.5} />
-                <span className="text-[7px] tracking-[0.08em] uppercase">{tab.label}</span>
+                <span className="text-[9px] tracking-[0.08em] uppercase">{tab.label}</span>
               </Link>
             );
           })}

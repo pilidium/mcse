@@ -47,7 +47,7 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.97 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="absolute right-0 top-10 w-[300px] bg-bg border border-white/15 z-50"
+      className="absolute right-0 top-10 w-[min(300px,calc(100vw-2rem))] bg-bg border border-white/15 z-50"
     >
       {/* User Identity */}
       <div className="px-5 py-5 border-b border-white/10">
