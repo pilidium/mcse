@@ -175,7 +175,7 @@ export default function TopNav() {
                   href="/login"
                   className="h-10 px-4 bg-white text-black flex items-center justify-center text-[10px] tracking-[0.12em] font-semibold hover:bg-transparent hover:text-white border border-white transition-all duration-300"
                 >
-                satyaisgay
+                login
                 </Link>
               )}
             </div>
