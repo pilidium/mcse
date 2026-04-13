@@ -181,7 +181,7 @@ export default function EventsPage() {
                   )}
                   <div className="space-y-2">
                     {selectedEvents.map((ev, i) => (
-                      <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                      <div key={i}>
                         <Link
                           href={`/stock/${ev.ticker}`}
                           className={`flex items-center gap-4 border border-white/6 border-l-2 ${typeAccent[ev.type]} p-4 hover:bg-white/[0.03] transition-colors`}
@@ -196,7 +196,7 @@ export default function EventsPage() {
                           </div>
                           <span className={`text-[8px] tracking-[0.15em] px-2 py-1 shrink-0 ${typeBadge[ev.type]}`}>{ev.type}</span>
                         </Link>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -212,7 +212,7 @@ export default function EventsPage() {
                   )}
                   <div className="space-y-2">
                     {selectedEvents.map((ev, i) => (
-                      <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                      <div key={i}>
                         <Link
                           href={`/stock/${ev.ticker}`}
                           className={`flex items-center gap-3 border border-white/6 border-l-2 ${typeAccent[ev.type]} p-3 hover:bg-white/[0.03] transition-colors`}
@@ -227,7 +227,7 @@ export default function EventsPage() {
                           </div>
                           <span className={`text-[8px] tracking-[0.15em] px-2 py-1 shrink-0 ${typeBadge[ev.type]}`}>{ev.type}</span>
                         </Link>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 </div>

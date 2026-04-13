@@ -152,14 +152,33 @@
 [data-theme="light"] .circuit-overlay svg path { stroke: #000 !important; }
 [data-theme="light"] .circuit-overlay svg circle { stroke: #000 !important; fill: #000 !important; }
 
-/* Page entrance animation */
+/* Page entrance animation — lightweight for smoothness */
 @keyframes page-enter {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
-main > * { animation: page-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+main > * { animation: page-enter 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) both; }
 
 * { border-radius: 0 !important; }
+
+/* Global touch optimization — eliminates 300ms tap delay & tap flash */
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* GPU-accelerated scrolling containers */
+[style*="overflow"], .overflow-y-auto, .overflow-x-auto, .overflow-auto {
+  will-change: scroll-position;
+  transform: translateZ(0);
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, [role="button"] {
+  -webkit-touch-callout: none;
+}
 
 body {
   background: var(--color-bg);
@@ -169,6 +188,9 @@ body {
   background-size: 48px 48px;
   color: #ffffff;
   font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Logo light mode */
@@ -182,6 +204,13 @@ body {
 .overflow-x-auto, .overflow-y-auto, .overflow-auto {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* Smooth scroll for main content */
+main {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Prevent pull-to-refresh on mobile (TWA) */

@@ -202,11 +202,8 @@ export default function IPOPage() {
               const applied = appliedSet.has(ipo.ticker);
 
               return (
-                <motion.button
+                <button
                   key={ipo.ticker}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05, duration: 0.25 }}
                   onClick={() => handleSelect(ipo.ticker)}
                   className={`w-full text-left transition-colors border-b border-white/6 ${
                     isActive
@@ -276,7 +273,7 @@ export default function IPOPage() {
                       </div>
                     </div>
                   </div>
-                </motion.button>
+                </button>
               );
             })}
           </div>

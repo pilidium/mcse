@@ -50,11 +50,8 @@ export default function PreferencesPage() {
       {/* Preference toggles */}
       <div className="border border-white/8">
         {preferenceItems.map((item, i) => (
-          <motion.div
+          <div
             key={item.key}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.03 * i, duration: 0.3 }}
             className={`flex items-center justify-between px-5 py-4 ${
               i < preferenceItems.length - 1 ? "border-b border-white/6" : ""
             }`}
@@ -77,7 +74,7 @@ export default function PreferencesPage() {
                   : "bg-white/20 ml-0.5"
               }`} />
             </button>
-          </motion.div>
+          </div>
         ))}
       </div>
 

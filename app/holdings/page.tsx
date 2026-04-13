@@ -123,14 +123,11 @@ export default function HoldingsPage() {
         </Link>
       </div>
 
-      {/* Mobile: Portfolio summary */}
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
+      {/* Mobile: Portfolio summary — Groww-style */}
+      <div
         className="md:hidden border border-white/10 p-5 mb-6"
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <div>
             <p className="text-[9px] tracking-[0.15em] text-white/30 mb-1">CURRENT VALUE</p>
             <p className="font-[var(--font-anton)] text-2xl tracking-tight">
@@ -144,14 +141,22 @@ export default function HoldingsPage() {
               )}
             </p>
           </div>
-          <div>
-            <p className="text-[9px] tracking-[0.15em] text-white/30 mb-1">INVESTED</p>
-            <p className="font-[var(--font-anton)] text-lg tracking-tight text-white/60">
-              {showValues ? `\u20B9${investments.investedValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}` : "\u20B9 \u2022\u2022\u2022\u2022\u2022\u2022"}
-            </p>
+          <div className="grid grid-cols-2 gap-4 pt-3 border-t border-white/6">
+            <div>
+              <p className="text-[9px] tracking-[0.15em] text-white/30 mb-1">INVESTED</p>
+              <p className="font-[var(--font-anton)] text-base tracking-tight text-white/60">
+                {showValues ? `\u20B9${investments.investedValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}` : "\u20B9 \u2022\u2022\u2022\u2022\u2022\u2022"}
+              </p>
+            </div>
+            <div>
+              <p className="text-[9px] tracking-[0.15em] text-white/30 mb-1">1D RETURNS</p>
+              <p className={`font-[var(--font-anton)] text-base tracking-tight ${investments.dayReturns >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                {showValues ? `${investments.dayReturns >= 0 ? "+" : ""}\u20B9${Math.abs(investments.dayReturns).toLocaleString("en-IN", { maximumFractionDigits: 0 })}` : "\u2022\u2022\u2022"}
+              </p>
+            </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Desktop 2-column grid */}
       <div className="md:grid md:grid-cols-[13fr_7fr] md:gap-8">
@@ -227,12 +232,9 @@ export default function HoldingsPage() {
             </button>
           </div>
           <div className="space-y-2">
-          {sorted.map((h, i) => (
-            <motion.div
+          {sorted.map((h) => (
+            <div
               key={h.ticker}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.04 * i, duration: 0.3 }}
             >
               <Link
                 href={`/stock/${h.ticker}`}
@@ -293,7 +295,7 @@ export default function HoldingsPage() {
                   )}
                 </div>
               </Link>
-            </motion.div>
+            </div>
           ))}
           </div>
         </div>

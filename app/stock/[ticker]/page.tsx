@@ -11,7 +11,7 @@ import { usePreferences } from "@/lib/PreferencesContext";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
 import Sparkline from "@/components/Sparkline";
 
-const timeRanges = ["1D", "1W", "1M", "1Y", "ALL"] as const;
+const timeRanges = ["1D", "1W", "1M", "3M", "6M", "1Y", "5Y", "ALL"] as const;
 
 export default function StockDetailPage({
   params,
@@ -32,6 +32,7 @@ export default function StockDetailPage({
   const [mobileOrderOpen, setMobileOrderOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<"ORDER" | "BOOK" | "HISTORY">("ORDER");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [sectionTab, setSectionTab] = useState<"OVERVIEW" | "NEWS" | "EVENTS">("OVERVIEW");
   const { confirmOrders } = usePreferences();
 
   const isHeld = holdings.some((h) => h.ticker === ticker.toUpperCase());
@@ -114,10 +115,7 @@ export default function StockDetailPage({
       </AnimatePresence>
 
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -4 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+      <div
         className="flex items-center justify-between py-4 border-b border-white/8"
       >
         <div className="flex items-center gap-4">
@@ -158,17 +156,14 @@ export default function StockDetailPage({
             {watched ? "WATCHED" : "WATCH"}
           </motion.button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Desktop: 2-column grid (70% / 30%) */}
       <div className="md:grid md:grid-cols-[7fr_3fr] md:gap-0 py-6">
         {/* Main content - Col 1: Chart + Price */}
         <div className="min-w-0 md:pr-6">
           {/* Price */}
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.04, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+          <div
             className="mb-7 md:mb-8"
           >
             <p className="font-[var(--font-anton)] text-3xl md:text-4xl tracking-tight mb-1.5">
@@ -184,29 +179,25 @@ export default function StockDetailPage({
                 </span>
               )}
             </div>
-          </motion.div>
+          </div>
 
-          {/* Chart */}
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.06, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            className="mb-5 md:mb-6 border border-white/8 p-4 md:p-6"
+          {/* Chart — full bleed on mobile like Groww */}
+          <div
+            className="mb-5 md:mb-6 md:border md:border-white/8 -mx-4 px-4 md:mx-0 md:p-6 py-4"
           >
-            <Sparkline data={chartValues} width={600} height={180} strokeWidth={1.5} positive={stock.changePercent >= 0} />
+            <div className="w-full overflow-hidden">
+              <Sparkline data={chartValues} width={600} height={200} strokeWidth={1.5} positive={stock.changePercent >= 0} />
+            </div>
             <div className="flex justify-between mt-3">
               {chartData.map((d) => (
                 <span key={d.day} className="text-[9px] text-white/20">{d.day}</span>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          {/* Time range selector */}
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex items-center gap-0 mb-7 md:mb-8 overflow-x-auto scrollbar-hide"
+          {/* Time range selector — scrollable like Groww */}
+          <div
+            className="flex items-center gap-0 mb-6 md:mb-8 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0"
           >
             {timeRanges.map((r) => (
               <button
@@ -221,14 +212,28 @@ export default function StockDetailPage({
                 {r}
               </button>
             ))}
-          </motion.div>
+          </div>
+
+          {/* Section tabs — Groww style */}
+          <div className="flex items-center gap-0 mb-6 md:mb-8 border-b border-white/8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto scrollbar-hide">
+            {(["OVERVIEW", "NEWS", "EVENTS"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setSectionTab(tab)}
+                className={`px-5 py-3 text-[10px] tracking-[0.15em] font-medium border-b-2 transition-all duration-150 whitespace-nowrap ${
+                  sectionTab === tab
+                    ? "text-white border-white"
+                    : "text-white/35 border-transparent hover:text-white/60"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
 
           {/* Your holding info (if held) — uses position data for consistency */}
-          {position && (
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+          {position && sectionTab === "OVERVIEW" && (
+            <div
               className="mb-7 md:mb-8 border border-white/10 p-5"
             >
               <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-4">YOUR HOLDING</p>
@@ -252,15 +257,13 @@ export default function StockDetailPage({
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Overview */}
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-          >
+          {sectionTab === "OVERVIEW" && (
+          <>
+          <div>
             <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">OVERVIEW</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-[1px] bg-white/8">
               {[
@@ -276,14 +279,11 @@ export default function StockDetailPage({
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* About the Company */}
           {stock.about && (
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.12, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+            <div
               className="mt-7 md:mt-8"
             >
               <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">ABOUT {stock.ticker}</h3>
@@ -294,14 +294,11 @@ export default function StockDetailPage({
                   <span className="text-[10px] text-white/50">{stock.fundamentals.sector}</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* 52-Week Range */}
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.14, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+          <div
             className="mt-7 md:mt-8"
           >
             <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">52 WEEK RANGE</h3>
@@ -327,13 +324,10 @@ export default function StockDetailPage({
                 CURRENT: {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
               </p>
             </div>
-          </motion.div>
+          </div>
 
           {/* Fundamentals */}
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.16, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+          <div
             className="mt-7 md:mt-8"
           >
             <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">FUNDAMENTALS</h3>
@@ -355,7 +349,57 @@ export default function StockDetailPage({
             <div className="mt-3 px-1">
               <p className="text-[9px] tracking-[0.1em] text-white/20">SECTOR: <span className="text-white/40">{stock.fundamentals.sector}</span></p>
             </div>
-          </motion.div>
+          </div>
+          </>
+          )}
+
+          {/* News tab content (mobile) */}
+          {sectionTab === "NEWS" && (
+            <div className="md:hidden space-y-3">
+              {stockNews.length > 0 ? stockNews.map((news, i) => (
+                <div key={i} className="border border-white/8 p-4">
+                  <p className="text-[12px] text-white/60 leading-relaxed mb-2">{news.headline}</p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[9px] tracking-[0.1em] text-white/25">{formatRelativeTime(news.timestamp)}</span>
+                    <span className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
+                    </span>
+                  </div>
+                </div>
+              )) : (
+                <p className="text-[11px] text-white/25 py-12 text-center tracking-[0.1em]">NO NEWS FOR {stock.ticker}</p>
+              )}
+            </div>
+          )}
+
+          {/* Events tab content (mobile) */}
+          {sectionTab === "EVENTS" && (
+            <div className="md:hidden space-y-3">
+              {stock.events && stock.events.length > 0 ? stock.events.map((event, i) => {
+                const typeColors: Record<string, string> = {
+                  RESULTS: "text-[#00D26A] border-[#00D26A]/30 bg-[#00D26A]/5",
+                  AGM: "text-blue-400 border-blue-400/30 bg-blue-400/5",
+                  DIVIDEND: "text-yellow-400 border-yellow-400/30 bg-yellow-400/5",
+                  EVENT: "text-white/50 border-white/20 bg-white/5",
+                };
+                return (
+                  <div key={i} className="border border-white/8 p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`text-[8px] tracking-[0.15em] font-semibold px-2 py-0.5 border ${typeColors[event.type] || typeColors.EVENT}`}>
+                        {event.type}
+                      </span>
+                      <p className="text-[12px] text-white/60">{event.title}</p>
+                    </div>
+                    <span className="text-[9px] tracking-[0.1em] text-white/25 whitespace-nowrap ml-3">
+                      {new Date(event.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
+                    </span>
+                  </div>
+                );
+              }) : (
+                <p className="text-[11px] text-white/25 py-12 text-center tracking-[0.1em]">NO UPCOMING EVENTS</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right column (desktop): Sticky order panel + order book + news + orders */}

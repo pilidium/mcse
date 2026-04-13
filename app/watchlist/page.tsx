@@ -174,13 +174,8 @@ export default function WatchlistPage() {
           </select>
         </div>
         <div className="space-y-2">
-        {sorted.map((stock, i) => (
-          <motion.div
-            key={stock.ticker}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.04 * i, duration: 0.3 }}
-          >
+        {sorted.map((stock) => (
+          <div key={stock.ticker}>
             <Link
               href={`/stock/${stock.ticker}`}
               className="flex items-center gap-4 bg-white/[0.02] border border-white/6 p-4 hover:bg-white/[0.04] active:bg-white/[0.06] transition-colors"
@@ -205,7 +200,7 @@ export default function WatchlistPage() {
                 )}
               </div>
             </Link>
-          </motion.div>
+          </div>
         ))}
         </div>
       </div>

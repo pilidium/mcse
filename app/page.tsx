@@ -238,17 +238,14 @@ export default function ExplorePage() {
                   { label: "CLUBS LISTED", value: "30+", sub: "Across all schools" },
                   { label: "PRIZE POOL", value: "\u20B970,000", sub: "Top 3 portfolios" },
                 ].map((stat, i) => (
-                  <motion.div
+                  <div
                     key={stat.label}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + i * 0.08, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                     className={`flex flex-col justify-center px-8 py-7 ${i < 2 ? "border-b border-white/6" : ""} ${i % 2 === 0 ? "border-r border-white/6" : ""}`}
                   >
                     <span className="text-[8px] tracking-[0.2em] text-white/25 mb-1.5">{stat.label}</span>
                     <span className="font-[var(--font-anton)] text-xl tracking-tight">{stat.value}</span>
                     <span className="text-[9px] text-white/20 mt-1">{stat.sub}</span>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -325,12 +322,7 @@ export default function ExplorePage() {
             const Icon = iconMap[item.icon] || Target;
             const route = productRoutes[item.label] || "/";
             return (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.02 * i, duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              >
+              <div key={item.label}>
                 <Link
                   href={route}
                   className="flex flex-col gap-2.5 bg-bg p-5 hover:bg-white/[0.03] active:bg-white/[0.06] transition-colors group h-full"
@@ -341,7 +333,7 @@ export default function ExplorePage() {
                     <p className="text-[9px] text-white/20 mt-0.5 leading-relaxed hidden md:block">{item.description}</p>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
         </div>

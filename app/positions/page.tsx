@@ -54,13 +54,8 @@ export default function PositionsPage() {
 
               {/* Mobile: card list */}
               <div className="md:hidden space-y-2">
-                {orders.map((order, i) => (
-                  <motion.div
-                    key={order.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.04 * i, duration: 0.3 }}
-                  >
+                {orders.map((order) => (
+                  <div key={order.id}>
                     <Link
                       href={`/stock/${order.ticker}`}
                       className="block border border-white/8 p-4 hover:bg-white/[0.03] active:bg-white/[0.06] transition-colors"
@@ -86,7 +81,7 @@ export default function PositionsPage() {
                         <p className="font-[var(--font-anton)] text-[15px]">{"\u20B9"}{order.total.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
                       </div>
                     </Link>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
 
@@ -203,13 +198,8 @@ export default function PositionsPage() {
 
             {/* Mobile: card list */}
             <div className="md:hidden space-y-2">
-              {positions.map((pos, i) => (
-                <motion.div
-                  key={pos.ticker}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.04 * i, duration: 0.3 }}
-                >
+              {positions.map((pos) => (
+                <div key={pos.ticker}>
                   <Link
                     href={`/stock/${pos.ticker}`}
                     className="block border border-white/8 p-4 hover:bg-white/[0.03] active:bg-white/[0.06] transition-colors"
@@ -230,7 +220,7 @@ export default function PositionsPage() {
                       </p>
                     </div>
                   </Link>
-                </motion.div>
+                </div>
               ))}
             </div>
 
