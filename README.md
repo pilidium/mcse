@@ -34,3 +34,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Android App (TWA)
+
+The Android wrapper lives in [`android-app/`](android-app/). It uses Bubblewrap to package the PWA as a Trusted Web Activity for the Google Play Store.
+
+```powershell
+cd android-app
+./build.ps1
+```
+
+See [`android-app/README.md`](android-app/README.md) for full setup and build instructions.
