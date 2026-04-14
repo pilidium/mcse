@@ -130,15 +130,15 @@ export default function TopNav() {
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2 h-8 px-3 border border-white/20 hover:border-white/60 transition-colors duration-300"
+              className="flex items-center gap-2 h-8 px-2.5 md:px-3 border border-white/20 hover:border-white/60 transition-colors duration-300"
             >
               <Search size={14} strokeWidth={1.5} />
-              <span className="hidden sm:block text-[10px] tracking-[0.1em] text-white/30">
-                Search stocks, news, events… <span className="text-white/15">?K</span>
+              <span className="hidden md:block text-[10px] tracking-[0.1em] text-white/30">
+                Search stocks, news, events… <span className="text-white/15">⌘K</span>
               </span>
             </motion.button>
 

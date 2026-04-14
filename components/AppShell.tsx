@@ -62,7 +62,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <TickerTape />
         </div>
         <main className="flex-1 overflow-y-auto relative z-10" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
-          <div className="max-w-[1280px] mx-auto w-full px-4 md:px-12 pb-24 md:pb-0">
+          <div className="max-w-[1280px] mx-auto w-full px-4 md:px-12 mobile-content-pad">
             {children}
           </div>
         </main>

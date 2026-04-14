@@ -218,6 +218,16 @@ html, body {
   overscroll-behavior-y: contain;
 }
 
+/* Mobile content area — tab bar (3.5rem) + safe area home indicator */
+.mobile-content-pad {
+  padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  .mobile-content-pad {
+    padding-bottom: 0;
+  }
+}
+
 /* Ensure fixed elements respect safe areas */
 .fixed {
   /* Safe area handled inline where needed */
