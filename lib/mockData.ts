@@ -632,3 +632,83 @@ export const enigmaCompanyData = {
     { id: "CE-3", title: "Annual General Meeting", date: "2026-05-15", type: "AGM" as const },
   ],
 };
+
+// ─── IPO Listings ───────────────────────────────────────
+export interface IPO {
+  name: string;
+  ticker: string;
+  priceLow: number;
+  priceHigh: number;
+  lotPrice: number;
+  dateStart: string;
+  dateEnd: string;
+  status: "LIVE" | "UPCOMING" | "CLOSED";
+  lotSize: number;
+  maxLots: number;
+  gmp: number;
+  subscriptionTimes: number;
+  retailSubscription: number;
+  niiSubscription: number;
+  about: string;
+  drhpUrl: string;
+}
+
+export const ipoList: IPO[] = [
+  {
+    name: "VORTEX ENERGY",
+    ticker: "VORTEX",
+    priceLow: 1200,
+    priceHigh: 1350,
+    lotPrice: 13500,
+    dateStart: "Jun 10",
+    dateEnd: "Jun 13",
+    status: "LIVE",
+    lotSize: 10,
+    maxLots: 5,
+    gmp: 180,
+    subscriptionTimes: 3.2,
+    retailSubscription: 4.8,
+    niiSubscription: 2.1,
+    about:
+      "Renewable energy club focused on sustainable campus solutions and green technology initiatives. Active in solar panel installations and EV charging infrastructure across campus.",
+    drhpUrl: "#",
+  },
+  {
+    name: "AEON DYNAMICS",
+    ticker: "AEONDYN",
+    priceLow: 850,
+    priceHigh: 920,
+    lotPrice: 13800,
+    dateStart: "Jun 15",
+    dateEnd: "Jun 18",
+    status: "UPCOMING",
+    lotSize: 15,
+    maxLots: 7,
+    gmp: 0,
+    subscriptionTimes: 0,
+    retailSubscription: 0,
+    niiSubscription: 0,
+    about:
+      "Robotics and automation club specializing in drone technology and autonomous systems. Winners of the national RoboCup challenge 2025.",
+    drhpUrl: "#",
+  },
+  {
+    name: "NEXGEN LABS",
+    ticker: "NEXGEN",
+    priceLow: 340,
+    priceHigh: 380,
+    lotPrice: 9500,
+    dateStart: "Jun 20",
+    dateEnd: "Jun 23",
+    status: "UPCOMING",
+    lotSize: 25,
+    maxLots: 10,
+    gmp: 0,
+    subscriptionTimes: 0,
+    retailSubscription: 0,
+    niiSubscription: 0,
+    about:
+      "Research-driven biotech and chemistry club with published papers in peer-reviewed journals. Three patents pending for novel water purification methods.",
+    drhpUrl: "#",
+  },
+];

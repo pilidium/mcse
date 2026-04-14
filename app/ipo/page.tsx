@@ -19,89 +19,8 @@ import {
   X,
 } from "lucide-react";
 import { useTrading } from "@/lib/TradingContext";
-
-/* ── Types ────────────────────────────────────────────────── */
-
-interface IPO {
-  name: string;
-  ticker: string;
-  priceLow: number;
-  priceHigh: number;
-  lotPrice: number;
-  dateStart: string;
-  dateEnd: string;
-  status: "LIVE" | "UPCOMING" | "CLOSED";
-  lotSize: number;
-  maxLots: number;
-  gmp: number;
-  subscriptionTimes: number;
-  retailSubscription: number;
-  niiSubscription: number;
-  about: string;
-  drhpUrl: string;
-}
-
-/* ── Data ─────────────────────────────────────────────────── */
-
-const ipoList: IPO[] = [
-  {
-    name: "VORTEX ENERGY",
-    ticker: "VORTEX",
-    priceLow: 1200,
-    priceHigh: 1350,
-    lotPrice: 13500,
-    dateStart: "Jun 10",
-    dateEnd: "Jun 13",
-    status: "LIVE",
-    lotSize: 10,
-    maxLots: 5,
-    gmp: 180,
-    subscriptionTimes: 3.2,
-    retailSubscription: 4.8,
-    niiSubscription: 2.1,
-    about:
-      "Renewable energy club focused on sustainable campus solutions and green technology initiatives. Active in solar panel installations and EV charging infrastructure across campus.",
-    drhpUrl: "#",
-  },
-  {
-    name: "AEON DYNAMICS",
-    ticker: "AEONDYN",
-    priceLow: 850,
-    priceHigh: 920,
-    lotPrice: 13800,
-    dateStart: "Jun 15",
-    dateEnd: "Jun 18",
-    status: "UPCOMING",
-    lotSize: 15,
-    maxLots: 7,
-    gmp: 0,
-    subscriptionTimes: 0,
-    retailSubscription: 0,
-    niiSubscription: 0,
-    about:
-      "Robotics and automation club specializing in drone technology and autonomous systems. Winners of the national RoboCup challenge 2025.",
-    drhpUrl: "#",
-  },
-  {
-    name: "NEXGEN LABS",
-    ticker: "NEXGEN",
-    priceLow: 340,
-    priceHigh: 380,
-    lotPrice: 9500,
-    dateStart: "Jun 20",
-    dateEnd: "Jun 23",
-    status: "UPCOMING",
-    lotSize: 25,
-    maxLots: 10,
-    gmp: 0,
-    subscriptionTimes: 0,
-    retailSubscription: 0,
-    niiSubscription: 0,
-    about:
-      "Research-driven biotech and chemistry club with published papers in peer-reviewed journals. Three patents pending for novel water purification methods.",
-    drhpUrl: "#",
-  },
-];
+import { ipoList, type IPO } from "@/lib/mockData";
+import Portal from "@/components/Portal";
 
 /* ── Helpers ──────────────────────────────────────────────── */
 
@@ -296,6 +215,7 @@ export default function IPOPage() {
         </div>
 
         {/* Mobile bottom sheet */}
+        <Portal>
         <AnimatePresence>
           {mobileDetailOpen && (
             <motion.div
@@ -310,7 +230,7 @@ export default function IPOPage() {
                 animate={{ y: 0 }}
                 exit={{ y: "100%" }}
                 transition={{ type: "spring", damping: 28, stiffness: 300 }}
-                className="absolute bottom-0 left-0 right-0 max-h-[92vh] bg-[#0a0a0a] border-t border-white/10 overflow-y-auto"
+                className="absolute bottom-0 left-0 right-0 max-h-[92dvh] bg-[#0a0a0a] border-t border-white/10 overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
                 style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
               >
@@ -338,23 +258,26 @@ export default function IPOPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        </Portal>
       </div>
 
       {/* Toast */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-[#00D26A] text-black text-[11px] tracking-[0.08em] font-semibold flex items-center gap-2"
-            style={{ bottom: 'calc(env(safe-area-inset-bottom) + 5rem)' }}
-          >
-            <CheckCircle size={14} />
-            {toast}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Portal>
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-[#00D26A] text-black text-[11px] tracking-[0.08em] font-semibold flex items-center gap-2"
+              style={{ bottom: 'calc(env(safe-area-inset-bottom) + 5rem)' }}
+            >
+              <CheckCircle size={14} />
+              {toast}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Portal>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 import { useTrading } from "@/lib/TradingContext";
+import Portal from "@/components/Portal";
 
 export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -40,18 +41,19 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
     { icon: HelpCircle, label: "SUPPORT", href: "/support" },
   ];
 
-  return (
-    <>
-      {/* Mobile: Full-screen profile — Groww style */}
-      <motion.div
-        ref={ref}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
-        className="md:hidden fixed inset-0 bg-bg z-[60] flex flex-col overflow-y-auto"
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
-      >
+  const mobileModal = (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="md:hidden fixed inset-0 bg-bg z-[60] flex flex-col overflow-y-auto"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      }}
+    >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
           <button onClick={onClose} className="w-10 h-10 flex items-center justify-center">
@@ -100,7 +102,7 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Logout */}
-        <div className="mx-4 border border-white/10">
+        <div className="mx-4 mb-4 border border-white/10">
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-4 px-5 py-4 active:bg-[#FF5252]/[0.06] transition-colors"
@@ -109,7 +111,12 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
             <span className="text-[12px] tracking-[0.12em] text-[#FF5252]/60">LOG OUT</span>
           </button>
         </div>
-      </motion.div>
+    </motion.div>
+  );
+
+  return (
+    <>
+      <Portal>{mobileModal}</Portal>
 
       {/* Desktop: Compact dropdown */}
       <motion.div

@@ -134,7 +134,7 @@ export default function TopNav() {
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2 h-8 px-2.5 md:px-3 border border-white/20 hover:border-white/60 transition-colors duration-300"
+              className="flex items-center gap-2 h-11 md:h-8 px-3 border border-white/20 hover:border-white/60 transition-colors duration-300"
             >
               <Search size={14} strokeWidth={1.5} />
               <span className="hidden md:block text-[10px] tracking-[0.1em] text-white/30">
@@ -146,7 +146,7 @@ export default function TopNav() {
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); }}
-                className="w-10 h-10 border border-white/20 flex items-center justify-center hover:border-white/60 transition-colors duration-300 relative"
+                className="w-11 h-11 md:w-10 md:h-10 border border-white/20 flex items-center justify-center hover:border-white/60 transition-colors duration-300 relative"
               >
                 <Bell size={14} strokeWidth={1.5} />
                 <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-white" />
@@ -162,7 +162,7 @@ export default function TopNav() {
                   <motion.button
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
-                    className="w-10 h-10 border border-white flex items-center justify-center text-[10px] font-[var(--font-anton)] tracking-wider hover:bg-white hover:text-black transition-all duration-300"
+                    className="w-11 h-11 md:w-10 md:h-10 border border-white flex items-center justify-center text-[10px] font-[var(--font-anton)] tracking-wider hover:bg-white hover:text-black transition-all duration-300"
                   >
                     {initials}
                   </motion.button>
@@ -173,7 +173,7 @@ export default function TopNav() {
               ) : (
                 <Link
                   href="/login"
-                  className="h-10 px-4 bg-white text-black flex items-center justify-center text-[10px] tracking-[0.12em] font-semibold hover:bg-transparent hover:text-white border border-white transition-all duration-300"
+                  className="h-11 md:h-10 px-4 bg-white text-black flex items-center justify-center text-[10px] tracking-[0.12em] font-semibold hover:bg-transparent hover:text-white border border-white transition-all duration-300"
                 >
                 LOG IN
                 </Link>
@@ -182,8 +182,8 @@ export default function TopNav() {
           </div>
         </div>
 
-        {/* Market status banner */}
-        <div className="flex items-center justify-between h-7 px-4 md:px-12 max-w-[1280px] mx-auto border-t border-white/6">
+        {/* Market status banner — desktop only; TickerTape already shows this on mobile */}
+        <div className="hidden md:flex items-center justify-between h-7 px-4 md:px-12 max-w-[1280px] mx-auto border-t border-white/6">
           <div className="flex items-center gap-2">
             <span className={`w-1.5 h-1.5 rounded-full ${marketOpen ? "bg-[#00D26A]" : "bg-[#FF5252]"}`} />
             <span className={`text-[9px] tracking-[0.15em] font-medium ${marketOpen ? "text-[#00D26A]" : "text-[#FF5252]"}`}>

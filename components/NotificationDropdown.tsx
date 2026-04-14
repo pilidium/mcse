@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { TrendingUp, TrendingDown, Info, Activity, CheckCheck } from "lucide-react";
+import { TrendingUp, TrendingDown, Info, Activity, CheckCheck, ArrowLeft } from "lucide-react";
+import Portal from "@/components/Portal";
 
 type NotifCategory = "PRICE ALERT" | "VOLUME" | "INFO";
 
@@ -91,19 +92,52 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
     );
   };
 
-  return (
+  const sectionHeader = (label: string) => (
+    <div className="sticky top-0 bg-bg/95 backdrop-blur-sm px-5 py-2 border-b border-white/6">
+      <span className="text-[8px] tracking-[0.2em] text-white/15">{label}</span>
+    </div>
+  );
+
+  const listContent = (
+    <>
+      {todayNotifs.length > 0 && (
+        <>
+          {sectionHeader("TODAY")}
+          <div className="divide-y divide-white/6">
+            {todayNotifs.map((n, i) => renderNotification(n, i))}
+          </div>
+        </>
+      )}
+      {earlierNotifs.length > 0 && (
+        <>
+          {sectionHeader("EARLIER")}
+          <div className="divide-y divide-white/6">
+            {earlierNotifs.map((n, i) => renderNotification(n, i + todayNotifs.length))}
+          </div>
+        </>
+      )}
+    </>
+  );
+
+  const mobileModal = (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: -8, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -8, scale: 0.97 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="absolute right-0 top-10 w-[min(380px,calc(100vw-2rem))] bg-bg border border-white/15 z-50 max-h-[min(28rem,calc(100dvh-8rem))] flex flex-col"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="md:hidden fixed inset-0 bg-bg z-[60] flex flex-col"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      }}
     >
-      {/* Header */}
-      <div className="px-5 py-3.5 border-b border-white/10 shrink-0 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] tracking-[0.2em] text-white/40">ALERTS</span>
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 shrink-0">
+        <button onClick={onClose} className="w-11 h-11 flex items-center justify-center -ml-2">
+          <ArrowLeft size={20} className="text-white/60" />
+        </button>
+        <div className="flex-1 flex items-center gap-3">
+          <span className="text-[11px] tracking-[0.2em] text-white/50">ALERTS</span>
           {unreadCount > 0 && (
             <span className="text-[9px] tracking-[0.08em] bg-white/10 text-white/60 font-medium px-2 py-0.5">
               {unreadCount} NEW
@@ -112,36 +146,47 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
         </div>
         <button
           onClick={markAllRead}
-          className="flex items-center gap-1.5 text-[9px] tracking-[0.1em] text-white/20 hover:text-white/50 transition-colors duration-300 min-h-[44px] min-w-[44px] justify-center"
+          className="flex items-center gap-1.5 text-[9px] tracking-[0.1em] text-white/30 min-h-[44px] px-3"
         >
           <CheckCheck size={10} />
           MARK READ
         </button>
       </div>
-
-      {/* Notification list */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide">
-        {todayNotifs.length > 0 && (
-          <>
-            <div className="sticky top-0 bg-bg/95 backdrop-blur-sm px-5 py-2 border-b border-white/6">
-              <span className="text-[8px] tracking-[0.2em] text-white/15">TODAY</span>
-            </div>
-            <div className="divide-y divide-white/6">
-              {todayNotifs.map((n, i) => renderNotification(n, i))}
-            </div>
-          </>
-        )}
-        {earlierNotifs.length > 0 && (
-          <>
-            <div className="sticky top-0 bg-bg/95 backdrop-blur-sm px-5 py-2 border-b border-white/6">
-              <span className="text-[8px] tracking-[0.2em] text-white/15">EARLIER</span>
-            </div>
-            <div className="divide-y divide-white/6">
-              {earlierNotifs.map((n, i) => renderNotification(n, i + todayNotifs.length))}
-            </div>
-          </>
-        )}
-      </div>
+      <div className="flex-1 overflow-y-auto scrollbar-hide">{listContent}</div>
     </motion.div>
+  );
+
+  return (
+    <>
+      <Portal>{mobileModal}</Portal>
+
+      {/* Desktop: Anchored dropdown */}
+      <motion.div
+        initial={{ opacity: 0, y: -8, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -8, scale: 0.97 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="hidden md:flex absolute right-0 top-10 w-[min(380px,calc(100vw-2rem))] bg-bg border border-white/15 z-50 max-h-[min(28rem,calc(100dvh-8rem))] flex-col"
+      >
+        <div className="px-5 py-3.5 border-b border-white/10 shrink-0 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] tracking-[0.2em] text-white/40">ALERTS</span>
+            {unreadCount > 0 && (
+              <span className="text-[9px] tracking-[0.08em] bg-white/10 text-white/60 font-medium px-2 py-0.5">
+                {unreadCount} NEW
+              </span>
+            )}
+          </div>
+          <button
+            onClick={markAllRead}
+            className="flex items-center gap-1.5 text-[9px] tracking-[0.1em] text-white/20 hover:text-white/50 transition-colors duration-300"
+          >
+            <CheckCheck size={10} />
+            MARK READ
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto scrollbar-hide">{listContent}</div>
+      </motion.div>
+    </>
   );
 }

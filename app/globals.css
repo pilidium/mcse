@@ -169,10 +169,11 @@ main > * { animation: page-enter 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) both; }
   touch-action: manipulation;
 }
 
-/* GPU-accelerated scrolling containers */
+/* Hint browsers to use GPU scroll without creating a fixed-containing block.
+   Do NOT use transform / will-change:transform here — both establish a
+   containing block for position:fixed descendants and break overlays. */
 [style*="overflow"], .overflow-y-auto, .overflow-x-auto, .overflow-auto {
   will-change: scroll-position;
-  transform: translateZ(0);
 }
 
 /* Smooth transitions for all interactive elements */
@@ -224,6 +225,16 @@ html, body {
 }
 @media (min-width: 768px) {
   .mobile-content-pad {
+    padding-bottom: 0;
+  }
+}
+
+/* Stock detail mobile: tab bar (3.5rem) + buy/sell bar (3.5rem) + safe area */
+.mobile-stock-pad {
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  .mobile-stock-pad {
     padding-bottom: 0;
   }
 }

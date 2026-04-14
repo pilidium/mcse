@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Fallback: if Next.js 16 doesn't resolve the dotted `app/.well-known/`
+  // directory, rewrite the request to the regular /api/assetlinks handler.
+  async rewrites() {
+    return [
+      { source: "/.well-known/assetlinks.json", destination: "/api/assetlinks" },
+    ];
+  },
 };
 
 export default nextConfig;

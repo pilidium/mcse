@@ -27,7 +27,7 @@ export default function MarketsPage() {
   const decPct = ((marketBreadth.declines / totalBreadth) * 100).toFixed(1);
 
   return (
-    <div className="py-6 md:py-8 pb-24 md:pb-12">
+    <div className="py-6 md:py-8 md:pb-12">
       {/* Header */}
       <div className="flex items-end justify-between mb-8">
         <div>

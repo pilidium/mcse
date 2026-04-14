@@ -2,6 +2,7 @@
 
 import { useState, use, useCallback, useMemo } from "react";
 import { ArrowLeft, Star, Bookmark, X } from "lucide-react";
+import Portal from "@/components/Portal";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -94,25 +95,47 @@ export default function StockDetailPage({
   const chartValues = chartData.map((d) => d.price);
 
   return (
-    <div className="pb-32 md:pb-0">
-      {/* Order feedback toast */}
-      <AnimatePresence>
-        {orderMsg && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={`fixed left-1/2 -translate-x-1/2 z-[70] px-6 py-3 border text-[11px] tracking-[0.1em] ${
-              orderMsg.success
-                ? "bg-[#00D26A]/10 border-[#00D26A]/30 text-[#00D26A]"
-                : "bg-[#FF5252]/10 border-[#FF5252]/30 text-[#FF5252]"
-            }`}
-            style={{ top: 'calc(env(safe-area-inset-top) + 5rem)' }}
-          >
-            {orderMsg.text}
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="mobile-stock-pad md:pb-0">
+      {/* Portaled overlays: toast + mobile buy/sell bar. Escapes any ancestor
+          containing block so they anchor to the viewport. */}
+      <Portal>
+        <AnimatePresence>
+          {orderMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`fixed left-1/2 -translate-x-1/2 z-[70] px-6 py-3 border text-[11px] tracking-[0.1em] ${
+                orderMsg.success
+                  ? "bg-[#00D26A]/10 border-[#00D26A]/30 text-[#00D26A]"
+                  : "bg-[#FF5252]/10 border-[#FF5252]/30 text-[#FF5252]"
+              }`}
+              style={{ top: 'calc(env(safe-area-inset-top) + 5rem)' }}
+            >
+              {orderMsg.text}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="fixed left-0 right-0 z-[55] md:hidden border-t border-white/12 bg-bg/95 backdrop-blur-md" style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}>
+          <div className="flex">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { setBuySellTab("BUY"); setMobileOrderOpen(true); }}
+              className="flex-1 py-4 text-[11px] tracking-[0.15em] font-semibold bg-[#00D26A] text-black active:bg-[#00D26A]/80 transition-all"
+            >
+              BUY
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { setBuySellTab("SELL"); setMobileOrderOpen(true); }}
+              className="flex-1 py-4 text-[11px] tracking-[0.15em] font-semibold bg-[#FF5252] text-white active:bg-[#FF5252]/80 transition-all"
+            >
+              SELL
+            </motion.button>
+          </div>
+        </div>
+      </Portal>
 
       {/* Header */}
       <div
@@ -203,7 +226,7 @@ export default function StockDetailPage({
               <button
                 key={r}
                 onClick={() => setRange(r)}
-                className={`px-4 py-2.5 text-[10px] tracking-[0.15em] border-b-2 transition-all duration-150 ${
+                className={`px-4 h-11 md:h-9 text-[10px] tracking-[0.15em] border-b-2 transition-all duration-150 ${
                   range === r
                     ? "text-white border-white"
                     : "text-white/40 border-transparent hover:text-white/60"
@@ -644,27 +667,8 @@ export default function StockDetailPage({
         </aside>
       </div>
 
-      {/* Mobile fixed bottom buy/sell bar */}
-      <div className="fixed left-0 right-0 z-[55] md:hidden border-t border-white/12 bg-bg/95 backdrop-blur-md" style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}>
-        <div className="flex">
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={() => { setBuySellTab("BUY"); setMobileOrderOpen(true); }}
-            className="flex-1 py-4 text-[11px] tracking-[0.15em] font-semibold bg-[#00D26A] text-black active:bg-[#00D26A]/80 transition-all"
-          >
-            BUY
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={() => { setBuySellTab("SELL"); setMobileOrderOpen(true); }}
-            className="flex-1 py-4 text-[11px] tracking-[0.15em] font-semibold bg-[#FF5252] text-white active:bg-[#FF5252]/80 transition-all"
-          >
-            SELL
-          </motion.button>
-        </div>
-      </div>
-
       {/* Mobile order panel overlay */}
+      <Portal>
       <AnimatePresence>
         {mobileOrderOpen && (
           <>
@@ -894,6 +898,7 @@ export default function StockDetailPage({
           </>
         )}
       </AnimatePresence>
+      </Portal>
 
       {/* Order confirm modal */}
       <OrderConfirmModal
