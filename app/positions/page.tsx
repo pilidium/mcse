@@ -88,12 +88,12 @@ export default function PositionsPage() {
               {/* Desktop: table */}
               <div className="hidden md:block">
                 <div className="grid grid-cols-[60px_1fr_100px_80px_120px_90px] gap-4 px-4 py-2 border-b border-white/12">
-                  <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase">TYPE</span>
-                  <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase">STOCK</span>
-                  <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">QTY</span>
-                  <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">PRICE</span>
-                  <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">TOTAL</span>
-                  <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">STATUS</span>
+                  <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase">TYPE</span>
+                  <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase">STOCK</span>
+                  <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">QTY</span>
+                  <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">PRICE</span>
+                  <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">TOTAL</span>
+                  <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">STATUS</span>
                 </div>
                 {orders.map((order) => (
                   <Link
@@ -227,11 +227,11 @@ export default function PositionsPage() {
             {/* Desktop: table */}
             <div className="hidden md:block">
               <div className="grid grid-cols-[1fr_80px_100px_100px_120px] gap-4 px-4 py-2 border-b border-white/12">
-                <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase">STOCK</span>
-                <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">QTY</span>
-                <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">AVG PRICE</span>
-                <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">LTP</span>
-                <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">P&L</span>
+                <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase">STOCK</span>
+                <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">QTY</span>
+                <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">AVG PRICE</span>
+                <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">LTP</span>
+                <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">P&L</span>
               </div>
               {positions.map((pos) => (
                 <Link

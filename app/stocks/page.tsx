@@ -126,17 +126,17 @@ export default function StocksPage() {
       {/* Desktop table */}
       <div className="hidden md:block">
         <div className="grid grid-cols-[1fr_100px_120px_80px_100px] gap-4 px-4 py-2 border-b border-white/12">
-          <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-left hover:text-white transition-colors">
+          <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-left hover:text-white transition-colors">
             COMPANY {renderSortIcon("ticker")}
           </button>
-          <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">TREND</span>
-          <button onClick={() => toggleSort("price")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+          <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">TREND</span>
+          <button onClick={() => toggleSort("price")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
             MKT PRICE {renderSortIcon("price")}
           </button>
-          <button onClick={() => toggleSort("changePercent")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+          <button onClick={() => toggleSort("changePercent")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
             CHG % {renderSortIcon("changePercent")}
           </button>
-          <button onClick={() => toggleSort("sector")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+          <button onClick={() => toggleSort("sector")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
             SECTOR {renderSortIcon("sector")}
           </button>
         </div>

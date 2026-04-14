@@ -303,17 +303,17 @@ export default function HoldingsPage() {
         {/* Desktop: Table with sortable headers */}
         <div className="hidden md:block">
           <div className="grid grid-cols-[1fr_80px_100px_100px_120px] gap-4 px-4 py-2 border-b border-white/12">
-            <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-left hover:text-white transition-colors">
+            <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-left hover:text-white transition-colors">
               COMPANY {sortIcon("ticker")}
             </button>
-            <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">TREND</span>
-            <button onClick={() => toggleSort("currentPrice")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+            <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">TREND</span>
+            <button onClick={() => toggleSort("currentPrice")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
               MKT PRICE {sortIcon("currentPrice")}
             </button>
-            <button onClick={() => toggleSort("returnsPercent")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+            <button onClick={() => toggleSort("returnsPercent")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
               RETURNS {sortIcon("returnsPercent")}
             </button>
-            <button onClick={() => toggleSort("currentValue")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+            <button onClick={() => toggleSort("currentValue")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
               CURRENT {sortIcon("currentValue")}
             </button>
           </div>

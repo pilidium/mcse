@@ -64,7 +64,11 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
     >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center">
+          <button
+            onClick={onClose}
+            aria-label="Close profile"
+            className="w-10 h-10 flex items-center justify-center active:bg-white/[0.04] transition-colors"
+          >
             <ArrowLeft size={20} className="text-white/60" />
           </button>
           <span className="text-[10px] tracking-[0.15em] text-white/40">PROFILE</span>
@@ -122,6 +126,8 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
               <span className="text-[12px] tracking-[0.08em] text-white/60 flex-1">{item.label}</span>
               <button
                 onClick={() => prefs.togglePref(item.key)}
+                role="switch"
+                aria-checked={prefs[item.key]}
                 aria-label={`Toggle ${item.label}`}
                 className={`w-11 h-6 border flex items-center shrink-0 transition-all duration-200 ${
                   prefs[item.key]
@@ -212,6 +218,8 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
             <button
               key={item.key}
               onClick={() => prefs.togglePref(item.key)}
+              role="switch"
+              aria-checked={prefs[item.key]}
               aria-label={`Toggle ${item.label}`}
               className="w-full flex items-center gap-3.5 px-5 py-2.5 hover:bg-white/[0.04] transition-colors duration-300"
             >

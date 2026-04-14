@@ -15,7 +15,6 @@ import {
   productsAndTools,
   newsItems,
   formatRelativeTime,
-  investments,
   type MoverStock,
 } from "@/lib/mockData";
 
@@ -269,42 +268,6 @@ export default function ExplorePage() {
         </motion.section>
       )}
 
-      {/* Holdings summary strip — logged-in users */}
-      {isLoggedIn && (
-        <motion.div
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Link
-            href="/holdings"
-            className="flex items-center justify-between mb-6 px-1 py-3 border border-white/6 hover:border-white/15 transition-colors group"
-          >
-            <div className="flex items-center gap-6 md:gap-10 px-3">
-              <div>
-                <p className="text-[8px] tracking-[0.2em] text-white/25 mb-0.5">CURRENT VALUE</p>
-                <p className="font-[var(--font-anton)] text-base md:text-lg tracking-tight">
-                  {"\u20B9"}{investments.currentValue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-              <div>
-                <p className="text-[8px] tracking-[0.2em] text-white/25 mb-0.5">INVESTED</p>
-                <p className="font-[var(--font-anton)] text-base md:text-lg tracking-tight text-white/60">
-                  {"\u20B9"}{investments.investedValue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-              <div>
-                <p className="text-[8px] tracking-[0.2em] text-white/25 mb-0.5">RETURNS</p>
-                <p className={`font-[var(--font-anton)] text-base md:text-lg tracking-tight ${investments.totalReturns >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
-                  {investments.totalReturns >= 0 ? "+" : ""}{"\u20B9"}{investments.totalReturns.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  <span className="text-[10px] ml-1.5 opacity-70">({investments.totalReturnsPercent >= 0 ? "+" : ""}{investments.totalReturnsPercent.toFixed(2)}%)</span>
-                </p>
-              </div>
-            </div>
-            <ChevronRight size={14} className="text-white/15 group-hover:text-white/40 transition-colors mr-2" />
-          </Link>
-        </motion.div>
-      )}
-
       {/* Products & Tools — full-width feature grid */}
       <motion.div
         initial={{ opacity: 0, y: 4 }}
@@ -415,14 +378,14 @@ export default function ExplorePage() {
             {/* Desktop table with sortable headers */}
             <div className="hidden md:block">
               <div className="grid grid-cols-[1fr_100px_120px_80px] gap-4 px-4 py-2 border-b border-white/12">
-                <button onClick={() => toggleMoverSort("ticker")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-left hover:text-white transition-colors">
+                <button onClick={() => toggleMoverSort("ticker")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-left hover:text-white transition-colors">
                   COMPANY {sortIcon("ticker")}
                 </button>
-                <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">TREND</span>
-                <button onClick={() => toggleMoverSort("price")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+                <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">TREND</span>
+                <button onClick={() => toggleMoverSort("price")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
                   MKT PRICE {sortIcon("price")}
                 </button>
-                <button onClick={() => toggleMoverSort("volume")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+                <button onClick={() => toggleMoverSort("volume")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
                   VOLUME {sortIcon("volume")}
                 </button>
               </div>

@@ -140,6 +140,7 @@ export default function TopNav() {
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => setSearchOpen(true)}
+              aria-label="Open search"
               className="md:hidden flex items-center gap-2 h-11 px-3 border border-white/20 hover:border-white/60 transition-colors duration-300"
             >
               <Search size={14} strokeWidth={1.5} />
@@ -154,6 +155,8 @@ export default function TopNav() {
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); }}
+                aria-label="Notifications"
+                aria-expanded={notifOpen}
                 className="w-11 h-11 md:w-10 md:h-10 border border-white/20 flex items-center justify-center hover:border-white/60 transition-colors duration-300 relative"
               >
                 <Bell size={14} strokeWidth={1.5} />
@@ -170,6 +173,8 @@ export default function TopNav() {
                   <motion.button
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
+                    aria-label="Profile menu"
+                    aria-expanded={profileOpen}
                     className="w-11 h-11 md:w-10 md:h-10 border border-white flex items-center justify-center text-[10px] font-[var(--font-anton)] tracking-wider hover:bg-white hover:text-black transition-all duration-300"
                   >
                     {initials}

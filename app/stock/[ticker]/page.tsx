@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, use, useCallback, useMemo } from "react";
-import { ArrowLeft, Star, Bookmark, X } from "lucide-react";
+import { ArrowLeft, Star, Bookmark, X, Copy, Check } from "lucide-react";
 import Portal from "@/components/Portal";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -34,6 +34,7 @@ export default function StockDetailPage({
   const [mobileTab, setMobileTab] = useState<"ORDER" | "BOOK" | "HISTORY">("ORDER");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [sectionTab, setSectionTab] = useState<"OVERVIEW" | "NEWS" | "EVENTS">("OVERVIEW");
+  const [tickerCopied, setTickerCopied] = useState(false);
   const { confirmOrders } = usePreferences();
 
   const isHeld = holdings.some((h) => h.ticker === ticker.toUpperCase());
@@ -144,7 +145,8 @@ export default function StockDetailPage({
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white transition-colors duration-150"
+            aria-label="Go back"
+            className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white active:bg-white/[0.04] transition-colors duration-150"
           >
             <ArrowLeft size={15} />
           </button>
@@ -153,7 +155,22 @@ export default function StockDetailPage({
               <span className="text-[9px] tracking-[0.1em] text-white/50">{stock.ticker.slice(0, 3)}</span>
             </div>
             <div>
-              <p className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.05em]">{stock.ticker}</p>
+              <button
+                onClick={() => {
+                  navigator.clipboard?.writeText(stock.ticker);
+                  setTickerCopied(true);
+                  setTimeout(() => setTickerCopied(false), 1500);
+                }}
+                aria-label={`Copy ticker ${stock.ticker}`}
+                className="group inline-flex items-center gap-1.5 hover:text-white transition-colors duration-200"
+              >
+                <span className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.05em]">{stock.ticker}</span>
+                {tickerCopied ? (
+                  <Check size={11} className="text-[#00D26A]" />
+                ) : (
+                  <Copy size={11} className="text-white/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+              </button>
               <p className="text-[10px] text-white/40">{stock.name}</p>
             </div>
           </div>

@@ -208,20 +208,20 @@ export default function WatchlistPage() {
       {/* Desktop: Table with sortable headers */}
       <div className="hidden md:block">
         <div className="grid grid-cols-[1fr_80px_100px_90px_80px_120px] gap-4 px-4 py-2 border-b border-white/12">
-          <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-left hover:text-white transition-colors">
+          <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-left hover:text-white transition-colors">
             COMPANY {renderSortIcon("ticker")}
           </button>
-          <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">TREND</span>
-          <button onClick={() => toggleSort("price")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+          <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">TREND</span>
+          <button onClick={() => toggleSort("price")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
             MKT PRICE {renderSortIcon("price")}
           </button>
-          <button onClick={() => toggleSort("dayChangePercent")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+          <button onClick={() => toggleSort("dayChangePercent")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
             1D CHANGE {renderSortIcon("dayChangePercent")}
           </button>
-          <button onClick={() => toggleSort("volume")} className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right hover:text-white transition-colors">
+          <button onClick={() => toggleSort("volume")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right hover:text-white transition-colors">
             1D VOL {renderSortIcon("volume")}
           </button>
-          <span className="text-[9px] tracking-[0.2em] text-[#666] uppercase text-right">52W PERF</span>
+          <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">52W PERF</span>
         </div>
 
         {sorted.map((stock) => {

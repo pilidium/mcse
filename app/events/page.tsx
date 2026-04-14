@@ -94,7 +94,7 @@ export default function EventsPage() {
     <div className="py-6 pb-24 md:pb-12">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white transition-colors">
+          <button onClick={() => router.back()} aria-label="Go back" className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white active:bg-white/[0.04] transition-colors">
             <ArrowLeft size={15} />
           </button>
           <div>
