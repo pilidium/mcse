@@ -1,18 +1,27 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ChevronRight, LogOut, Shield, Settings, HelpCircle, ArrowLeft, Wallet } from "lucide-react";
+import { ChevronRight, LogOut, Shield, HelpCircle, ArrowLeft, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 import { useTrading } from "@/lib/TradingContext";
+import { usePreferences, type Preferences } from "@/lib/PreferencesContext";
 import Portal from "@/components/Portal";
+
+const PREF_ITEMS: { key: keyof Preferences; label: string }[] = [
+  { key: "notifications", label: "NOTIFICATIONS" },
+  { key: "emailAlerts", label: "EMAIL ALERTS" },
+  { key: "darkMode", label: "DARK MODE" },
+  { key: "confirmOrders", label: "CONFIRM BEFORE ORDER" },
+];
 
 export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const { logout, userName, userEmail, role } = useAuth();
   const { balance } = useTrading();
+  const prefs = usePreferences();
   const router = useRouter();
 
   const initials = userName ? userName.split(" ").map(w => w[0]).join("").slice(0, 2) : "?";
@@ -37,7 +46,6 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
     ...(role === "company" || role === "admin"
       ? [{ icon: Shield, label: role === "admin" ? "ADMIN DASHBOARD" : "COMPANY DASHBOARD", href: "/admin" }]
       : []),
-    { icon: Settings, label: "PREFERENCES", href: "/preferences" },
     { icon: HelpCircle, label: "SUPPORT", href: "/support" },
   ];
 
@@ -98,6 +106,36 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
                 <ChevronRight size={14} className="text-white/15" />
               </div>
             </Link>
+          ))}
+        </div>
+
+        {/* Preferences */}
+        <p className="px-5 text-[9px] tracking-[0.2em] text-white/25 uppercase mb-2">PREFERENCES</p>
+        <div className="mx-4 border border-white/10 mb-4">
+          {PREF_ITEMS.map((item, i) => (
+            <div
+              key={item.key}
+              className={`flex items-center justify-between px-5 py-4 ${
+                i < PREF_ITEMS.length - 1 ? "border-b border-white/6" : ""
+              }`}
+            >
+              <span className="text-[12px] tracking-[0.08em] text-white/60 flex-1">{item.label}</span>
+              <button
+                onClick={() => prefs.togglePref(item.key)}
+                aria-label={`Toggle ${item.label}`}
+                className={`w-11 h-6 border flex items-center shrink-0 transition-all duration-200 ${
+                  prefs[item.key]
+                    ? "bg-white/10 border-white/30"
+                    : "bg-transparent border-white/15"
+                }`}
+              >
+                <div className={`w-4 h-4 transition-all duration-200 ${
+                  prefs[item.key]
+                    ? "bg-white ml-[calc(100%-1.25rem)]"
+                    : "bg-white/20 ml-0.5"
+                }`} />
+              </button>
+            </div>
           ))}
         </div>
 
@@ -164,6 +202,34 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
                 <ChevronRight size={11} className="text-white/15" />
               </div>
             </Link>
+          ))}
+        </div>
+
+        {/* Preferences */}
+        <div className="border-t border-white/10 py-1">
+          <p className="px-5 pt-2 pb-1 text-[8px] tracking-[0.2em] text-white/25 uppercase">PREFERENCES</p>
+          {PREF_ITEMS.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => prefs.togglePref(item.key)}
+              aria-label={`Toggle ${item.label}`}
+              className="w-full flex items-center gap-3.5 px-5 py-2.5 hover:bg-white/[0.04] transition-colors duration-300"
+            >
+              <span className="text-[11px] tracking-[0.08em] text-white/45 flex-1 text-left">{item.label}</span>
+              <div
+                className={`w-9 h-5 border flex items-center shrink-0 transition-all duration-200 ${
+                  prefs[item.key]
+                    ? "bg-white/10 border-white/30"
+                    : "bg-transparent border-white/15"
+                }`}
+              >
+                <div className={`w-3.5 h-3.5 transition-all duration-200 ${
+                  prefs[item.key]
+                    ? "bg-white ml-[calc(100%-1.05rem)]"
+                    : "bg-white/20 ml-0.5"
+                }`} />
+              </div>
+            </button>
           ))}
         </div>
 

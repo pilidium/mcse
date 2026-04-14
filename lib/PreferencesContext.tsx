@@ -1,15 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
 
 export interface Preferences {
   notifications: boolean;
   emailAlerts: boolean;
   darkMode: boolean;
   confirmOrders: boolean;
-  showBalance: boolean;
-  defaultOrderType: "DELIVERY" | "INTRADAY";
-  defaultQty: number;
 }
 
 const DEFAULT_PREFS: Preferences = {
@@ -17,14 +14,11 @@ const DEFAULT_PREFS: Preferences = {
   emailAlerts: false,
   darkMode: true,
   confirmOrders: true,
-  showBalance: false,
-  defaultOrderType: "DELIVERY",
-  defaultQty: 1,
 };
 
 interface PreferencesState extends Preferences {
   setPref: <K extends keyof Preferences>(key: K, value: Preferences[K]) => void;
-  togglePref: (key: keyof Pick<Preferences, "notifications" | "emailAlerts" | "darkMode" | "confirmOrders" | "showBalance">) => void;
+  togglePref: (key: keyof Preferences) => void;
 }
 
 const PreferencesContext = createContext<PreferencesState>({
@@ -35,50 +29,74 @@ const PreferencesContext = createContext<PreferencesState>({
 
 const STORAGE_KEY = "mcse-preferences";
 
-export function PreferencesProvider({ children }: { children: ReactNode }) {
-  const [prefs, setPrefs] = useState<Preferences>(DEFAULT_PREFS);
-  const [hydrated, setHydrated] = useState(false);
+// ─── Module-scoped store (SSR-safe) ──────────────────────
+let cachedPrefs: Preferences = DEFAULT_PREFS;
+const listeners = new Set<() => void>();
 
-  // Hydrate from localStorage on mount
-  useEffect(() => {
+function hydrateFromStorage() {
+  if (typeof window === "undefined") return;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      cachedPrefs = { ...DEFAULT_PREFS, ...parsed };
+    }
+  } catch {
+    // Ignore parse errors
+  }
+}
+hydrateFromStorage();
+
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  return () => {
+    listeners.delete(callback);
+  };
+}
+
+function notify() {
+  listeners.forEach((cb) => cb());
+}
+
+function mutate(next: Preferences) {
+  cachedPrefs = next;
+  if (typeof window !== "undefined") {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setPrefs(prev => ({ ...prev, ...parsed }));
-      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     } catch {
-      // Ignore parse errors
+      // Ignore quota errors
     }
-    setHydrated(true);
-  }, []);
+  }
+  notify();
+}
 
-  // Persist to localStorage on change (after initial hydration)
-  useEffect(() => {
-    if (hydrated) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
-    }
-  }, [prefs, hydrated]);
+function getSnapshot() {
+  return cachedPrefs;
+}
+function getServerSnapshot() {
+  return DEFAULT_PREFS;
+}
 
-  // Apply theme
+export function PreferencesProvider({ children }: { children: ReactNode }) {
+  const prefs = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  // Apply theme whenever darkMode changes
   useEffect(() => {
-    if (!hydrated) return;
     const theme = prefs.darkMode ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", theme);
     document.documentElement.style.colorScheme = theme;
-    // Update phone status bar / navigation bar color
     const themeColor = prefs.darkMode ? "#0a0a0a" : "#f5f5f5";
-    document.querySelectorAll('meta[name="theme-color"]').forEach(el =>
-      el.setAttribute("content", themeColor)
+    document.querySelectorAll('meta[name="theme-color"]').forEach((el) =>
+      el.setAttribute("content", themeColor),
     );
-  }, [prefs.darkMode, hydrated]);
+  }, [prefs.darkMode]);
 
   const setPref = useCallback(<K extends keyof Preferences>(key: K, value: Preferences[K]) => {
-    setPrefs(prev => ({ ...prev, [key]: value }));
+    mutate({ ...cachedPrefs, [key]: value });
   }, []);
 
-  const togglePref = useCallback((key: keyof Pick<Preferences, "notifications" | "emailAlerts" | "darkMode" | "confirmOrders" | "showBalance">) => {
-    setPrefs(prev => ({ ...prev, [key]: !prev[key] }));
+  const togglePref = useCallback((key: keyof Preferences) => {
+    mutate({ ...cachedPrefs, [key]: !cachedPrefs[key] });
   }, []);
 
   return (

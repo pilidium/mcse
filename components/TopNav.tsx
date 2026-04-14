@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ProfileDropdown from "./ProfileDropdown";
 import NotificationDropdown from "./NotificationDropdown";
 import SearchModal from "./SearchModal";
+import DesktopSearch from "./DesktopSearch";
 import { useAuth } from "@/lib/AuthContext";
 import { useAdmin } from "@/lib/AdminContext";
 
@@ -75,8 +76,12 @@ export default function TopNav() {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-        e.preventDefault();
-        setSearchOpen(true);
+        // Desktop handles ⌘K inside DesktopSearch (focuses the inline input);
+        // only intercept on mobile where there's no inline input.
+        if (window.matchMedia("(max-width: 767px)").matches) {
+          e.preventDefault();
+          setSearchOpen(true);
+        }
       }
     }
     window.addEventListener("keydown", onKey);
@@ -131,16 +136,19 @@ export default function TopNav() {
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2 md:gap-3">
+            {/* Mobile: button opens full-screen SearchModal */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2 h-11 md:h-8 px-3 border border-white/20 hover:border-white/60 transition-colors duration-300"
+              className="md:hidden flex items-center gap-2 h-11 px-3 border border-white/20 hover:border-white/60 transition-colors duration-300"
             >
               <Search size={14} strokeWidth={1.5} />
-              <span className="hidden md:block text-[10px] tracking-[0.1em] text-white/30">
-                Search stocks, news, events… <span className="text-white/15">⌘K</span>
-              </span>
             </motion.button>
+
+            {/* Desktop: inline search input with portaled results dropdown */}
+            <div className="hidden md:block">
+              <DesktopSearch />
+            </div>
 
             <div className="relative">
               <motion.button

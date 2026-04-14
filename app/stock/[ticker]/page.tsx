@@ -699,15 +699,15 @@ export default function StockDetailPage({
               </div>
 
               {/* Tab bar */}
-              <div className="flex gap-1 p-2 border-b border-white/8 shrink-0">
+              <div className="flex gap-0 px-2 pt-2 shrink-0">
                 {(["ORDER", "BOOK", "HISTORY"] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setMobileTab(tab)}
-                    className={`flex-1 py-2 text-[9px] tracking-[0.15em] font-semibold transition-all border ${
+                    className={`flex-1 py-2.5 text-[9px] tracking-[0.15em] font-semibold border-b-2 transition-all duration-200 ${
                       mobileTab === tab
-                        ? "bg-white text-black border-white"
-                        : "bg-transparent text-white/30 border-white/10"
+                        ? "text-white border-white"
+                        : "text-white/40 border-transparent hover:text-white/60"
                     }`}
                   >
                     {tab === "BOOK" ? "ORDER BOOK" : tab}

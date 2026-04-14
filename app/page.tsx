@@ -6,7 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Sparkline from "@/components/Sparkline";
-import { usePreferences } from "@/lib/PreferencesContext";
 import { useAuth } from "@/lib/AuthContext";
 import {
   mostTraded,
@@ -46,7 +45,6 @@ export default function ExplorePage() {
   const [activeTab, setActiveTab] = useState<MoverTab>("GAINERS");
   const [moverSort, setMoverSort] = useState<MoverSortKey>("dayChangePercent");
   const [moverSortDir, setMoverSortDir] = useState<SortDir>("desc");
-  const { showBalance } = usePreferences();
   const { isLoggedIn } = useAuth();
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -272,7 +270,7 @@ export default function ExplorePage() {
       )}
 
       {/* Holdings summary strip — logged-in users */}
-      {isLoggedIn && showBalance && (
+      {isLoggedIn && (
         <motion.div
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
