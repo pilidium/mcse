@@ -114,7 +114,7 @@ export default function StocksPage() {
                 <p className="font-[var(--font-anton)] text-[13px]">
                   {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
-                <p className={`text-[11px] font-medium ${stock.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                <p className={`text-[11px] font-medium ${stock.changePercent >= 0 ? "text-up" : "text-down"}`}>
                   {stock.changePercent >= 0 ? "+" : ""}{stock.changePercent.toFixed(2)}%
                 </p>
               </div>
@@ -159,7 +159,7 @@ export default function StocksPage() {
               </p>
             </div>
             <div className="text-right">
-              <p className={`text-[11px] font-medium ${stock.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+              <p className={`text-[11px] font-medium ${stock.changePercent >= 0 ? "text-up" : "text-down"}`}>
                 {stock.changePercent >= 0 ? "+" : ""}{stock.changePercent.toFixed(2)}%
               </p>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 import { allStocksRaw } from "@/lib/mockData";
 
 interface Announcement {
@@ -125,9 +125,13 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     setCompanyEvents((prev) => prev.filter((e) => e.id !== id));
   }, []);
 
+  const value = useMemo(() => ({
+    marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent
+  }), [marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent]);
+
   return (
     <AdminContext.Provider
-      value={{ marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent }}
+      value={value}
     >
       {children}
     </AdminContext.Provider>

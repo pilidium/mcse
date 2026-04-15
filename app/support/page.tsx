@@ -132,7 +132,7 @@ export default function SupportPage() {
               exit={{ opacity: 0 }}
               className="flex items-center gap-3 py-3"
             >
-              <CheckCircle size={16} className="text-[#00D26A]" />
+              <CheckCircle size={16} className="text-up" />
               <p className="text-[11px] text-white/60">Ticket submitted. We&apos;ll respond within 24 hours.</p>
             </motion.div>
           ) : ticketOpen ? (

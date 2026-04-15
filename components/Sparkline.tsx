@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { motion } from "framer-motion";
 
 export default function Sparkline({
@@ -17,6 +18,7 @@ export default function Sparkline({
   color?: string;
   positive?: boolean;
 }) {
+  const id = useId();
   if (!data || data.length < 2) return null;
 
   const min = Math.min(...data);
@@ -26,7 +28,7 @@ export default function Sparkline({
 
   // Auto-detect trend if not explicitly set
   const isPositive = positive ?? data[data.length - 1] >= data[0];
-  const strokeColor = color ?? (isPositive ? "#00D26A" : "#FF5252");
+  const strokeColor = color ?? (isPositive ? "var(--color-up)" : "var(--color-down)");
   const fillColor = isPositive ? "rgba(0,210,106,0.08)" : "rgba(255,82,82,0.08)";
 
   // Build smooth cubic bezier path
@@ -45,7 +47,7 @@ export default function Sparkline({
   }
 
   const areaD = `${d} L ${pts[pts.length - 1].x} ${height} L ${pts[0].x} ${height} Z`;
-  const gradId = `spark-grad-${Math.random().toString(36).slice(2, 8)}`;
+  const gradId = `spark-grad-${id}`;
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height} className="block overflow-visible" style={{ maxWidth: '100%', height: 'auto' }}>

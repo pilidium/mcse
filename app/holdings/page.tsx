@@ -133,7 +133,7 @@ export default function HoldingsPage() {
             <p className="font-[var(--font-anton)] text-2xl tracking-tight">
               {showValues ? `\u20B9${investments.currentValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}` : "\u20B9 \u2022\u2022\u2022\u2022\u2022\u2022"}
             </p>
-            <p className={`text-[12px] font-medium mt-1 ${investments.totalReturns >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+            <p className={`text-[12px] font-medium mt-1 ${investments.totalReturns >= 0 ? "text-up" : "text-down"}`}>
               {showValues ? (
                 <>{investments.totalReturns >= 0 ? "+" : ""}{"\u20B9"}{Math.abs(investments.totalReturns).toLocaleString("en-IN", { maximumFractionDigits: 0 })} ({investments.totalReturnsPercent.toFixed(2)}%)</>
               ) : (
@@ -150,7 +150,7 @@ export default function HoldingsPage() {
             </div>
             <div>
               <p className="text-[9px] tracking-[0.15em] text-white/30 mb-1">1D RETURNS</p>
-              <p className={`font-[var(--font-anton)] text-base tracking-tight ${investments.dayReturns >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+              <p className={`font-[var(--font-anton)] text-base tracking-tight ${investments.dayReturns >= 0 ? "text-up" : "text-down"}`}>
                 {showValues ? `${investments.dayReturns >= 0 ? "+" : ""}\u20B9${Math.abs(investments.dayReturns).toLocaleString("en-IN", { maximumFractionDigits: 0 })}` : "\u2022\u2022\u2022"}
               </p>
             </div>
@@ -170,7 +170,7 @@ export default function HoldingsPage() {
             <p className="font-[var(--font-anton)] text-2xl tracking-tight">
               {showValues ? `\u20B9${investments.currentValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}` : "\u20B9 \u2022\u2022\u2022\u2022\u2022\u2022"}
             </p>
-            <p className={`text-[12px] font-medium mt-1 ${investments.totalReturns >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+            <p className={`text-[12px] font-medium mt-1 ${investments.totalReturns >= 0 ? "text-up" : "text-down"}`}>
               {showValues ? (
                 <>{investments.totalReturns >= 0 ? "+" : ""}{"\u20B9"}{Math.abs(investments.totalReturns).toLocaleString("en-IN", { maximumFractionDigits: 0 })} ({investments.totalReturnsPercent.toFixed(2)}%)</>
               ) : (
@@ -186,7 +186,7 @@ export default function HoldingsPage() {
           </div>
           <div className="border-l border-white/8 pl-8">
             <p className="text-[9px] tracking-[0.15em] text-white/30 mb-1">1D RETURNS</p>
-            <p className={`font-[var(--font-anton)] text-lg tracking-tight ${investments.dayReturns >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+            <p className={`font-[var(--font-anton)] text-lg tracking-tight ${investments.dayReturns >= 0 ? "text-up" : "text-down"}`}>
               {showValues ? `${investments.dayReturns >= 0 ? "+" : ""}\u20B9${investments.dayReturns.toLocaleString("en-IN", { maximumFractionDigits: 0 })}` : "\u2022\u2022\u2022"}
             </p>
           </div>
@@ -258,7 +258,7 @@ export default function HoldingsPage() {
                       <p className="font-[var(--font-anton)] text-[13px]">
                         {"\u20B9"}{h.currentPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                       </p>
-                      <p className={`text-[11px] font-medium ${h.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      <p className={`text-[11px] font-medium ${h.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                         {h.dayChangePercent >= 0 ? "+" : ""}{h.dayChangePercent.toFixed(2)}%
                       </p>
                     </>
@@ -275,20 +275,20 @@ export default function HoldingsPage() {
                   )}
                   {mobileDisplay === "returns" && (
                     <>
-                      <p className={`font-[var(--font-anton)] text-[13px] ${h.returnsPercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      <p className={`font-[var(--font-anton)] text-[13px] ${h.returnsPercent >= 0 ? "text-up" : "text-down"}`}>
                         {h.returnsPercent >= 0 ? "+" : ""}{h.returnsPercent.toFixed(2)}%
                       </p>
-                      <p className={`text-[10px] ${h.returns >= 0 ? "text-[#00D26A]/60" : "text-[#FF5252]/60"}`}>
+                      <p className={`text-[10px] ${h.returns >= 0 ? "text-up/60" : "text-down/60"}`}>
                         {showValues ? `${h.returns >= 0 ? "+" : ""}\u20B9${h.returns.toLocaleString("en-IN")}` : "\u2022\u2022\u2022"}
                       </p>
                     </>
                   )}
                   {mobileDisplay === "dayChange" && (
                     <>
-                      <p className={`font-[var(--font-anton)] text-[13px] ${h.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      <p className={`font-[var(--font-anton)] text-[13px] ${h.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                         {h.dayChangePercent >= 0 ? "+" : ""}{h.dayChangePercent.toFixed(2)}%
                       </p>
-                      <p className={`text-[10px] ${h.dayChange >= 0 ? "text-[#00D26A]/60" : "text-[#FF5252]/60"}`}>
+                      <p className={`text-[10px] ${h.dayChange >= 0 ? "text-up/60" : "text-down/60"}`}>
                         {h.dayChange >= 0 ? "+" : ""}{"\u20B9"}{h.dayChange.toFixed(2)}
                       </p>
                     </>
@@ -335,12 +335,12 @@ export default function HoldingsPage() {
                 <p className="font-[var(--font-anton)] text-[13px]">
                   {"\u20B9"}{h.currentPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
-                <p className={`text-[10px] font-medium ${h.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                <p className={`text-[10px] font-medium ${h.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                   {h.dayChangePercent >= 0 ? "+" : ""}{h.dayChangePercent.toFixed(2)}%
                 </p>
               </div>
               <div className="text-right">
-                <p className={`font-[var(--font-anton)] text-[13px] ${h.returnsPercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                <p className={`font-[var(--font-anton)] text-[13px] ${h.returnsPercent >= 0 ? "text-up" : "text-down"}`}>
                   {h.returnsPercent >= 0 ? "+" : ""}{h.returnsPercent.toFixed(2)}%
                 </p>
                 <p className="text-[10px] text-white/30">
@@ -372,7 +372,7 @@ export default function HoldingsPage() {
                     initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
-                    className={`mb-4 p-3 border text-[10px] tracking-[0.1em] ${orderMsg.ok ? "border-[#00D26A]/30 text-[#00D26A] bg-[#00D26A]/5" : "border-[#FF5252]/30 text-[#FF5252] bg-[#FF5252]/5"}`}
+                    className={`mb-4 p-3 border text-[10px] tracking-[0.1em] ${orderMsg.ok ? "border-up/30 text-up bg-up/5" : "border-down/30 text-down bg-down/5"}`}
                   >
                     {orderMsg.text}
                   </motion.div>
@@ -387,7 +387,7 @@ export default function HoldingsPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-[var(--font-anton)] text-[15px]">{"\u20B9"}{selectedStock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
-                  <p className={`text-[10px] font-medium ${selectedStock.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                  <p className={`text-[10px] font-medium ${selectedStock.changePercent >= 0 ? "text-up" : "text-down"}`}>
                     {selectedStock.changePercent >= 0 ? "+" : ""}{selectedStock.changePercent.toFixed(2)}%
                   </p>
                 </div>
@@ -411,13 +411,13 @@ export default function HoldingsPage() {
               <div className="flex gap-0 mb-4">
                 <button
                   onClick={() => setBuySellTab("BUY")}
-                  className={`flex-1 py-2 text-[10px] tracking-[0.15em] font-medium border-b-2 transition-all duration-300 ${buySellTab === "BUY" ? "text-[#00D26A] border-[#00D26A] bg-[#00D26A]/10" : "text-white/40 border-transparent hover:text-white/60"}`}
+                  className={`flex-1 py-2 text-[10px] tracking-[0.15em] font-medium border-b-2 transition-all duration-300 ${buySellTab === "BUY" ? "text-up border-up bg-up/10" : "text-white/40 border-transparent hover:text-white/60"}`}
                 >
                   BUY
                 </button>
                 <button
                   onClick={() => setBuySellTab("SELL")}
-                  className={`flex-1 py-2 text-[10px] tracking-[0.15em] font-medium border-b-2 transition-all duration-300 ${buySellTab === "SELL" ? "text-[#FF5252] border-[#FF5252] bg-[#FF5252]/10" : "text-white/40 border-transparent hover:text-white/60"}`}
+                  className={`flex-1 py-2 text-[10px] tracking-[0.15em] font-medium border-b-2 transition-all duration-300 ${buySellTab === "SELL" ? "text-down border-down bg-down/10" : "text-white/40 border-transparent hover:text-white/60"}`}
                 >
                   SELL
                 </button>
@@ -502,8 +502,8 @@ export default function HoldingsPage() {
                 onClick={handleOrder}
                 className={`w-full py-3 text-[11px] tracking-[0.2em] font-medium transition-all hover:opacity-90 ${
                   buySellTab === "BUY"
-                    ? "bg-[#00D26A] text-black"
-                    : "bg-[#FF5252] text-white"
+                    ? "bg-up text-black"
+                    : "bg-down text-white"
                 }`}
               >
                 {pricingType === "LIMIT" ? `${buySellTab} LIMIT` : buySellTab} {selectedStock.ticker}
@@ -536,8 +536,8 @@ export default function HoldingsPage() {
                     <div className="flex items-center gap-2">
                       <span className={`text-[8px] tracking-[0.1em] font-semibold px-1.5 py-0.5 border ${
                         txn.type === "BUY"
-                          ? "text-[#00D26A] border-[#00D26A]/30 bg-[#00D26A]/5"
-                          : "text-[#FF5252] border-[#FF5252]/30 bg-[#FF5252]/5"
+                          ? "text-up border-up/30 bg-up/5"
+                          : "text-down border-down/30 bg-down/5"
                       }`}>
                         {txn.type}
                       </span>

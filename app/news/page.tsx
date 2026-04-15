@@ -74,7 +74,7 @@ export default function NewsPage() {
                     <span className="text-[11px] text-white/50">
                       {"\u20B9"}{featured.price.toFixed(2)}
                     </span>
-                    <span className={`text-[11px] font-medium ${featured.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <span className={`text-[11px] font-medium ${featured.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                       {featured.dayChangePercent >= 0 ? "+" : ""}{featured.dayChangePercent.toFixed(2)}%
                     </span>
                     <span className="text-[9px] text-white/20 ml-auto">{formatRelativeTime(featured.timestamp)}</span>
@@ -99,7 +99,7 @@ export default function NewsPage() {
                     href={`/stock/${news.ticker}`}
                     className="flex items-start gap-4 py-4 border-b border-white/6 hover:bg-white/[0.02] transition-colors duration-300 -mx-2 px-2"
                   >
-                    <div className={`w-0.5 h-10 shrink-0 mt-0.5 ${news.dayChangePercent >= 0 ? "bg-[#00D26A]/40" : "bg-[#FF5252]/40"}`} />
+                    <div className={`w-0.5 h-10 shrink-0 mt-0.5 ${news.dayChangePercent >= 0 ? "bg-up/40" : "bg-down/40"}`} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-[var(--font-anton)] text-[10px] tracking-[0.06em]">{news.ticker}</span>
@@ -110,7 +110,7 @@ export default function NewsPage() {
                       <p className="text-[11px] text-white/45 leading-relaxed line-clamp-2">{news.headline}</p>
                     </div>
                     <div className="shrink-0 text-right pt-0.5">
-                      <p className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      <p className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                         {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
                       </p>
                       <p className="text-[9px] text-white/20 mt-0.5">{formatRelativeTime(news.timestamp)}</p>

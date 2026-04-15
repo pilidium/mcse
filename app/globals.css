@@ -105,10 +105,10 @@
 [data-theme="light"] .stroke-white { stroke: #111111; }
 
 /* Preserve text colors on colored action buttons */
-[data-theme="light"] .bg-\[\#FF5252\].text-white { color: #ffffff !important; }
-[data-theme="light"] .bg-\[\#00D26A\].text-black { color: #000000 !important; }
-[data-theme="light"] .active\:bg-\[\#FF5252\]\/80:active { color: #ffffff !important; }
-[data-theme="light"] .active\:bg-\[\#00D26A\]\/80:active { color: #000000 !important; }
+[data-theme="light"] .bg-down.text-white { color: #ffffff !important; }
+[data-theme="light"] .bg-up.text-black { color: #000000 !important; }
+[data-theme="light"] .active\:bg-down\/80:active { color: #ffffff !important; }
+[data-theme="light"] .active\:bg-up\/80:active { color: #000000 !important; }
 [data-theme="light"] .divide-white\/6 > * + * { border-color: rgba(0,0,0,0.08); }
 
 /* Light theme — missing utility overrides */
@@ -131,15 +131,15 @@
 [data-theme="light"] .focus\:border-white\/30:focus { border-color: rgba(0,0,0,0.20) !important; }
 
 /* Light theme — new component overrides */
-[data-theme="light"] .bg-\[\#00D26A\]\/5 { background-color: rgba(0,210,106,0.08) !important; }
-[data-theme="light"] .bg-\[\#FF5252\]\/5 { background-color: rgba(255,82,82,0.08) !important; }
-[data-theme="light"] .bg-\[\#00D26A\]\/10 { background-color: rgba(0,210,106,0.12) !important; }
-[data-theme="light"] .bg-\[\#FF5252\]\/10 { background-color: rgba(255,82,82,0.12) !important; }
+[data-theme="light"] .bg-up\/5 { background-color: rgba(0,210,106,0.08) !important; }
+[data-theme="light"] .bg-down\/5 { background-color: rgba(255,82,82,0.08) !important; }
+[data-theme="light"] .bg-up\/10 { background-color: rgba(0,210,106,0.12) !important; }
+[data-theme="light"] .bg-down\/10 { background-color: rgba(255,82,82,0.12) !important; }
 [data-theme="light"] .border-l-white\/50 { border-left-color: rgba(0,0,0,0.35) !important; }
 [data-theme="light"] .border-l-white\/20 { border-left-color: rgba(0,0,0,0.12) !important; }
-[data-theme="light"] .border-l-\[\#00D26A\] { border-left-color: #00D26A !important; }
-[data-theme="light"] .bg-\[\#00D26A\]\/30 { background-color: rgba(0,210,106,0.25) !important; }
-[data-theme="light"] .bg-\[\#FF5252\]\/30 { background-color: rgba(255,82,82,0.25) !important; }
+[data-theme="light"] .border-l-up { border-left-color: #00D26A !important; }
+[data-theme="light"] .bg-up\/30 { background-color: rgba(0,210,106,0.25) !important; }
+[data-theme="light"] .bg-down\/30 { background-color: rgba(255,82,82,0.25) !important; }
 [data-theme="light"] .bg-gradient-to-br { background-image: linear-gradient(to bottom right, rgba(220,38,38,0.10), transparent) !important; }
 [data-theme="light"] .bg-white\/15 { background-color: rgba(0,0,0,0.10) !important; }
 [data-theme="light"] .bg-white\/20 { background-color: rgba(0,0,0,0.12) !important; }

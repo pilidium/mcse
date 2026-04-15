@@ -21,7 +21,7 @@ export default function TickerTape() {
             <span className="text-[10px] text-white/80">
               {"\u20B9"}{item.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </span>
-            <span className={`text-[10px] font-medium ${item.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+            <span className={`text-[10px] font-medium ${item.changePercent >= 0 ? "text-up" : "text-down"}`}>
               {item.changePercent >= 0 ? "+" : ""}{item.changePercent.toFixed(2)}%
             </span>
             <span className="text-white/15 text-[8px]">{"\u00B7"}</span>

@@ -9,12 +9,21 @@ import { useAdmin } from "@/lib/AdminContext";
 import type { CompanyNews } from "@/lib/AdminContext";
 
 export default function AdminNewsPage() {
-  const { role } = useAuth();
+  const { isLoggedIn, role } = useAuth();
   const router = useRouter();
   const { companyNews, submitNews, approveNews, rejectNews } = useAdmin();
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+
+  if (!isLoggedIn || !role || role === "user") {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <p className="font-[var(--font-anton)] text-lg tracking-[0.1em] mb-2">ACCESS DENIED</p>
+        <p className="text-[11px] text-white/40">You need admin privileges to access this page.</p>
+      </div>
+    );
+  }
 
   const isTotalAdmin = role === "admin";
   const isCompanyAdmin = role === "company";
@@ -36,8 +45,8 @@ export default function AdminNewsPage() {
 
   const statusBadge = (status: CompanyNews["status"]) => {
     if (status === "PENDING") return <span className="text-[8px] tracking-[0.15em] text-amber-400 border border-amber-400/30 bg-amber-400/5 px-1.5 py-0.5 inline-flex items-center gap-1"><Clock size={8} />PENDING</span>;
-    if (status === "PUBLISHED") return <span className="text-[8px] tracking-[0.15em] text-[#00D26A] border border-[#00D26A]/30 bg-[#00D26A]/5 px-1.5 py-0.5 inline-flex items-center gap-1"><CheckCircle size={8} />PUBLISHED</span>;
-    return <span className="text-[8px] tracking-[0.15em] text-[#FF5252] border border-[#FF5252]/30 bg-[#FF5252]/5 px-1.5 py-0.5 inline-flex items-center gap-1"><XCircle size={8} />REJECTED</span>;
+    if (status === "PUBLISHED") return <span className="text-[8px] tracking-[0.15em] text-up border border-up/30 bg-up/5 px-1.5 py-0.5 inline-flex items-center gap-1"><CheckCircle size={8} />PUBLISHED</span>;
+    return <span className="text-[8px] tracking-[0.15em] text-down border border-down/30 bg-down/5 px-1.5 py-0.5 inline-flex items-center gap-1"><XCircle size={8} />REJECTED</span>;
   };
 
   const renderNewsItem = (item: CompanyNews) => (
@@ -61,13 +70,13 @@ export default function AdminNewsPage() {
           <div className="flex gap-2 shrink-0">
             <button
               onClick={() => approveNews(item.id)}
-              className="h-8 px-3 text-[9px] tracking-[0.1em] bg-[#00D26A] text-black font-semibold hover:bg-[#00D26A]/80 transition-colors"
+              className="h-8 px-3 text-[9px] tracking-[0.1em] bg-up text-black font-semibold hover:bg-up/80 transition-colors"
             >
               APPROVE
             </button>
             <button
               onClick={() => rejectNews(item.id)}
-              className="h-8 px-3 text-[9px] tracking-[0.1em] border border-[#FF5252]/40 text-[#FF5252] hover:bg-[#FF5252]/10 transition-colors"
+              className="h-8 px-3 text-[9px] tracking-[0.1em] border border-down/40 text-down hover:bg-down/10 transition-colors"
             >
               REJECT
             </button>
@@ -174,7 +183,7 @@ export default function AdminNewsPage() {
       {/* Rejected news */}
       {rejectedNews.length > 0 && (
         <div>
-          <h2 className="text-[10px] tracking-[0.2em] text-[#FF5252]/50 uppercase mb-4">REJECTED ({rejectedNews.length})</h2>
+          <h2 className="text-[10px] tracking-[0.2em] text-down/50 uppercase mb-4">REJECTED ({rejectedNews.length})</h2>
           <div className="space-y-3">
             {rejectedNews.map(renderNewsItem)}
           </div>

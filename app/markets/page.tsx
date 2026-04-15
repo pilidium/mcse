@@ -37,7 +37,7 @@ export default function MarketsPage() {
           <p className="text-[10px] tracking-[0.15em] text-white/30 mt-1">LIVE OVERVIEW</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-[#00D26A] animate-pulse" />
+          <span className="w-1.5 h-1.5 bg-up animate-pulse" />
           <span className="text-[9px] tracking-[0.12em] text-white/30">MARKET OPEN</span>
         </div>
       </div>
@@ -62,7 +62,7 @@ export default function MarketsPage() {
               <div className="flex items-center gap-2">
                 <span
                   className={`text-[10px] font-medium ${
-                    idx.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"
+                    idx.changePercent >= 0 ? "text-up" : "text-down"
                   }`}
                 >
                   {idx.changePercent >= 0 ? "+" : ""}
@@ -91,7 +91,7 @@ export default function MarketsPage() {
         </div>
         <div className="flex h-2 w-full overflow-hidden">
           <div
-            className="bg-[#00D26A] transition-all"
+            className="bg-up transition-all"
             style={{ width: `${advPct}%` }}
           />
           <div
@@ -99,14 +99,14 @@ export default function MarketsPage() {
             style={{ width: `${((marketBreadth.unchanged / totalBreadth) * 100).toFixed(1)}%` }}
           />
           <div
-            className="bg-[#FF5252] transition-all"
+            className="bg-down transition-all"
             style={{ width: `${decPct}%` }}
           />
         </div>
         <div className="flex justify-between mt-2">
-          <span className="text-[9px] text-[#00D26A]">{marketBreadth.advances} advances ({advPct}%)</span>
+          <span className="text-[9px] text-up">{marketBreadth.advances} advances ({advPct}%)</span>
           <span className="text-[9px] text-white/25">{marketBreadth.unchanged} unchanged</span>
-          <span className="text-[9px] text-[#FF5252]">{marketBreadth.declines} declines ({decPct}%)</span>
+          <span className="text-[9px] text-down">{marketBreadth.declines} declines ({decPct}%)</span>
         </div>
       </motion.section>
 
@@ -172,7 +172,7 @@ export default function MarketsPage() {
                     {moversTab === "VOLUME" ? (
                       <span className="text-[10px] font-medium text-white/50">{s.volume}</span>
                     ) : (
-                      <span className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      <span className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                         {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
                       </span>
                     )}
@@ -204,7 +204,7 @@ export default function MarketsPage() {
                   </div>
                   <div className="text-right">
                     <p className="font-[var(--font-anton)] text-[12px]">{"\u20B9"}{s.price.toLocaleString("en-IN")}</p>
-                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                       {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
                     </p>
                   </div>

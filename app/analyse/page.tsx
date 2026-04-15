@@ -77,15 +77,15 @@ export default function AnalysePage() {
       >
         <div className="bg-bg p-4">
           <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">XIRR</p>
-          <p className="font-[var(--font-anton)] text-xl text-[#00D26A]">+{portfolioAnalysis.xirr}%</p>
+          <p className="font-[var(--font-anton)] text-xl text-up">+{portfolioAnalysis.xirr}%</p>
         </div>
         <div className="bg-bg p-4">
           <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">{portfolioAnalysis.benchmarkName}</p>
-          <p className="font-[var(--font-anton)] text-xl text-[#00D26A]">+{portfolioAnalysis.benchmarkReturn}%</p>
+          <p className="font-[var(--font-anton)] text-xl text-up">+{portfolioAnalysis.benchmarkReturn}%</p>
         </div>
         <div className="bg-bg p-4">
           <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">ALPHA</p>
-          <p className="font-[var(--font-anton)] text-xl text-[#00D26A]">+{portfolioAnalysis.outperformance}%</p>
+          <p className="font-[var(--font-anton)] text-xl text-up">+{portfolioAnalysis.outperformance}%</p>
         </div>
       </motion.div>
 

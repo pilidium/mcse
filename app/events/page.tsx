@@ -28,19 +28,19 @@ const events: CalendarEvent[] = [
 
 const typeAccent: Record<string, string> = {
   AGM: "border-l-white/50",
-  RESULTS: "border-l-[#00D26A]",
+  RESULTS: "border-l-up",
   EVENT: "border-l-white/20",
 };
 
 const typeBadge: Record<string, string> = {
   AGM: "bg-white/10 text-white/50",
-  RESULTS: "bg-[#00D26A]/10 text-[#00D26A]",
+  RESULTS: "bg-up/10 text-up",
   EVENT: "bg-white/5 text-white/40",
 };
 
 const typeDot: Record<string, string> = {
   AGM: "bg-white/50",
-  RESULTS: "bg-[#00D26A]",
+  RESULTS: "bg-up",
   EVENT: "bg-white/20",
 };
 
@@ -240,7 +240,7 @@ export default function EventsPage() {
                       <span className="text-[10px] text-white/40">AGM â€” Annual General Meeting</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-[#00D26A]" />
+                      <div className="w-2 h-2 bg-up" />
                       <span className="text-[10px] text-white/40">RESULTS â€” Quarterly / Annual Results</span>
                     </div>
                     <div className="flex items-center gap-2">

@@ -64,14 +64,14 @@ export default function PositionsPage() {
                         <div className="flex items-center gap-2.5">
                           <span className={`text-[9px] tracking-[0.15em] font-semibold px-2 py-0.5 border ${
                             order.type === "BUY"
-                              ? "text-[#00D26A] border-[#00D26A]/30 bg-[#00D26A]/5"
-                              : "text-[#FF5252] border-[#FF5252]/30 bg-[#FF5252]/5"
+                              ? "text-up border-up/30 bg-up/5"
+                              : "text-down border-down/30 bg-down/5"
                           }`}>
                             {order.type}
                           </span>
                           <span className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{order.ticker}</span>
                         </div>
-                        <span className="text-[9px] tracking-[0.1em] text-[#00D26A]">{order.status}</span>
+                        <span className="text-[9px] tracking-[0.1em] text-up">{order.status}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
@@ -103,8 +103,8 @@ export default function PositionsPage() {
                   >
                     <span className={`text-[9px] tracking-[0.15em] font-semibold px-2 py-0.5 border w-fit ${
                       order.type === "BUY"
-                        ? "text-[#00D26A] border-[#00D26A]/30 bg-[#00D26A]/5"
-                        : "text-[#FF5252] border-[#FF5252]/30 bg-[#FF5252]/5"
+                        ? "text-up border-up/30 bg-up/5"
+                        : "text-down border-down/30 bg-down/5"
                     }`}>
                       {order.type}
                     </span>
@@ -120,7 +120,7 @@ export default function PositionsPage() {
                       {"\u20B9"}{order.total.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                     </p>
                     <div className="text-right">
-                      <span className="text-[9px] tracking-[0.1em] text-[#00D26A]">{order.status}</span>
+                      <span className="text-[9px] tracking-[0.1em] text-up">{order.status}</span>
                       <p className="text-[9px] text-white/20 mt-0.5">{new Date(order.timestamp).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</p>
                     </div>
                   </Link>
@@ -189,7 +189,7 @@ export default function PositionsPage() {
               <div className="flex items-center justify-between">
                 <span className="text-[9px] tracking-[0.15em] text-white/30">TOTAL P&L</span>
                 <span className={`font-[var(--font-anton)] text-lg ${
-                  positions.reduce((s, p) => s + p.pnl, 0) >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"
+                  positions.reduce((s, p) => s + p.pnl, 0) >= 0 ? "text-up" : "text-down"
                 }`}>
                   {positions.reduce((s, p) => s + p.pnl, 0) >= 0 ? "+" : ""}{"\u20B9"}{Math.abs(Math.round(positions.reduce((s, p) => s + p.pnl, 0))).toLocaleString("en-IN")}
                 </span>
@@ -209,13 +209,13 @@ export default function PositionsPage() {
                         <span className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{pos.ticker}</span>
                         <p className="text-[10px] text-white/40 mt-0.5">{pos.name}</p>
                       </div>
-                      <span className={`font-[var(--font-anton)] text-[14px] ${pos.pnl >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      <span className={`font-[var(--font-anton)] text-[14px] ${pos.pnl >= 0 ? "text-up" : "text-down"}`}>
                         {pos.pnl >= 0 ? "+" : ""}{"\u20B9"}{Math.abs(Math.round(pos.pnl)).toLocaleString("en-IN")}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <p className="text-[11px] text-white/50">{pos.qty} shares @ {"\u20B9"}{Math.round(pos.avgPrice).toLocaleString("en-IN")}</p>
-                      <p className={`text-[11px] font-medium ${pos.pnlPercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      <p className={`text-[11px] font-medium ${pos.pnlPercent >= 0 ? "text-up" : "text-down"}`}>
                         {pos.pnlPercent >= 0 ? "+" : ""}{pos.pnlPercent.toFixed(2)}%
                       </p>
                     </div>
@@ -251,10 +251,10 @@ export default function PositionsPage() {
                     {"\u20B9"}{pos.currentPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                   </p>
                   <div className="text-right">
-                    <p className={`font-[var(--font-anton)] text-[13px] ${pos.pnl >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <p className={`font-[var(--font-anton)] text-[13px] ${pos.pnl >= 0 ? "text-up" : "text-down"}`}>
                       {pos.pnl >= 0 ? "+" : ""}{"\u20B9"}{Math.abs(Math.round(pos.pnl)).toLocaleString("en-IN")}
                     </p>
-                    <p className={`text-[10px] font-medium ${pos.pnlPercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <p className={`text-[10px] font-medium ${pos.pnlPercent >= 0 ? "text-up" : "text-down"}`}>
                       {pos.pnlPercent >= 0 ? "+" : ""}{pos.pnlPercent.toFixed(2)}%
                     </p>
                   </div>
@@ -311,7 +311,7 @@ export default function PositionsPage() {
                 <div className="flex justify-between">
                   <span className="text-[10px] text-white/40">TOTAL P&L</span>
                   <span className={`font-[var(--font-anton)] text-lg ${
-                    positions.reduce((s, p) => s + p.pnl, 0) >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"
+                    positions.reduce((s, p) => s + p.pnl, 0) >= 0 ? "text-up" : "text-down"
                   }`}>
                     {positions.reduce((s, p) => s + p.pnl, 0) >= 0 ? "+" : ""}{"\u20B9"}{Math.abs(Math.round(positions.reduce((s, p) => s + p.pnl, 0))).toLocaleString("en-IN")}
                   </span>

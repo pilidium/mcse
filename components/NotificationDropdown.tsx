@@ -50,8 +50,8 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
   };
 
   const iconFor = (type: string) => {
-    if (type === "gain") return <TrendingUp size={13} className="text-[#00D26A]" />;
-    if (type === "loss") return <TrendingDown size={13} className="text-[#FF5252]" />;
+    if (type === "gain") return <TrendingUp size={13} className="text-up" />;
+    if (type === "loss") return <TrendingDown size={13} className="text-down" />;
     return <Info size={13} className="text-white/30" />;
   };
 

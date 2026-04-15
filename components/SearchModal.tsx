@@ -34,6 +34,15 @@ function useIsMobile(): boolean {
   );
 }
 
+function useDebouncedValue<T>(value: T, ms: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), ms);
+    return () => clearTimeout(id);
+  }, [value, ms]);
+  return debounced;
+}
+
 export default function SearchModal({
   open,
   onClose,
@@ -62,7 +71,8 @@ export default function SearchModal({
     }
   }, [open, isMobile]);
 
-  const results = useMemo(() => computeResults(query, filter), [query, filter]);
+  const debouncedQuery = useDebouncedValue(query, 150);
+  const results = useMemo(() => computeResults(debouncedQuery, filter), [debouncedQuery, filter]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -160,7 +170,7 @@ export default function SearchModal({
                       </div>
                       <div className="text-right shrink-0">
                         <p className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{s.price.toLocaleString("en-IN")}</p>
-                        <p className={`text-[10px] font-medium ${s.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                        <p className={`text-[10px] font-medium ${s.changePercent >= 0 ? "text-up" : "text-down"}`}>
                           {s.changePercent >= 0 ? "+" : ""}{s.changePercent.toFixed(2)}%
                         </p>
                       </div>
@@ -189,7 +199,7 @@ export default function SearchModal({
                       </div>
                       <div className="text-right shrink-0 min-w-[70px]">
                         <p className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{s.price.toLocaleString("en-IN")}</p>
-                        <p className={`text-[10px] font-medium ${s.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                        <p className={`text-[10px] font-medium ${s.changePercent >= 0 ? "text-up" : "text-down"}`}>
                           {s.changePercent >= 0 ? "+" : ""}{s.changePercent.toFixed(2)}%
                         </p>
                       </div>

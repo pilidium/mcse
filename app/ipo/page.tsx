@@ -89,12 +89,12 @@ export default function IPOPage() {
         </div>
         <div className="flex items-center gap-3">
           {liveCount > 0 && (
-            <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#00D26A]/10 border border-[#00D26A]/20">
+            <span className="flex items-center gap-1.5 px-2.5 py-1 bg-up/10 border border-up/20">
               <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full bg-[#00D26A] opacity-60" />
-                <span className="relative inline-flex h-1.5 w-1.5 bg-[#00D26A]" />
+                <span className="animate-ping absolute inline-flex h-full w-full bg-up opacity-60" />
+                <span className="relative inline-flex h-1.5 w-1.5 bg-up" />
               </span>
-              <span className="text-[9px] tracking-[0.12em] text-[#00D26A] font-semibold">
+              <span className="text-[9px] tracking-[0.12em] text-up font-semibold">
                 {liveCount} LIVE
               </span>
             </span>
@@ -152,7 +152,7 @@ export default function IPOPage() {
                         <span
                           className={`text-[8px] tracking-[0.12em] px-2 py-0.5 font-semibold ${
                             ipo.status === "LIVE"
-                              ? "bg-[#00D26A]/15 text-[#00D26A]"
+                              ? "bg-up/15 text-up"
                               : ipo.status === "CLOSED"
                                 ? "bg-white/5 text-white/25"
                                 : "bg-white/5 text-white/40"
@@ -161,7 +161,7 @@ export default function IPOPage() {
                           {ipo.status}
                         </span>
                         {applied && (
-                          <span className="text-[8px] tracking-[0.1em] text-[#00D26A]/60">APPLIED</span>
+                          <span className="text-[8px] tracking-[0.1em] text-up/60">APPLIED</span>
                         )}
                       </div>
                     </div>
@@ -183,7 +183,7 @@ export default function IPOPage() {
                         <p className="text-[8px] tracking-[0.1em] text-white/20">
                           {ipo.status === "LIVE" ? "GMP" : "OPENS IN"}
                         </p>
-                        <p className={`text-[11px] mt-0.5 ${ipo.status === "LIVE" ? "text-[#00D26A]" : "text-white/40"}`}>
+                        <p className={`text-[11px] mt-0.5 ${ipo.status === "LIVE" ? "text-up" : "text-white/40"}`}>
                           {ipo.status === "LIVE"
                             ? `+\u20B9${ipo.gmp}`
                             : daysLeft > 0
@@ -270,7 +270,7 @@ export default function IPOPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="fixed left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-[#00D26A] text-black text-[11px] tracking-[0.08em] font-semibold flex items-center gap-2"
+              className="fixed left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-up text-black text-[11px] tracking-[0.08em] font-semibold flex items-center gap-2"
               style={{ bottom: 'calc(env(safe-area-inset-bottom) + 5rem)' }}
             >
               <CheckCircle size={14} />
@@ -367,7 +367,7 @@ function IPODetail({
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min(100, (sub.value / 5) * 100)}%` }}
                     transition={{ duration: 0.6, delay: sub.delay }}
-                    className="h-full bg-[#00D26A]/60"
+                    className="h-full bg-up/60"
                   />
                 </div>
               </div>
@@ -380,7 +380,7 @@ function IPODetail({
               <BarChart3 size={12} className="text-white/20" />
               <span className="text-[10px] text-white/40">Expected Listing</span>
             </div>
-            <span className="text-[12px] text-[#00D26A] font-medium">
+            <span className="text-[12px] text-up font-medium">
               {"\u20B9"}{expectedListing.toLocaleString("en-IN")} (+{((ipo.gmp / ipo.priceHigh) * 100).toFixed(1)}%)
             </span>
           </div>
@@ -461,12 +461,12 @@ function IPODetail({
               {/* Balance */}
               <div className="flex items-center justify-between mb-5">
                 <span className="text-[10px] tracking-[0.1em] text-white/40">AVAILABLE BALANCE</span>
-                <span className={`font-[var(--font-anton)] text-sm ${canAfford ? "text-white" : "text-[#FF5252]"}`}>
+                <span className={`font-[var(--font-anton)] text-sm ${canAfford ? "text-white" : "text-down"}`}>
                   {"\u20B9"}{Math.round(balance).toLocaleString("en-IN")}
                 </span>
               </div>
               {!canAfford && (
-                <p className="text-[10px] text-[#FF5252]/70 mb-4">Insufficient balance for this application</p>
+                <p className="text-[10px] text-down/70 mb-4">Insufficient balance for this application</p>
               )}
 
               {/* Apply button */}
@@ -476,7 +476,7 @@ function IPODetail({
                 disabled={!canAfford}
                 className={`w-full h-11 text-[10px] tracking-[0.15em] font-semibold border transition-all duration-300 ${
                   canAfford
-                    ? "bg-[#00D26A] text-black border-[#00D26A] hover:bg-transparent hover:text-[#00D26A]"
+                    ? "bg-up text-black border-up hover:bg-transparent hover:text-up"
                     : "bg-white/5 text-white/20 border-white/8 cursor-not-allowed"
                 }`}
               >
@@ -484,9 +484,9 @@ function IPODetail({
               </motion.button>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center py-8 border border-[#00D26A]/20 bg-[#00D26A]/5">
-              <CheckCircle size={24} className="text-[#00D26A] mb-2" />
-              <p className="text-[11px] tracking-[0.1em] text-[#00D26A] font-medium mb-1">APPLICATION SUBMITTED</p>
+            <div className="flex flex-col items-center justify-center py-8 border border-up/20 bg-up/5">
+              <CheckCircle size={24} className="text-up mb-2" />
+              <p className="text-[11px] tracking-[0.1em] text-up font-medium mb-1">APPLICATION SUBMITTED</p>
               <p className="text-[9px] text-white/25">Allotment status will be updated after the closing date</p>
             </div>
           )}

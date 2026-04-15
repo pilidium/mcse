@@ -12,6 +12,15 @@ import {
   resultKey,
 } from "@/components/searchResults";
 
+function useDebouncedValue<T>(value: T, ms: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), ms);
+    return () => clearTimeout(id);
+  }, [value, ms]);
+  return debounced;
+}
+
 export default function DesktopSearch() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<SearchFilter>("ALL");
@@ -23,7 +32,8 @@ export default function DesktopSearch() {
   const hasQuery = query.trim().length > 0;
   const open = focused || hasQuery || filter !== "ALL";
 
-  const results = useMemo(() => computeResults(query, filter), [query, filter]);
+  const debouncedQuery = useDebouncedValue(query, 150);
+  const results = useMemo(() => computeResults(debouncedQuery, filter), [debouncedQuery, filter]);
   const caption = sectionCaption(filter, hasQuery);
 
   const reset = () => {
@@ -62,12 +72,10 @@ export default function DesktopSearch() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Close on route change (derive-from-props)
-  const [prevPath, setPrevPath] = useState(pathname);
-  if (pathname !== prevPath) {
-    setPrevPath(pathname);
-    if (open) reset();
-  }
+  // Close on route change
+  useEffect(() => {
+    reset();
+  }, [pathname]);
 
   return (
     <div ref={wrapperRef} className="relative">

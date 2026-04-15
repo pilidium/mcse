@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
-import { watchlist as mockWatchlist } from "@/lib/mockData";
+import { watchlist as mockWatchlist, stockDirectory } from "@/lib/mockData";
 
 export interface Order {
   id: string;
@@ -114,12 +114,8 @@ export function TradingProvider({ children }: { children: ReactNode }) {
     for (const [, pos] of posMap) {
       if (pos.totalQty <= 0) continue;
       const avgPrice = pos.totalCost / pos.totalQty;
-      // Use a simple mock current price (in real app, this comes from API)
-      const currentPrices: Record<string, number> = {
-        MATHSOC: 2892.45, ENIGMA: 3987.60, GASMONKEYS: 1578.90,
-        MASTERSHOT: 1689.25, ERUDITE: 1087.40, INSIGHT: 468.55, CELESTE: 1645.30,
-      };
-      const currentPrice = currentPrices[pos.ticker] || avgPrice;
+      // Read current price from stockDirectory so P&L stays in sync
+      const currentPrice = stockDirectory[pos.ticker]?.price ?? avgPrice;
       const pnl = (currentPrice - avgPrice) * pos.totalQty;
       const pnlPercent = avgPrice > 0 ? ((currentPrice - avgPrice) / avgPrice) * 100 : 0;
       result.push({ ticker: pos.ticker, name: pos.name, qty: pos.totalQty, avgPrice, currentPrice, pnl, pnlPercent });
@@ -141,15 +137,9 @@ export function TradingProvider({ children }: { children: ReactNode }) {
       id: `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
       price: effectivePrice,
       total,
-      status: isLimit ? "PENDING" : "COMPLETED",
+      status: "COMPLETED",
       timestamp: Date.now(),
     };
-
-    // For LIMIT orders, no immediate balance/txn change — they stay PENDING
-    if (isLimit) {
-      setOrders(prev => [newOrder, ...prev]);
-      return { success: true, message: `LIMIT ${orderInput.type} order for ${orderInput.qty} ${orderInput.ticker} @ \u20B9${effectivePrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })} placed (PENDING)` };
-    }
 
     const newBalance = orderInput.type === "BUY" ? +(balance - total).toFixed(2) : +(balance + total).toFixed(2);
 
@@ -198,8 +188,12 @@ export function TradingProvider({ children }: { children: ReactNode }) {
     return watchlistTickers.has(ticker);
   }, [watchlistTickers]);
 
+  const value = useMemo(() => ({
+    orders, positions, transactions, balance, watchlistTickers, placeOrder, getOrdersForTicker, getBuyCount, getSellCount, toggleWatchlist, isWatched
+  }), [orders, positions, transactions, balance, watchlistTickers, placeOrder, getOrdersForTicker, getBuyCount, getSellCount, toggleWatchlist, isWatched]);
+
   return (
-    <TradingContext.Provider value={{ orders, positions, transactions, balance, watchlistTickers, placeOrder, getOrdersForTicker, getBuyCount, getSellCount, toggleWatchlist, isWatched }}>
+    <TradingContext.Provider value={value}>
       {children}
     </TradingContext.Provider>
   );

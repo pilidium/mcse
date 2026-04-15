@@ -149,10 +149,10 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
         <div className="mx-4 mb-4 border border-white/10">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 px-5 py-4 active:bg-[#FF5252]/[0.06] transition-colors"
+            className="w-full flex items-center gap-4 px-5 py-4 active:bg-down/[0.06] transition-colors"
           >
-            <LogOut size={18} className="text-[#FF5252]/50" />
-            <span className="text-[12px] tracking-[0.12em] text-[#FF5252]/60">LOG OUT</span>
+            <LogOut size={18} className="text-down/50" />
+            <span className="text-[12px] tracking-[0.12em] text-down/60">LOG OUT</span>
           </button>
         </div>
     </motion.div>
@@ -245,10 +245,10 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
         <div className="border-t border-white/10">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3.5 px-5 py-3.5 hover:bg-[#FF5252]/[0.06] transition-colors duration-300 group"
+            className="w-full flex items-center gap-3.5 px-5 py-3.5 hover:bg-down/[0.06] transition-colors duration-300 group"
           >
-            <LogOut size={13} className="text-white/30 group-hover:text-[#FF5252]/60 transition-colors duration-300" />
-            <span className="text-[10px] tracking-[0.12em] text-white/40 group-hover:text-[#FF5252]/70 transition-colors duration-300">LOG OUT</span>
+            <LogOut size={13} className="text-white/30 group-hover:text-down/60 transition-colors duration-300" />
+            <span className="text-[10px] tracking-[0.12em] text-white/40 group-hover:text-down/70 transition-colors duration-300">LOG OUT</span>
           </button>
         </div>
       </motion.div>

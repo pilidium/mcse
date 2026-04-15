@@ -198,8 +198,8 @@ export default function TopNav() {
         {/* Market status banner — desktop only; TickerTape already shows this on mobile */}
         <div className="hidden md:flex items-center justify-between h-7 px-4 md:px-12 max-w-[1280px] mx-auto border-t border-white/6">
           <div className="flex items-center gap-2">
-            <span className={`w-1.5 h-1.5 rounded-full ${marketOpen ? "bg-[#00D26A]" : "bg-[#FF5252]"}`} />
-            <span className={`text-[9px] tracking-[0.15em] font-medium ${marketOpen ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${marketOpen ? "bg-up" : "bg-down"}`} />
+            <span className={`text-[9px] tracking-[0.15em] font-medium ${marketOpen ? "text-up" : "text-down"}`}>
               MARKET {marketOpen ? "OPEN" : "CLOSED"}
             </span>
           </div>

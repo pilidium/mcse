@@ -94,7 +94,7 @@ export function StockRow({ data: s, onNavigate }: { data: StockInfo; onNavigate:
         </p>
         <p
           className={`text-[10px] font-medium ${
-            s.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"
+            s.changePercent >= 0 ? "text-up" : "text-down"
           }`}
         >
           {s.changePercent >= 0 ? "+" : ""}
@@ -108,7 +108,7 @@ export function StockRow({ data: s, onNavigate }: { data: StockInfo; onNavigate:
 export function IpoRow({ data: i, onNavigate }: { data: IPO; onNavigate: () => void }) {
   const statusColor =
     i.status === "LIVE"
-      ? "text-[#00D26A] border-[#00D26A]/30"
+      ? "text-up border-up/30"
       : i.status === "UPCOMING"
       ? "text-white/60 border-white/20"
       : "text-white/30 border-white/10";

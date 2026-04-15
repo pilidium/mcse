@@ -19,7 +19,7 @@ export default function OrderConfirmModal({
   open, onConfirm, onCancel, type, ticker, qty, price, pricingType, total,
 }: OrderConfirmModalProps) {
   const isBuy = type === "BUY";
-  const color = isBuy ? "#00D26A" : "#FF5252";
+  const color = isBuy ? "var(--color-up)" : "var(--color-down)";
 
   return (
     <AnimatePresence>

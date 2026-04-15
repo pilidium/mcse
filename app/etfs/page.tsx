@@ -128,7 +128,7 @@ export default function ETFsPage() {
                   <div className="hidden md:flex items-center gap-6">
                     <div className="text-right">
                       <p className="text-[9px] tracking-[0.1em] text-white/20">1Y</p>
-                      <p className={`text-[12px] font-medium ${etf.return1Y >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      <p className={`text-[12px] font-medium ${etf.return1Y >= 0 ? "text-up" : "text-down"}`}>
                         {etf.return1Y >= 0 ? "+" : ""}{etf.return1Y}%
                       </p>
                     </div>
@@ -144,7 +144,7 @@ export default function ETFsPage() {
                   <Sparkline data={etf.sparkline} width={52} height={22} positive={etf.change >= 0} />
                   <div className="text-right shrink-0 min-w-[80px]">
                     <p className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{etf.price.toFixed(2)}</p>
-                    <p className={`text-[11px] font-medium ${etf.change >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <p className={`text-[11px] font-medium ${etf.change >= 0 ? "text-up" : "text-down"}`}>
                       {etf.change >= 0 ? "+" : ""}{etf.change.toFixed(2)}%
                     </p>
                   </div>
@@ -164,7 +164,7 @@ export default function ETFsPage() {
                         <div className="grid grid-cols-3 gap-[1px] bg-white/8 mb-4 md:hidden">
                           <div className="bg-bg p-3 text-center">
                             <p className="text-[8px] tracking-[0.15em] text-white/25 mb-0.5">1Y RETURN</p>
-                            <p className={`font-[var(--font-anton)] text-sm ${etf.return1Y >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                            <p className={`font-[var(--font-anton)] text-sm ${etf.return1Y >= 0 ? "text-up" : "text-down"}`}>
                               {etf.return1Y >= 0 ? "+" : ""}{etf.return1Y}%
                             </p>
                           </div>
@@ -243,13 +243,13 @@ export default function ETFsPage() {
                 <div key={etf.ticker}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[10px] text-white/50">{etf.name}</span>
-                    <span className={`text-[11px] font-[var(--font-anton)] ${etf.return1Y >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <span className={`text-[11px] font-[var(--font-anton)] ${etf.return1Y >= 0 ? "text-up" : "text-down"}`}>
                       {etf.return1Y >= 0 ? "+" : ""}{etf.return1Y}%
                     </span>
                   </div>
                   <div className="h-1.5 bg-white/6 overflow-hidden">
                     <div
-                      className={`h-full ${etf.return1Y >= 0 ? "bg-[#00D26A]/30" : "bg-[#FF5252]/30"}`}
+                      className={`h-full ${etf.return1Y >= 0 ? "bg-up/30" : "bg-down/30"}`}
                       style={{ width: `${Math.min(Math.abs(etf.return1Y) * 4, 100)}%` }}
                     />
                   </div>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { ChevronRight, ChevronDown, ChevronUp, Target, Layers, ScanLine, Calendar, Landmark, Repeat, TrendingUp as TrendingUpIcon } from "lucide-react";
@@ -97,7 +97,7 @@ export default function ExplorePage() {
 
   return (
     <div className="py-6">
-      {/* Marketing hero — non-logged-in users */}
+      {/* Marketing hero - non-logged-in users */}
       {!isLoggedIn && (
         <motion.section
           initial={{ opacity: 0 }}
@@ -110,7 +110,7 @@ export default function ExplorePage() {
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 65% 90% at -5% -5%, rgba(0,210,106,0.18), transparent 65%)" }} />
 
           <div className="relative z-10">
-            {/* Top bar — date + logos + live badge */}
+            {/* Top bar - date + logos + live badge */}
             <div className="flex items-center justify-between px-8 md:px-12 pt-8 md:pt-10">
               <motion.div
                 initial={{ opacity: 0, x: -8 }}
@@ -137,10 +137,10 @@ export default function ExplorePage() {
                 className="flex items-center gap-2"
               >
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full bg-[#00D26A] opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 bg-[#00D26A]" />
+                  <span className="animate-ping absolute inline-flex h-full w-full bg-up opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 bg-up" />
                 </span>
-                <span className="text-[8px] tracking-[0.2em] text-[#00D26A]/70 font-semibold">LIVE</span>
+                <span className="text-[8px] tracking-[0.2em] text-up/70 font-semibold">LIVE</span>
               </motion.div>
             </div>
 
@@ -173,7 +173,7 @@ export default function ExplorePage() {
                 >
                   University clubs, listed as equities. Buy shares, trade live across three evenings, and compete for a {""
                   }<span className="text-white/70 font-semibold">{"\u20B9"}70,000</span> prize pool.
-                  Entry {"\u20B9"}100 {"—"} free for MU students.
+                  Entry {"\u20B9"}100 {"-"} free for MU students.
                 </motion.p>
 
                 {/* Countdown */}
@@ -268,7 +268,7 @@ export default function ExplorePage() {
         </motion.section>
       )}
 
-      {/* Products & Tools — full-width feature grid */}
+      {/* Products & Tools - full-width feature grid */}
       <motion.div
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
@@ -366,7 +366,7 @@ export default function ExplorePage() {
                     <p className="font-[var(--font-anton)] text-[13px]">
                       {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                     </p>
-                    <p className={`text-[11px] font-medium ${stock.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <p className={`text-[11px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                       {stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%
                     </p>
                   </div>
@@ -406,7 +406,7 @@ export default function ExplorePage() {
                     <p className="font-[var(--font-anton)] text-[13px]">
                       {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                     </p>
-                    <p className={`text-[10px] font-medium ${stock.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <p className={`text-[10px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                       {stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%
                     </p>
                   </div>
@@ -441,7 +441,7 @@ export default function ExplorePage() {
                   </div>
                   <div className="text-right">
                     <p className="font-[var(--font-anton)] text-[12px]">{"\u20B9"}{s.price.toLocaleString("en-IN")}</p>
-                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                       {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
                     </p>
                   </div>
@@ -472,7 +472,7 @@ export default function ExplorePage() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <p className="font-[var(--font-anton)] text-[12px] tracking-[0.05em]">{news.name}</p>
-                    <p className={`text-[11px] font-medium ${news.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <p className={`text-[11px] font-medium ${news.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                       {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
                     </p>
                   </div>
@@ -509,7 +509,7 @@ export default function ExplorePage() {
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="font-[var(--font-anton)] text-[11px] tracking-[0.05em]">{news.ticker}</span>
-                    <span className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <span className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                       {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
                     </span>
                   </div>

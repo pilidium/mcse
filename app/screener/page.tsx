@@ -79,7 +79,7 @@ export default function ScreenerPage() {
         </span>
         <span className="text-white/10">&middot;</span>
         <span className="text-[10px] tracking-[0.1em] text-white/30">
-          AVG CHG <span className={`font-medium ml-1 ${avgChange >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>{avgChange >= 0 ? "+" : ""}{avgChange.toFixed(2)}%</span>
+          AVG CHG <span className={`font-medium ml-1 ${avgChange >= 0 ? "text-up" : "text-down"}`}>{avgChange >= 0 ? "+" : ""}{avgChange.toFixed(2)}%</span>
         </span>
       </div>
 
@@ -203,8 +203,8 @@ export default function ScreenerPage() {
                   <span className="text-[12px] text-right">{"\u20B9"}{s.price.toFixed(2)}</span>
                   <span className={`text-[11px] text-right font-medium px-2 py-0.5 ${
                     s.dayChangePercent >= 0
-                      ? "text-[#00D26A] bg-[#00D26A]/5"
-                      : "text-[#FF5252] bg-[#FF5252]/5"
+                      ? "text-up bg-up/5"
+                      : "text-down bg-down/5"
                   }`}>
                     {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
                   </span>
@@ -249,7 +249,7 @@ export default function ScreenerPage() {
                   <Sparkline data={s.sparkline} width={44} height={18} positive={s.dayChangePercent >= 0} />
                   <div className="text-right shrink-0 min-w-[70px]">
                     <p className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{s.price.toFixed(2)}</p>
-                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                       {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
                     </p>
                   </div>

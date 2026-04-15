@@ -52,11 +52,11 @@ const recentUsers = [
 ];
 
 const activityFeed = [
-  { action: "BUY ORDER", detail: "MATHSOC × 10 @ ₹2,892", time: "2 min ago", color: "text-[#00D26A]" },
-  { action: "SELL ORDER", detail: "ENIGMA × 5 @ ₹3,987", time: "8 min ago", color: "text-[#FF5252]" },
+  { action: "BUY ORDER", detail: "MATHSOC × 10 @ ₹2,892", time: "2 min ago", color: "text-up" },
+  { action: "SELL ORDER", detail: "ENIGMA × 5 @ ₹3,987", time: "8 min ago", color: "text-down" },
   { action: "NEW USER", detail: "vikash@mcse.in registered", time: "15 min ago", color: "text-white/50" },
-  { action: "BUY ORDER", detail: "CELESTE × 20 @ ₹1,645", time: "23 min ago", color: "text-[#00D26A]" },
-  { action: "SELL ORDER", detail: "INSIGHT × 15 @ ₹468", time: "45 min ago", color: "text-[#FF5252]" },
+  { action: "BUY ORDER", detail: "CELESTE × 20 @ ₹1,645", time: "23 min ago", color: "text-up" },
+  { action: "SELL ORDER", detail: "INSIGHT × 15 @ ₹468", time: "45 min ago", color: "text-down" },
 ];
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -96,7 +96,7 @@ function EnigmaDashboard() {
         </div>
         <div className="text-right hidden md:block">
           <p className="font-[var(--font-anton)] text-2xl">{"\u20B9"}{enigma.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
-          <p className={`text-[11px] font-medium ${enigma.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+          <p className={`text-[11px] font-medium ${enigma.changePercent >= 0 ? "text-up" : "text-down"}`}>
             {enigma.changePercent >= 0 ? "+" : ""}{enigma.changePercent.toFixed(2)}%
           </p>
         </div>
@@ -144,8 +144,8 @@ function EnigmaDashboard() {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="enigmaFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={enigma.changePercent >= 0 ? "#00D26A" : "#FF5252"} stopOpacity={0.15} />
-                      <stop offset="100%" stopColor={enigma.changePercent >= 0 ? "#00D26A" : "#FF5252"} stopOpacity={0} />
+                      <stop offset="0%" stopColor={enigma.changePercent >= 0 ? "var(--color-up)" : "var(--color-down)"} stopOpacity={0.15} />
+                      <stop offset="100%" stopColor={enigma.changePercent >= 0 ? "var(--color-up)" : "var(--color-down)"} stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="day" hide />
@@ -157,7 +157,7 @@ function EnigmaDashboard() {
                   <Area
                     type="monotone"
                     dataKey="price"
-                    stroke={enigma.changePercent >= 0 ? "#00D26A" : "#FF5252"}
+                    stroke={enigma.changePercent >= 0 ? "var(--color-up)" : "var(--color-down)"}
                     strokeWidth={1.5}
                     fill="url(#enigmaFill)"
                   />
@@ -201,8 +201,8 @@ function EnigmaDashboard() {
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className={`text-[7px] tracking-[0.1em] px-1 py-0.5 border ${
                     n.status === "PENDING" ? "text-amber-400 border-amber-400/20" :
-                    n.status === "PUBLISHED" ? "text-[#00D26A] border-[#00D26A]/20" :
-                    "text-[#FF5252] border-[#FF5252]/20"
+                    n.status === "PUBLISHED" ? "text-up border-up/20" :
+                    "text-down border-down/20"
                   }`}>{n.status}</span>
                 </div>
                 <p className="text-[11px] text-white/60">{n.title}</p>
@@ -334,7 +334,7 @@ function TotalAdminDashboard() {
             <span className="text-[9px] tracking-[0.15em] text-white/25">TOTAL USERS</span>
           </div>
           <p className="font-[var(--font-anton)] text-xl">{platformStats.totalUsers}</p>
-          <p className="text-[10px] text-[#00D26A] mt-0.5">{platformStats.activeToday} active</p>
+          <p className="text-[10px] text-up mt-0.5">{platformStats.activeToday} active</p>
         </div>
         <div className="bg-bg p-4 md:p-5">
           <div className="flex items-center gap-2 mb-1">
@@ -359,10 +359,10 @@ function TotalAdminDashboard() {
         </div>
         <div className="bg-bg p-4 md:p-5">
           <div className="flex items-center gap-2 mb-1">
-            <Power size={13} className={marketOpen ? "text-[#00D26A]" : "text-[#FF5252]"} />
+            <Power size={13} className={marketOpen ? "text-up" : "text-down"} />
             <span className="text-[9px] tracking-[0.15em] text-white/25">MARKET</span>
           </div>
-          <p className={`font-[var(--font-anton)] text-xl ${marketOpen ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+          <p className={`font-[var(--font-anton)] text-xl ${marketOpen ? "text-up" : "text-down"}`}>
             {marketOpen ? "OPEN" : "CLOSED"}
           </p>
         </div>
@@ -423,8 +423,8 @@ function TotalAdminDashboard() {
               onClick={toggleMarket}
               className={`w-full py-3 text-[10px] tracking-[0.15em] font-semibold border transition-all ${
                 marketOpen
-                  ? "bg-[#00D26A]/10 border-[#00D26A]/30 text-[#00D26A] hover:bg-[#00D26A]/20"
-                  : "bg-[#FF5252]/10 border-[#FF5252]/30 text-[#FF5252] hover:bg-[#FF5252]/20"
+                  ? "bg-up/10 border-up/30 text-up hover:bg-up/20"
+                  : "bg-down/10 border-down/30 text-down hover:bg-down/20"
               }`}
             >
               <Power size={14} className="inline mr-2 -mt-0.5" />
@@ -454,8 +454,8 @@ function TotalAdminDashboard() {
                     onClick={() => toggleListing(stock.ticker)}
                     className={`flex items-center gap-1.5 text-[9px] tracking-[0.1em] px-2.5 py-1 border transition-all ${
                       isListed
-                        ? "text-[#00D26A] border-[#00D26A]/20 hover:border-[#00D26A]/50"
-                        : "text-[#FF5252] border-[#FF5252]/20 hover:border-[#FF5252]/50"
+                        ? "text-up border-up/20 hover:border-up/50"
+                        : "text-down border-down/20 hover:border-down/50"
                     }`}
                   >
                     {isListed ? <Eye size={11} /> : <EyeOff size={11} />}
@@ -568,13 +568,13 @@ function TotalAdminDashboard() {
               <div className="flex gap-2 shrink-0">
                 <button
                   onClick={() => approveNews(n.id)}
-                  className="h-7 px-3 text-[8px] tracking-[0.1em] bg-[#00D26A] text-black font-semibold hover:bg-[#00D26A]/80 transition-colors"
+                  className="h-7 px-3 text-[8px] tracking-[0.1em] bg-up text-black font-semibold hover:bg-up/80 transition-colors"
                 >
                   APPROVE
                 </button>
                 <button
                   onClick={() => rejectNews(n.id)}
-                  className="h-7 px-3 text-[8px] tracking-[0.1em] border border-[#FF5252]/40 text-[#FF5252] hover:bg-[#FF5252]/10 transition-colors"
+                  className="h-7 px-3 text-[8px] tracking-[0.1em] border border-down/40 text-down hover:bg-down/10 transition-colors"
                 >
                   REJECT
                 </button>

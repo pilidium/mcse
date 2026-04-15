@@ -8,13 +8,22 @@ import { useAuth } from "@/lib/AuthContext";
 import { useAdmin } from "@/lib/AdminContext";
 
 export default function AdminEventsPage() {
-  const { role } = useAuth();
+  const { isLoggedIn, role } = useAuth();
   const router = useRouter();
   const { companyEvents, addEvent, removeEvent } = useAdmin();
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
+
+  if (!isLoggedIn || !role || role === "user") {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <p className="font-[var(--font-anton)] text-lg tracking-[0.1em] mb-2">ACCESS DENIED</p>
+        <p className="text-[11px] text-white/40">You need admin privileges to access this page.</p>
+      </div>
+    );
+  }
 
   const isCompanyAdmin = role === "company";
 
@@ -67,7 +76,7 @@ export default function AdminEventsPage() {
       {isCompanyAdmin && (
         <button
           onClick={() => removeEvent(evt.id)}
-          className="shrink-0 p-2 text-white/20 hover:text-[#FF5252] transition-colors"
+          className="shrink-0 p-2 text-white/20 hover:text-down transition-colors"
           title="Remove event"
         >
           <Trash2 size={14} />

@@ -192,7 +192,7 @@ export default function WatchlistPage() {
                 <p className="font-[var(--font-anton)] text-[13px]">
                   {"₹"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
-                <p className={`text-[11px] font-medium ${stock.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                <p className={`text-[11px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                   {stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%
                 </p>
                 {stock.shares && (
@@ -264,7 +264,7 @@ export default function WatchlistPage() {
               </div>
 
               <div className="text-right">
-                <p className={`text-[11px] font-medium ${stock.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                <p className={`text-[11px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                   {stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%
                 </p>
                 <p className="text-[10px] text-white/20">
@@ -347,7 +347,7 @@ export default function WatchlistPage() {
                 <p className="font-[var(--font-anton)] text-2xl tracking-tight mb-1">
                   {"\u20B9"}{hoveredStock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
-                <p className={`text-[11px] font-medium mb-4 ${hoveredStock.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                <p className={`text-[11px] font-medium mb-4 ${hoveredStock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                   {hoveredStock.dayChangePercent >= 0 ? "+" : ""}{hoveredStock.dayChangePercent.toFixed(2)}%
                 </p>
                 <Sparkline data={hoveredStock.sparkline} width={180} height={56} positive={hoveredStock.dayChangePercent >= 0} />

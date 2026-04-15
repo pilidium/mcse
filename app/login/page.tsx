@@ -77,6 +77,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label="Toggle password visibility"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -85,7 +86,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="text-[11px] tracking-[0.08em] text-[#FF5252] mt-1">{error}</p>
+            <p className="text-[11px] tracking-[0.08em] text-down mt-1">{error}</p>
           )}
 
           <button
