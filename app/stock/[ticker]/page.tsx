@@ -140,9 +140,9 @@ export default function StockDetailPage({
 
       {/* Header */}
       <div
-        className="flex items-center justify-between py-4 border-b border-white/8"
+        className="flex items-center justify-between flex-wrap gap-3 py-4 border-b border-white/8"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 min-w-0 flex-1">
           <button
             onClick={() => router.back()}
             aria-label="Go back"
@@ -171,7 +171,7 @@ export default function StockDetailPage({
                   <Copy size={11} className="text-white/30 opacity-0 group-hover:opacity-100 transition-opacity" />
                 )}
               </button>
-              <p className="text-[10px] text-white/40">{stock.name}</p>
+              <p className="text-[10px] text-white/40 truncate max-w-[140px] md:max-w-none">{stock.name}</p>
             </div>
           </div>
         </div>

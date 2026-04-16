@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { ChevronRight, ChevronDown, ChevronUp, Target, Layers, ScanLine, Calendar, Landmark, Repeat, TrendingUp as TrendingUpIcon } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Target, Layers, ScanLine, Calendar, Landmark, Repeat, TrendingUp as TrendingUpIcon, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -44,6 +44,7 @@ export default function ExplorePage() {
   const [activeTab, setActiveTab] = useState<MoverTab>("GAINERS");
   const [moverSort, setMoverSort] = useState<MoverSortKey>("dayChangePercent");
   const [moverSortDir, setMoverSortDir] = useState<SortDir>("desc");
+  const [moverSortOpen, setMoverSortOpen] = useState(false);
   const { isLoggedIn } = useAuth();
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -333,19 +334,30 @@ export default function ExplorePage() {
 
             {/* Mobile: sort + card list */}
             <div className="md:hidden">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[9px] tracking-[0.15em] text-white/30 uppercase">SORT BY</span>
-                <select
-                  value={moverSort}
-                  onChange={(e) => { setMoverSort(e.target.value as MoverSortKey); setMoverSortDir("desc"); }}
-                  className="bg-transparent border border-white/15 text-[10px] tracking-[0.1em] text-white/60 px-3 py-1.5 outline-none appearance-none cursor-pointer"
-                  style={{ fontSize: '16px' }}
+              <div className="flex items-center gap-3 mb-3 relative">
+                <button
+                  onClick={() => setMoverSortOpen(!moverSortOpen)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-white/15 text-[10px] tracking-[0.1em] text-white/60 hover:text-white hover:border-white transition-colors"
                 >
-                  <option value="ticker" className="bg-bg">NAME</option>
-                  <option value="price" className="bg-bg">PRICE</option>
-                  <option value="dayChangePercent" className="bg-bg">CHANGE %</option>
-                  <option value="volume" className="bg-bg">VOLUME</option>
-                </select>
+                  <ArrowUpDown size={11} />
+                  SORT
+                </button>
+                {moverSortOpen && (
+                  <div className="absolute top-full left-0 mt-1 z-20 border border-white/15 bg-bg min-w-[140px]">
+                    {(["ticker", "price", "dayChangePercent", "volume"] as MoverSortKey[]).map((key) => (
+                      <button
+                        key={key}
+                        onClick={() => { setMoverSort(key); setMoverSortDir("desc"); setMoverSortOpen(false); }}
+                        className={`block w-full text-left px-4 py-2.5 text-[10px] tracking-[0.1em] transition-colors ${moverSort === key ? "text-white bg-white/[0.06]" : "text-white/50 hover:text-white hover:bg-white/[0.03]"}`}
+                      >
+                        {{ ticker: "NAME", price: "PRICE", dayChangePercent: "CHANGE %", volume: "VOLUME" }[key]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <span className="text-[9px] tracking-[0.1em] text-white/25 ml-auto">
+                  {{ ticker: "NAME", price: "PRICE", dayChangePercent: "CHANGE %", volume: "VOLUME" }[moverSort]}
+                </span>
               </div>
               <div className="space-y-2">
               {currentMovers.map((stock) => (

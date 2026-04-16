@@ -11,7 +11,6 @@ import NotificationDropdown from "./NotificationDropdown";
 import SearchModal from "./SearchModal";
 import DesktopSearch from "./DesktopSearch";
 import { useAuth } from "@/lib/AuthContext";
-import { useAdmin } from "@/lib/AdminContext";
 
 /* Desktop tabs by role */
 const userDesktopTabs = [
@@ -66,7 +65,6 @@ export default function TopNav() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const { isLoggedIn, userName, role } = useAuth();
-  const { marketOpen } = useAdmin();
 
   const initials = userName ? userName.split(" ").map(w => w[0]).join("").slice(0, 2) : "M";
 
@@ -186,7 +184,7 @@ export default function TopNav() {
               ) : (
                 <Link
                   href="/login"
-                  className="h-11 md:h-10 px-4 bg-white text-black flex items-center justify-center text-[10px] tracking-[0.12em] font-semibold hover:bg-transparent hover:text-white border border-white transition-all duration-300"
+                  className="h-11 md:h-10 px-4 bg-white text-black flex items-center justify-center text-[10px] tracking-[0.12em] font-semibold hover:bg-transparent hover:text-white border border-white transition-all duration-300 whitespace-nowrap"
                 >
                 LOG IN
                 </Link>
@@ -195,18 +193,7 @@ export default function TopNav() {
           </div>
         </div>
 
-        {/* Market status banner — desktop only; TickerTape already shows this on mobile */}
-        <div className="hidden md:flex items-center justify-between h-7 px-4 md:px-12 max-w-[1280px] mx-auto border-t border-white/6">
-          <div className="flex items-center gap-2">
-            <span className={`w-1.5 h-1.5 rounded-full ${marketOpen ? "bg-up" : "bg-down"}`} />
-            <span className={`text-[9px] tracking-[0.15em] font-medium ${marketOpen ? "text-up" : "text-down"}`}>
-              MARKET {marketOpen ? "OPEN" : "CLOSED"}
-            </span>
-          </div>
-          <span className="text-[9px] tracking-[0.1em] text-white/20">
-            MON–FRI · 9:15 AM – 3:30 PM
-          </span>
-        </div>
+
       </nav>
 
       {/* Mobile bottom tab bar — 4 tabs, 56px tall */}

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Mail, Phone, MessageSquare, ChevronDown, ChevronUp, Send, CheckCircle } from "lucide-react";
+import { ArrowLeft, Mail, Phone, ChevronDown, ChevronUp, Send, CheckCircle } from "lucide-react";
 
 const faqs = [
   { q: "How do I place a buy/sell order?", a: "Navigate to any stock page and use the BUY or SELL buttons. On desktop, the order panel is on the right sidebar. On mobile, use the bottom action bar." },
@@ -45,7 +45,7 @@ export default function SupportPage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.05 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-white/8 mb-8"
+        className="grid grid-cols-1 md:grid-cols-2 gap-[1px] bg-white/8 mb-8"
       >
         <div className="bg-bg p-5 flex items-center gap-4">
           <div className="w-10 h-10 border border-white/20 flex items-center justify-center shrink-0">
@@ -63,15 +63,6 @@ export default function SupportPage() {
           <div>
             <p className="text-[9px] tracking-[0.2em] text-white/30 mb-1">PHONE</p>
             <p className="text-[12px] text-white/70">+91 80 0000 MCSE</p>
-          </div>
-        </div>
-        <div className="bg-bg p-5 flex items-center gap-4">
-          <div className="w-10 h-10 border border-white/20 flex items-center justify-center shrink-0">
-            <MessageSquare size={16} className="text-white/40" />
-          </div>
-          <div>
-            <p className="text-[9px] tracking-[0.2em] text-white/30 mb-1">LIVE CHAT</p>
-            <p className="text-[12px] text-white/70">Monâ€“Sat, 9AMâ€“6PM</p>
           </div>
         </div>
       </motion.div>

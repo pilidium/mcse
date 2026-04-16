@@ -1,18 +1,92 @@
 "use client";
 
+import { useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { tickerTapeItems } from "@/lib/mockData";
 
 export default function TickerTape() {
   const items = [...tickerTapeItems, ...tickerTapeItems];
+  const trackRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+  const startX = useRef(0);
+  const resumeTimer = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const pauseAnimation = useCallback(() => {
+    if (trackRef.current) trackRef.current.style.animationPlayState = "paused";
+  }, []);
+
+  const resumeAnimation = useCallback(() => {
+    if (trackRef.current) trackRef.current.style.animationPlayState = "running";
+  }, []);
+
+  const scheduleResume = useCallback(() => {
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    resumeTimer.current = setTimeout(resumeAnimation, 3000);
+  }, [resumeAnimation]);
+
+  const onDown = useCallback((clientX: number) => {
+    dragging.current = true;
+    startX.current = clientX;
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    pauseAnimation();
+  }, [pauseAnimation]);
+
+  const onMove = useCallback((clientX: number) => {
+    if (!dragging.current || !trackRef.current) return;
+    const delta = clientX - startX.current;
+    startX.current = clientX;
+    const style = getComputedStyle(trackRef.current);
+    const matrix = new DOMMatrix(style.transform);
+    const currentX = matrix.m41;
+    const totalW = trackRef.current.scrollWidth / 2;
+    let newX = currentX + delta;
+    if (newX > 0) newX -= totalW;
+    if (newX < -totalW) newX += totalW;
+    trackRef.current.style.transform = `translateX(${newX}px)`;
+  }, []);
+
+  const onUp = useCallback(() => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    scheduleResume();
+  }, [scheduleResume]);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const handleTouchStart = (e: TouchEvent) => onDown(e.touches[0].clientX);
+    const handleTouchMove = (e: TouchEvent) => { e.preventDefault(); onMove(e.touches[0].clientX); };
+    const handleTouchEnd = () => onUp();
+    const handleMouseDown = (e: MouseEvent) => onDown(e.clientX);
+    const handleMouseMove = (e: MouseEvent) => onMove(e.clientX);
+    const handleMouseUp = () => onUp();
+
+    el.addEventListener("touchstart", handleTouchStart, { passive: true });
+    el.addEventListener("touchmove", handleTouchMove, { passive: false });
+    el.addEventListener("touchend", handleTouchEnd);
+    el.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchmove", handleTouchMove);
+      el.removeEventListener("touchend", handleTouchEnd);
+      el.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    };
+  }, [onDown, onMove, onUp]);
 
   return (
-    <div className="ticker-wrap w-full h-8 bg-bg/95 backdrop-blur-sm border-b border-white/8 overflow-hidden select-none">
-      <div className="flex items-center h-full animate-ticker whitespace-nowrap">
+    <div className="ticker-wrap w-full h-8 bg-bg/95 backdrop-blur-sm border-b border-white/8 overflow-hidden select-none cursor-grab active:cursor-grabbing">
+      <div ref={trackRef} className="flex items-center h-full animate-ticker whitespace-nowrap">
         {items.map((item, i) => (
           <Link
             key={`${item.ticker}-${i}`}
             href={`/stock/${item.ticker}`}
+            draggable={false}
             className="flex items-center gap-2 px-3 md:px-6 cursor-pointer hover:bg-white/[0.04] transition-colors h-full"
           >
             <span className="text-[10px] font-[MonumentExtended] tracking-[0.1em] text-white/60">
@@ -24,7 +98,9 @@ export default function TickerTape() {
             <span className={`text-[10px] font-medium ${item.changePercent >= 0 ? "text-up" : "text-down"}`}>
               {item.changePercent >= 0 ? "+" : ""}{item.changePercent.toFixed(2)}%
             </span>
-            <span className="text-white/15 text-[8px]">{"\u00B7"}</span>
+            {i < items.length - 1 && (
+              <span className="text-white/15 ml-2">{"\u00B7"}</span>
+            )}
           </Link>
         ))}
       </div>

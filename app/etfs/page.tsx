@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Layers, ChevronDown, PieChart, ArrowLeft, TrendingUp } from "lucide-react";
+import { Layers, ChevronDown, PieChart, ArrowLeft } from "lucide-react";
 import Sparkline from "@/components/Sparkline";
 
 interface ETF {
@@ -25,9 +25,10 @@ const etfs: ETF[] = [
     sparkline: [230, 231, 232, 234, 235, 235, 235],
     expenseRatio: 0.05, aum: "\u20B91,240 Cr", category: "EQUITY", return1Y: 14.6,
     holdings: [
-      { name: "MATHSOC", weight: 22 }, { name: "ENIGMA", weight: 18 },
-      { name: "MASTERSHOT", weight: 15 }, { name: "GASMONKEYS", weight: 14 },
-      { name: "CELESTE", weight: 12 }, { name: "Others", weight: 19 },
+      { name: "MACAD", weight: 12 }, { name: "MPUB", weight: 10 },
+      { name: "ESOFT", weight: 9 }, { name: "ECLOUD", weight: 9 },
+      { name: "GMRACE", weight: 8 }, { name: "MSSTD", weight: 8 },
+      { name: "Others", weight: 44 },
     ],
   },
   {
@@ -35,8 +36,9 @@ const etfs: ETF[] = [
     sparkline: [512, 511, 510, 509, 509, 509, 508],
     expenseRatio: 0.12, aum: "\u20B9860 Cr", category: "EQUITY", return1Y: 8.2,
     holdings: [
-      { name: "INSIGHT", weight: 30 }, { name: "ERUDITE", weight: 28 },
-      { name: "MATHSOC", weight: 20 }, { name: "Others", weight: 22 },
+      { name: "INDATA", weight: 18 }, { name: "INMKT", weight: 14 },
+      { name: "ERLEARN", weight: 12 }, { name: "ERPRESS", weight: 10 },
+      { name: "MACAD", weight: 10 }, { name: "Others", weight: 36 },
     ],
   },
   {
@@ -52,8 +54,10 @@ const etfs: ETF[] = [
     sparkline: [43, 43.5, 44, 44.2, 44.5, 44.7, 44.8],
     expenseRatio: 0.20, aum: "\u20B9520 Cr", category: "EQUITY", return1Y: 22.1,
     holdings: [
-      { name: "ENIGMA", weight: 35 }, { name: "CELESTE", weight: 25 },
-      { name: "MASTERSHOT", weight: 20 }, { name: "Others", weight: 20 },
+      { name: "ESOFT", weight: 15 }, { name: "ECLOUD", weight: 12 },
+      { name: "ENAI", weight: 10 }, { name: "CELRES", weight: 10 },
+      { name: "CELBIO", weight: 8 }, { name: "MSDIGI", weight: 8 },
+      { name: "Others", weight: 37 },
     ],
   },
 ];
@@ -99,25 +103,24 @@ export default function ETFsPage() {
         ))}
       </div>
 
-      <div className="md:grid md:grid-cols-[3fr_2fr] md:gap-8">
-        <div className="space-y-2">
-          {filteredEtfs.map((etf, idx) => {
-            const isOpen = expanded === etf.ticker;
-            return (
-              <motion.div
-                key={etf.ticker}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.04 }}
-                className="border border-white/6 overflow-hidden"
+      <div className="space-y-2 max-w-3xl">
+        {filteredEtfs.map((etf, idx) => {
+          const isOpen = expanded === etf.ticker;
+          return (
+            <motion.div
+              key={etf.ticker}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.04 }}
+              className="border border-white/6 overflow-hidden"
+            >
+              <button
+                onClick={() => setExpanded(isOpen ? null : etf.ticker)}
+                className="w-full flex items-center gap-4 p-4 hover:bg-white/[0.03] transition-colors text-left"
               >
-                <button
-                  onClick={() => setExpanded(isOpen ? null : etf.ticker)}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-white/[0.03] transition-colors text-left"
-                >
-                  <div className="w-10 h-10 border border-white/20 flex items-center justify-center shrink-0">
-                    <span className="text-[8px] tracking-[0.1em] text-white/40">{etf.ticker.slice(0, 3)}</span>
-                  </div>
+                <div className="w-10 h-10 border border-white/20 flex items-center justify-center shrink-0">
+                  <span className="text-[8px] tracking-[0.1em] text-white/40">{etf.ticker.slice(0, 3)}</span>
+                </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{etf.name}</p>
                     <div className="flex items-center gap-2 mt-0.5">
@@ -206,58 +209,6 @@ export default function ETFsPage() {
               <p className="text-[11px] tracking-[0.1em] text-white/20">No ETFs in this category</p>
             </div>
           )}
-        </div>
-
-        <aside className="hidden md:block space-y-6">
-          <div className="border border-white/10 p-5">
-            <p className="text-[9px] tracking-[0.15em] text-white/30 mb-3">WHAT ARE ETFs?</p>
-            <p className="text-[12px] text-white/40 leading-relaxed">
-              Exchange-Traded Funds are investment funds traded on stock exchanges, holding a diversified basket of assets. They offer low-cost exposure to indices, sectors, or commodities.
-            </p>
-          </div>
-
-          <div className="border border-white/10 p-5">
-            <p className="text-[9px] tracking-[0.15em] text-white/30 mb-4">EXPENSE RATIO COMPARISON</p>
-            <div className="space-y-3">
-              {etfs.map((etf) => (
-                <div key={etf.ticker}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] text-white/50">{etf.ticker}</span>
-                    <span className="text-[11px] font-[var(--font-anton)]">{etf.expenseRatio.toFixed(2)}%</span>
-                  </div>
-                  <div className="h-1.5 bg-white/6 overflow-hidden">
-                    <div className="h-full bg-white/25" style={{ width: `${Math.min(etf.expenseRatio * 200, 100)}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="border border-white/10 p-5">
-            <div className="flex items-center gap-1.5 mb-4">
-              <TrendingUp size={11} className="text-white/25" />
-              <p className="text-[9px] tracking-[0.15em] text-white/30">1Y PERFORMANCE</p>
-            </div>
-            <div className="space-y-3">
-              {[...etfs].sort((a, b) => b.return1Y - a.return1Y).map((etf) => (
-                <div key={etf.ticker}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] text-white/50">{etf.name}</span>
-                    <span className={`text-[11px] font-[var(--font-anton)] ${etf.return1Y >= 0 ? "text-up" : "text-down"}`}>
-                      {etf.return1Y >= 0 ? "+" : ""}{etf.return1Y}%
-                    </span>
-                  </div>
-                  <div className="h-1.5 bg-white/6 overflow-hidden">
-                    <div
-                      className={`h-full ${etf.return1Y >= 0 ? "bg-up/30" : "bg-down/30"}`}
-                      style={{ width: `${Math.min(Math.abs(etf.return1Y) * 4, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   );

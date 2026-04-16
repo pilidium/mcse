@@ -157,6 +157,7 @@ export default function AnalysePage() {
                   innerRadius={35}
                   strokeWidth={1}
                   stroke="#0a0a0a"
+                  isAnimationActive={false}
                 >
                   {portfolioAnalysis.sectorAllocation.map((_: { sector: string; value: number }, idx: number) => (
                     <Cell key={idx} fill={["#fff", "#888", "#555", "#aaa", "#666", "#ccc"][idx % 6]} />

@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   Users,
   BarChart3,
-  TrendingUp,
   Shield,
   Activity,
   DollarSign,
@@ -52,21 +51,22 @@ const recentUsers = [
 ];
 
 const activityFeed = [
-  { action: "BUY ORDER", detail: "MATHSOC × 10 @ ₹2,892", time: "2 min ago", color: "text-up" },
-  { action: "SELL ORDER", detail: "ENIGMA × 5 @ ₹3,987", time: "8 min ago", color: "text-down" },
+  { action: "BUY ORDER", detail: "MACAD × 10 @ ₹1,198", time: "2 min ago", color: "text-up" },
+  { action: "SELL ORDER", detail: "ECLOUD × 5 @ ₹3,215", time: "8 min ago", color: "text-down" },
   { action: "NEW USER", detail: "vikash@mcse.in registered", time: "15 min ago", color: "text-white/50" },
-  { action: "BUY ORDER", detail: "CELESTE × 20 @ ₹1,645", time: "23 min ago", color: "text-up" },
-  { action: "SELL ORDER", detail: "INSIGHT × 15 @ ₹468", time: "45 min ago", color: "text-down" },
+  { action: "BUY ORDER", detail: "CELBIO × 20 @ ₹2,148", time: "23 min ago", color: "text-up" },
+  { action: "SELL ORDER", detail: "INDATA × 15 @ ₹282", time: "45 min ago", color: "text-down" },
 ];
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    Enigma Company Admin Dashboard
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function EnigmaDashboard() {
-  const enigma = stockDirectory["ENIGMA"];
-  const fund = enigma.fundamentals;
-  const chartData = enigma.chartData["1M"];
   const co = enigmaCompanyData;
+  const [activeSub, setActiveSub] = useState(co.subsidiaries[0]);
+  const sub = stockDirectory[activeSub];
+  const fund = sub.fundamentals;
+  const chartData = sub.chartData["1M"];
   const { companyNews, companyEvents } = useAdmin();
 
   const recentNews = companyNews.slice(0, 3);
@@ -90,17 +90,41 @@ function EnigmaDashboard() {
             <span className="font-[var(--font-anton)] text-lg md:text-xl tracking-wider">E</span>
           </div>
           <div>
-            <h1 className="font-[var(--font-anton)] text-2xl md:text-3xl tracking-[0.08em] uppercase">ENIGMA</h1>
+            <h1 className="font-[var(--font-anton)] text-2xl md:text-3xl tracking-[0.08em] uppercase">ENIGMA GROUP</h1>
             <p className="text-[10px] text-white/30 tracking-[0.1em] mt-0.5">Enigma Computer Science · COMPANY DASHBOARD</p>
           </div>
         </div>
         <div className="text-right hidden md:block">
-          <p className="font-[var(--font-anton)] text-2xl">{"\u20B9"}{enigma.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
-          <p className={`text-[11px] font-medium ${enigma.changePercent >= 0 ? "text-up" : "text-down"}`}>
-            {enigma.changePercent >= 0 ? "+" : ""}{enigma.changePercent.toFixed(2)}%
+          <p className="font-[var(--font-anton)] text-2xl">{"\u20B9"}{sub.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+          <p className={`text-[11px] font-medium ${sub.changePercent >= 0 ? "text-up" : "text-down"}`}>
+            {sub.changePercent >= 0 ? "+" : ""}{sub.changePercent.toFixed(2)}%
           </p>
         </div>
       </motion.div>
+
+      {/* Subsidiary Tabs */}
+      <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hide">
+        {co.subsidiaries.map((ticker) => {
+          const s = stockDirectory[ticker];
+          const active = ticker === activeSub;
+          return (
+            <button
+              key={ticker}
+              onClick={() => setActiveSub(ticker)}
+              className={`px-4 py-2.5 text-[10px] tracking-[0.12em] font-medium border whitespace-nowrap transition-colors duration-200 ${
+                active
+                  ? "bg-white text-black border-white"
+                  : "text-white/50 border-white/15 hover:text-white/80 hover:border-white/30"
+              }`}
+            >
+              {ticker}
+              <span className={`ml-2 text-[9px] ${active ? "text-black/50" : (s.changePercent >= 0 ? "text-up" : "text-down")}`}>
+                {s.changePercent >= 0 ? "+" : ""}{s.changePercent.toFixed(2)}%
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
       {/* Metrics Strip */}
       <motion.div
@@ -144,8 +168,8 @@ function EnigmaDashboard() {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="enigmaFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={enigma.changePercent >= 0 ? "var(--color-up)" : "var(--color-down)"} stopOpacity={0.15} />
-                      <stop offset="100%" stopColor={enigma.changePercent >= 0 ? "var(--color-up)" : "var(--color-down)"} stopOpacity={0} />
+                      <stop offset="0%" stopColor={sub.changePercent >= 0 ? "var(--color-up)" : "var(--color-down)"} stopOpacity={0.15} />
+                      <stop offset="100%" stopColor={sub.changePercent >= 0 ? "var(--color-up)" : "var(--color-down)"} stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="day" hide />
@@ -157,7 +181,7 @@ function EnigmaDashboard() {
                   <Area
                     type="monotone"
                     dataKey="price"
-                    stroke={enigma.changePercent >= 0 ? "var(--color-up)" : "var(--color-down)"}
+                    stroke={sub.changePercent >= 0 ? "var(--color-up)" : "var(--color-down)"}
                     strokeWidth={1.5}
                     fill="url(#enigmaFill)"
                   />
@@ -173,8 +197,8 @@ function EnigmaDashboard() {
             transition={{ duration: 0.4, delay: 0.15 }}
             className="border border-white/10 p-5"
           >
-            <p className="text-[9px] tracking-[0.15em] text-white/30 mb-3">ABOUT ENIGMA</p>
-            <p className="text-[12px] text-white/40 leading-relaxed">{enigma.about}</p>
+            <p className="text-[9px] tracking-[0.15em] text-white/30 mb-3">ABOUT {activeSub}</p>
+            <p className="text-[12px] text-white/40 leading-relaxed">{sub.about}</p>
           </motion.div>
 
           {/* Company News â€” Summary Card */}

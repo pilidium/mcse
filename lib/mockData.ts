@@ -1,4 +1,4 @@
-// ─── Indian Market Indices ───────────────────────────────
+﻿// ─── Indian Market Indices ───────────────────────────────
 export interface IndexData {
   name: string;
   value: number;
@@ -13,6 +13,66 @@ export const indices: IndexData[] = [
   { name: "MIDCAPEON", value: 11245.60, change: 89.30, changePercent: 0.80 },
   { name: "FINAEON", value: 23412.80, change: 45.20, changePercent: 0.19 },
 ];
+
+// ─── Parent Companies (holding companies, not traded) ───
+export interface ParentCompany {
+  ticker: string;
+  name: string;
+  about: string;
+  subsidiaries: string[];
+}
+
+export const parentCompanies: ParentCompany[] = [
+  {
+    ticker: "MATHSOC",
+    name: "Math Society Group",
+    about: "Math Society is the flagship mathematics club of the institution. As a holding company it oversees its three subsidiaries: MathSoc Academy (education), MathSoc Publishing (academic publishing), and MathSoc Tech (edtech solutions).",
+    subsidiaries: ["MACAD", "MPUB", "MTEK"],
+  },
+  {
+    ticker: "ENIGMA",
+    name: "Enigma Group",
+    about: "Enigma is the premier computer science and coding club. As a holding company it manages Enigma Software (development), Enigma Cloud (cloud services), and Enigma AI (artificial intelligence research).",
+    subsidiaries: ["ESOFT", "ECLOUD", "ENAI"],
+  },
+  {
+    ticker: "GASMONKEYS",
+    name: "Gas Monkeys Group",
+    about: "Gas Monkeys is the automotive and mechanical engineering club. The holding company oversees GM Racing (racing events), GM Automotive (parts manufacturing), and GM Services (maintenance and repair).",
+    subsidiaries: ["GMRACE", "GMAUTO", "GMSERV"],
+  },
+  {
+    ticker: "MASTERSHOT",
+    name: "MasterShot Group",
+    about: "MasterShot is the media and entertainment society. The holding company manages MS Studios (film production), MS Digital (digital content), and MS Media (media distribution).",
+    subsidiaries: ["MSSTD", "MSDIGI", "MSMEDIA"],
+  },
+  {
+    ticker: "ERUDITE",
+    name: "Erudite Group",
+    about: "Erudite is the literary and general knowledge society. The holding company oversees Erudite Learn (learning platform), Erudite Press (publishing house), and Erudite Labs (research division).",
+    subsidiaries: ["ERLEARN", "ERPRESS", "ERLAB"],
+  },
+  {
+    ticker: "INSIGHT",
+    name: "Insight Group",
+    about: "Insight is the data analytics and business intelligence club. The holding company manages Insight Data (analytics), Insight Markets (market research), and Insight Consulting (advisory services).",
+    subsidiaries: ["INDATA", "INMKT", "INCON"],
+  },
+  {
+    ticker: "CELESTE",
+    name: "Celeste Group",
+    about: "Celeste is the astronomy and space science research club. The holding company oversees Celeste Research (space research), Celeste Energy (clean energy), and Celeste BioSystems (biotechnology).",
+    subsidiaries: ["CELRES", "CELENR", "CELBIO"],
+  },
+];
+
+export const parentDirectory: Record<string, ParentCompany> = {};
+for (const p of parentCompanies) parentDirectory[p.ticker] = p;
+
+export function getSubsidiariesOf(parentTicker: string): string[] {
+  return parentDirectory[parentTicker]?.subsidiaries ?? [];
+}
 
 // ─── Portfolio / Investments ────────────────────────────
 export const investments = {
@@ -42,102 +102,102 @@ export interface Holding {
 
 export const holdings: Holding[] = [
   {
-    ticker: "MATHSOC",
-    name: "Math Society",
-    qty: 25,
-    avgPrice: 2380.0,
-    currentPrice: 2892.45,
-    dayChange: 34.20,
-    dayChangePercent: 1.20,
-    returns: 12811.25,
-    returnsPercent: 21.52,
-    currentValue: 72311.25,
-    investedValue: 59500.0,
-    sparkline: [2820, 2845, 2830, 2860, 2875, 2890, 2892],
-  },
-  {
-    ticker: "ENIGMA",
-    name: "Enigma Computer Science",
-    qty: 15,
-    avgPrice: 3450.0,
-    currentPrice: 3987.60,
-    dayChange: -22.40,
-    dayChangePercent: -0.56,
-    returns: 8064.0,
-    returnsPercent: 15.59,
-    currentValue: 59814.0,
-    investedValue: 51750.0,
-    sparkline: [4010, 3995, 3980, 3990, 3985, 3988, 3987],
-  },
-  {
-    ticker: "GASMONKEYS",
-    name: "Gas Monkeys",
-    qty: 40,
-    avgPrice: 1320.0,
-    currentPrice: 1578.90,
-    dayChange: 18.75,
-    dayChangePercent: 1.20,
-    returns: 10356.0,
-    returnsPercent: 19.61,
-    currentValue: 63156.0,
-    investedValue: 52800.0,
-    sparkline: [1550, 1555, 1560, 1570, 1575, 1578, 1578],
-  },
-  {
-    ticker: "MASTERSHOT",
-    name: "MasterShot",
-    qty: 30,
-    avgPrice: 1560.0,
-    currentPrice: 1689.25,
-    dayChange: 12.30,
-    dayChangePercent: 0.73,
-    returns: 3877.50,
-    returnsPercent: 8.28,
-    currentValue: 50677.50,
-    investedValue: 46800.0,
-    sparkline: [1670, 1675, 1680, 1682, 1685, 1688, 1689],
-  },
-  {
-    ticker: "ERUDITE",
-    name: "Erudite",
+    ticker: "MACAD",
+    name: "MathSoc Academy",
     qty: 50,
-    avgPrice: 920.0,
-    currentPrice: 1087.40,
-    dayChange: -8.60,
-    dayChangePercent: -0.78,
-    returns: 8370.0,
-    returnsPercent: 18.20,
-    currentValue: 54370.0,
-    investedValue: 46000.0,
-    sparkline: [1095, 1092, 1090, 1088, 1086, 1087, 1087],
+    avgPrice: 980.0,
+    currentPrice: 1198.50,
+    dayChange: 14.30,
+    dayChangePercent: 1.21,
+    returns: 10925.0,
+    returnsPercent: 22.30,
+    currentValue: 59925.0,
+    investedValue: 49000.0,
+    sparkline: [1170, 1178, 1182, 1186, 1190, 1195, 1198],
   },
   {
-    ticker: "INSIGHT",
-    name: "Insight",
-    qty: 100,
-    avgPrice: 385.0,
-    currentPrice: 468.55,
-    dayChange: 5.45,
+    ticker: "ECLOUD",
+    name: "Enigma Cloud",
+    qty: 10,
+    avgPrice: 2780.0,
+    currentPrice: 3215.40,
+    dayChange: -18.60,
+    dayChangePercent: -0.58,
+    returns: 4354.0,
+    returnsPercent: 15.66,
+    currentValue: 32154.0,
+    investedValue: 27800.0,
+    sparkline: [3240, 3230, 3225, 3220, 3218, 3216, 3215],
+  },
+  {
+    ticker: "GMAUTO",
+    name: "GM Automotive",
+    qty: 30,
+    avgPrice: 1180.0,
+    currentPrice: 1456.20,
+    dayChange: 17.40,
+    dayChangePercent: 1.21,
+    returns: 8286.0,
+    returnsPercent: 23.41,
+    currentValue: 43686.0,
+    investedValue: 35400.0,
+    sparkline: [1425, 1430, 1436, 1440, 1448, 1453, 1456],
+  },
+  {
+    ticker: "MSSTD",
+    name: "MS Studios",
+    qty: 40,
+    avgPrice: 880.0,
+    currentPrice: 1087.30,
+    dayChange: 8.10,
+    dayChangePercent: 0.75,
+    returns: 8292.0,
+    returnsPercent: 23.56,
+    currentValue: 43492.0,
+    investedValue: 35200.0,
+    sparkline: [1070, 1074, 1078, 1080, 1083, 1085, 1087],
+  },
+  {
+    ticker: "ERLEARN",
+    name: "Erudite Learn",
+    qty: 80,
+    avgPrice: 490.0,
+    currentPrice: 618.70,
+    dayChange: -4.90,
+    dayChangePercent: -0.79,
+    returns: 10296.0,
+    returnsPercent: 26.27,
+    currentValue: 49496.0,
+    investedValue: 39200.0,
+    sparkline: [625, 623, 621, 620, 619, 619, 618],
+  },
+  {
+    ticker: "INDATA",
+    name: "Insight Data",
+    qty: 150,
+    avgPrice: 215.0,
+    currentPrice: 282.45,
+    dayChange: 3.30,
     dayChangePercent: 1.18,
-    returns: 8355.0,
-    returnsPercent: 21.70,
-    currentValue: 46855.0,
-    investedValue: 38500.0,
-    sparkline: [460, 462, 464, 465, 467, 468, 468],
+    returns: 10117.5,
+    returnsPercent: 31.37,
+    currentValue: 42367.5,
+    investedValue: 32250.0,
+    sparkline: [275, 277, 278, 279, 280, 281, 282],
   },
   {
-    ticker: "CELESTE",
-    name: "Celeste",
-    qty: 20,
-    avgPrice: 1280.0,
-    currentPrice: 1645.30,
-    dayChange: 28.90,
-    dayChangePercent: 1.79,
-    returns: 7306.0,
-    returnsPercent: 28.52,
-    currentValue: 32906.0,
-    investedValue: 25600.0,
-    sparkline: [1610, 1620, 1625, 1635, 1640, 1644, 1645],
+    ticker: "CELBIO",
+    name: "Celeste Bio",
+    qty: 15,
+    avgPrice: 1780.0,
+    currentPrice: 2148.60,
+    dayChange: 38.20,
+    dayChangePercent: 1.81,
+    returns: 5529.0,
+    returnsPercent: 20.71,
+    currentValue: 32229.0,
+    investedValue: 26700.0,
+    sparkline: [2100, 2110, 2118, 2128, 2135, 2142, 2148],
   },
 ];
 
@@ -157,74 +217,85 @@ export interface WatchlistStock {
 
 export const watchlist: WatchlistStock[] = [
   {
-    ticker: "MATHSOC",
-    name: "Math Society",
-    shares: 45,
-    price: 972.40,
-    dayChange: 15.80,
-    dayChangePercent: 1.65,
-    volume: "12.4M",
-    w52Low: 620,
-    w52High: 1080,
-    sparkline: [950, 955, 960, 965, 968, 970, 972],
+    ticker: "MTEK",
+    name: "MathSoc Tech",
+    shares: 20,
+    price: 2112.80,
+    dayChange: 25.40,
+    dayChangePercent: 1.22,
+    volume: "6.8M",
+    w52Low: 1450,
+    w52High: 2350,
+    sparkline: [2080, 2085, 2090, 2095, 2100, 2108, 2112],
   },
   {
-    ticker: "ENIGMA",
-    name: "Enigma Computer Science",
-    shares: 60,
-    price: 487.25,
-    dayChange: -3.75,
-    dayChangePercent: -0.76,
+    ticker: "ESOFT",
+    name: "Enigma Software",
+    shares: 35,
+    price: 1842.90,
+    dayChange: -10.30,
+    dayChangePercent: -0.56,
     volume: "8.2M",
-    w52Low: 380,
-    w52High: 540,
-    sparkline: [492, 490, 489, 488, 487, 487, 487],
+    w52Low: 1280,
+    w52High: 2100,
+    sparkline: [1855, 1852, 1848, 1846, 1844, 1843, 1842],
   },
   {
-    ticker: "MASTERSHOT",
-    name: "MasterShot",
-    shares: 80,
-    price: 812.60,
-    dayChange: 9.40,
-    dayChangePercent: 1.17,
-    volume: "18.7M",
-    w52Low: 555,
-    w52High: 890,
-    sparkline: [800, 803, 806, 808, 810, 812, 812],
+    ticker: "ENAI",
+    name: "Enigma AI",
+    shares: 8,
+    price: 4512.60,
+    dayChange: 62.80,
+    dayChangePercent: 1.41,
+    volume: "4.1M",
+    w52Low: 2900,
+    w52High: 4800,
+    sparkline: [4440, 4455, 4470, 4485, 4495, 4505, 4512],
   },
   {
-    ticker: "INSIGHT",
-    name: "Insight",
-    price: 2934.15,
-    dayChange: -42.85,
-    dayChangePercent: -1.44,
-    volume: "5.6M",
-    w52Low: 2100,
-    w52High: 3450,
-    sparkline: [2980, 2970, 2960, 2950, 2940, 2935, 2934],
+    ticker: "MSDIGI",
+    name: "MS Digital",
+    price: 785.40,
+    dayChange: 5.60,
+    dayChangePercent: 0.72,
+    volume: "9.4M",
+    w52Low: 520,
+    w52High: 860,
+    sparkline: [776, 778, 780, 781, 783, 784, 785],
   },
   {
-    ticker: "CELESTE",
-    name: "Celeste",
-    shares: 10,
-    price: 7245.80,
-    dayChange: 58.20,
-    dayChangePercent: 0.81,
-    volume: "3.1M",
-    w52Low: 5850,
-    w52High: 7800,
-    sparkline: [7180, 7195, 7210, 7225, 7235, 7242, 7245],
+    ticker: "CELRES",
+    name: "Celeste Research",
+    shares: 12,
+    price: 984.20,
+    dayChange: 12.40,
+    dayChangePercent: 1.28,
+    volume: "5.5M",
+    w52Low: 650,
+    w52High: 1080,
+    sparkline: [968, 972, 975, 978, 980, 982, 984],
   },
   {
-    ticker: "ERUDITE",
-    name: "Erudite",
-    price: 1534.90,
-    dayChange: 22.10,
-    dayChangePercent: 1.46,
-    volume: "4.8M",
-    w52Low: 1050,
-    w52High: 1620,
-    sparkline: [1510, 1515, 1520, 1525, 1530, 1533, 1534],
+    ticker: "ERPRESS",
+    name: "Erudite Press",
+    price: 342.10,
+    dayChange: 4.90,
+    dayChangePercent: 1.45,
+    volume: "11.2M",
+    w52Low: 210,
+    w52High: 380,
+    sparkline: [335, 336, 337, 339, 340, 341, 342],
+  },
+  {
+    ticker: "GMRACE",
+    name: "GM Racing",
+    price: 892.30,
+    dayChange: -6.70,
+    dayChangePercent: -0.74,
+    volume: "7.3M",
+    w52Low: 580,
+    w52High: 980,
+    sparkline: [900, 898, 896, 895, 893, 893, 892],
   },
 ];
 
@@ -238,10 +309,10 @@ export interface MostTradedStock {
 }
 
 export const mostTraded: MostTradedStock[] = [
-  { ticker: "MATHSOC", name: "Math Society", price: 2892.45, dayChange: 34.20, dayChangePercent: 1.20 },
-  { ticker: "ENIGMA", name: "Enigma Computer Science", price: 3987.60, dayChange: -22.40, dayChangePercent: -0.56 },
-  { ticker: "MASTERSHOT", name: "MasterShot", price: 1689.25, dayChange: 12.30, dayChangePercent: 0.73 },
-  { ticker: "ERUDITE", name: "Erudite", price: 1578.90, dayChange: 18.75, dayChangePercent: 1.20 },
+  { ticker: "MACAD", name: "MathSoc Academy", price: 1198.50, dayChange: 14.30, dayChangePercent: 1.21 },
+  { ticker: "ECLOUD", name: "Enigma Cloud", price: 3215.40, dayChange: -18.60, dayChangePercent: -0.58 },
+  { ticker: "MSSTD", name: "MS Studios", price: 1087.30, dayChange: 8.10, dayChangePercent: 0.75 },
+  { ticker: "INDATA", name: "Insight Data", price: 282.45, dayChange: 3.30, dayChangePercent: 1.18 },
 ];
 
 // ─── Top Movers ─────────────────────────────────────────
@@ -255,24 +326,32 @@ export interface MoverStock {
 }
 
 export const topGainers: MoverStock[] = [
-  { ticker: "CELESTE", name: "Celeste", price: 1645.30, dayChangePercent: 1.79, volume: "9.2M", sparkline: [1610, 1620, 1625, 1635, 1640, 1644, 1645] },
-  { ticker: "GASMONKEYS", name: "Gas Monkeys", price: 1578.90, dayChangePercent: 1.20, volume: "12.4M", sparkline: [1550, 1555, 1560, 1570, 1575, 1578, 1578] },
-  { ticker: "MATHSOC", name: "Math Society", price: 2892.45, dayChangePercent: 1.20, volume: "15.8M", sparkline: [2820, 2845, 2830, 2860, 2875, 2890, 2892] },
-  { ticker: "INSIGHT", name: "Insight", price: 468.55, dayChangePercent: 1.18, volume: "22.1M", sparkline: [460, 462, 464, 465, 467, 468, 468] },
-  { ticker: "MASTERSHOT", name: "MasterShot", price: 1689.25, dayChangePercent: 0.73, volume: "8.5M", sparkline: [1670, 1675, 1680, 1682, 1685, 1688, 1689] },
+  { ticker: "CELBIO", name: "Celeste Bio", price: 2148.60, dayChangePercent: 1.81, volume: "6.2M", sparkline: [2100, 2110, 2118, 2128, 2135, 2142, 2148] },
+  { ticker: "ERPRESS", name: "Erudite Press", price: 342.10, dayChangePercent: 1.45, volume: "11.2M", sparkline: [335, 336, 337, 339, 340, 341, 342] },
+  { ticker: "ENAI", name: "Enigma AI", price: 4512.60, dayChangePercent: 1.41, volume: "4.1M", sparkline: [4440, 4455, 4470, 4485, 4495, 4505, 4512] },
+  { ticker: "CELRES", name: "Celeste Research", price: 984.20, dayChangePercent: 1.28, volume: "5.5M", sparkline: [968, 972, 975, 978, 980, 982, 984] },
+  { ticker: "MTEK", name: "MathSoc Tech", price: 2112.80, dayChangePercent: 1.22, volume: "6.8M", sparkline: [2080, 2085, 2090, 2095, 2100, 2108, 2112] },
+  { ticker: "MACAD", name: "MathSoc Academy", price: 1198.50, dayChangePercent: 1.21, volume: "9.4M", sparkline: [1170, 1178, 1182, 1186, 1190, 1195, 1198] },
+  { ticker: "GMAUTO", name: "GM Automotive", price: 1456.20, dayChangePercent: 1.21, volume: "8.8M", sparkline: [1425, 1430, 1436, 1440, 1448, 1453, 1456] },
+  { ticker: "INDATA", name: "Insight Data", price: 282.45, dayChangePercent: 1.18, volume: "15.3M", sparkline: [275, 277, 278, 279, 280, 281, 282] },
 ];
 
 export const topLosers: MoverStock[] = [
-  { ticker: "ERUDITE", name: "Erudite", price: 1087.40, dayChangePercent: -0.78, volume: "14.3M", sparkline: [1095, 1092, 1090, 1088, 1086, 1087, 1087] },
-  { ticker: "ENIGMA", name: "Enigma Computer Science", price: 3987.60, dayChangePercent: -0.56, volume: "7.8M", sparkline: [4010, 3995, 3980, 3990, 3985, 3988, 3987] },
+  { ticker: "ERLEARN", name: "Erudite Learn", price: 618.70, dayChangePercent: -0.79, volume: "10.1M", sparkline: [625, 623, 621, 620, 619, 619, 618] },
+  { ticker: "GMRACE", name: "GM Racing", price: 892.30, dayChangePercent: -0.74, volume: "7.3M", sparkline: [900, 898, 896, 895, 893, 893, 892] },
+  { ticker: "ECLOUD", name: "Enigma Cloud", price: 3215.40, dayChangePercent: -0.58, volume: "5.4M", sparkline: [3240, 3230, 3225, 3220, 3218, 3216, 3215] },
+  { ticker: "ESOFT", name: "Enigma Software", price: 1842.90, dayChangePercent: -0.56, volume: "8.2M", sparkline: [1855, 1852, 1848, 1846, 1844, 1843, 1842] },
+  { ticker: "GMSERV", name: "GM Services", price: 562.80, dayChangePercent: -0.44, volume: "6.1M", sparkline: [566, 565, 564, 564, 563, 563, 562] },
+  { ticker: "INMKT", name: "Insight Markets", price: 428.90, dayChangePercent: -0.35, volume: "7.8M", sparkline: [432, 431, 430, 430, 429, 429, 428] },
 ];
 
 export const volumeShockers: MoverStock[] = [
-  { ticker: "MATHSOC", name: "Math Society", price: 2892.45, dayChangePercent: 1.20, volume: "15.8M", sparkline: [2820, 2845, 2830, 2860, 2875, 2890, 2892] },
-  { ticker: "GASMONKEYS", name: "Gas Monkeys", price: 1578.90, dayChangePercent: 1.20, volume: "12.4M", sparkline: [1550, 1555, 1560, 1570, 1575, 1578, 1578] },
-  { ticker: "ENIGMA", name: "Enigma Computer Science", price: 3987.60, dayChangePercent: -0.56, volume: "11.2M", sparkline: [4010, 3995, 3980, 3990, 3985, 3988, 3987] },
-  { ticker: "CELESTE", name: "Celeste", price: 1645.30, dayChangePercent: 1.79, volume: "9.2M", sparkline: [1610, 1620, 1625, 1635, 1640, 1644, 1645] },
-  { ticker: "INSIGHT", name: "Insight", price: 468.55, dayChangePercent: 1.18, volume: "8.5M", sparkline: [460, 462, 464, 465, 467, 468, 468] },
+  { ticker: "INDATA", name: "Insight Data", price: 282.45, dayChangePercent: 1.18, volume: "15.3M", sparkline: [275, 277, 278, 279, 280, 281, 282] },
+  { ticker: "ERPRESS", name: "Erudite Press", price: 342.10, dayChangePercent: 1.45, volume: "11.2M", sparkline: [335, 336, 337, 339, 340, 341, 342] },
+  { ticker: "ERLEARN", name: "Erudite Learn", price: 618.70, dayChangePercent: -0.79, volume: "10.1M", sparkline: [625, 623, 621, 620, 619, 619, 618] },
+  { ticker: "MACAD", name: "MathSoc Academy", price: 1198.50, dayChangePercent: 1.21, volume: "9.4M", sparkline: [1170, 1178, 1182, 1186, 1190, 1195, 1198] },
+  { ticker: "MSDIGI", name: "MS Digital", price: 785.40, dayChangePercent: 0.72, volume: "9.4M", sparkline: [776, 778, 780, 781, 783, 784, 785] },
+  { ticker: "GMAUTO", name: "GM Automotive", price: 1456.20, dayChangePercent: 1.21, volume: "8.8M", sparkline: [1425, 1430, 1436, 1440, 1448, 1453, 1456] },
 ];
 
 // ─── Market Breadth ─────────────────────────────────────
@@ -327,12 +406,12 @@ export const portfolioAnalysis = {
   benchmarkReturn: 2.40,
   outperformance: 10.89,
   sectorAllocation: [
-    { sector: "Education", value: 33.0 },
-    { sector: "Technology", value: 15.7 },
-    { sector: "Automotive", value: 16.6 },
-    { sector: "Media & Entertainment", value: 13.3 },
-    { sector: "Analytics", value: 12.3 },
-    { sector: "Science & Research", value: 9.1 },
+    { sector: "Education", value: 28.0 },
+    { sector: "Technology", value: 18.5 },
+    { sector: "Automotive", value: 14.4 },
+    { sector: "Media & Entertainment", value: 14.4 },
+    { sector: "Analytics", value: 14.0 },
+    { sector: "Science & Research", value: 10.7 },
   ],
   marketCapAllocation: [
     { cap: "Large Cap", value: 34.6 },
@@ -368,40 +447,58 @@ export interface NewsItem {
 
 export const newsItems: NewsItem[] = [
   {
-    ticker: "MATHSOC",
-    name: "Math Society",
-    headline: "Math Society announces annual inter-college competition with record participation expected from 45+ colleges. Prize pool increased to \u20B950,000.",
+    ticker: "MACAD",
+    name: "MathSoc Academy",
+    headline: "MathSoc Academy announces annual inter-college competition with record participation expected from 45+ colleges. Prize pool increased to \u20B950,000.",
     timestamp: Date.now() - 6 * 60 * 1000,
-    price: 2892.45,
-    dayChange: 34.20,
-    dayChangePercent: 1.20,
+    price: 1198.50,
+    dayChange: 14.30,
+    dayChangePercent: 1.21,
   },
   {
-    ticker: "ENIGMA",
-    name: "Enigma CS",
-    headline: "Enigma Computer Science clarifies recent membership surge is organic. Club confirms no pending restructuring plans for the upcoming semester.",
+    ticker: "ECLOUD",
+    name: "Enigma Cloud",
+    headline: "Enigma Cloud completes migration of campus services to its own infrastructure, reducing latency by 40% across all applications.",
     timestamp: Date.now() - 23 * 60 * 1000,
-    price: 3987.60,
-    dayChange: -22.40,
-    dayChangePercent: -0.56,
+    price: 3215.40,
+    dayChange: -18.60,
+    dayChangePercent: -0.58,
   },
   {
-    ticker: "GASMONKEYS",
-    name: "Gas Monkeys",
-    headline: "Gas Monkeys secures sponsorship deal with leading automotive brand for their flagship racing event this April.",
+    ticker: "GMAUTO",
+    name: "GM Automotive",
+    headline: "GM Automotive secures sponsorship deal with leading automotive brand for their flagship racing event this April.",
     timestamp: Date.now() - 2 * 3600 * 1000,
-    price: 1578.90,
-    dayChange: 18.75,
-    dayChangePercent: 1.20,
+    price: 1456.20,
+    dayChange: 17.40,
+    dayChangePercent: 1.21,
   },
   {
-    ticker: "CELESTE",
-    name: "Celeste",
-    headline: "Celeste astronomy club to host public telescope viewing event. Expected to attract 500+ attendees this weekend.",
+    ticker: "CELBIO",
+    name: "Celeste Bio",
+    headline: "Celeste Bio publishes breakthrough findings on algae-based biofuels in a top-tier research journal. Patent filing expected soon.",
     timestamp: Date.now() - 5 * 3600 * 1000,
-    price: 1645.30,
-    dayChange: 28.90,
-    dayChangePercent: 1.79,
+    price: 2148.60,
+    dayChange: 38.20,
+    dayChangePercent: 1.81,
+  },
+  {
+    ticker: "ENAI",
+    name: "Enigma AI",
+    headline: "Enigma AI lab unveils a new open-source language model trained on college curriculum data, attracting interest from EdTech startups.",
+    timestamp: Date.now() - 8 * 3600 * 1000,
+    price: 4512.60,
+    dayChange: 62.80,
+    dayChangePercent: 1.41,
+  },
+  {
+    ticker: "ERPRESS",
+    name: "Erudite Press",
+    headline: "Erudite Press quarterly magazine reaches 10,000 subscribers milestone. Digital edition now available on campus app.",
+    timestamp: Date.now() - 12 * 3600 * 1000,
+    price: 342.10,
+    dayChange: 4.90,
+    dayChangePercent: 1.45,
   },
 ];
 
@@ -447,6 +544,7 @@ export interface StockInfo {
   price: number;
   changePercent: number;
   about: string;
+  parentCompany: string;
   chartData: Record<string, { day: string; price: number }[]>;
   overview: { open: number; dayLow: number; dayHigh: number };
   fundamentals: StockFundamentals;
@@ -499,56 +597,113 @@ function generateChartData(basePrice: number): Record<string, { day: string; pri
 }
 
 export const allStocksRaw = [
-  { ticker: "MATHSOC", name: "Math Society", price: 2892.45, changePercent: 1.20, about: "Math Society is the flagship mathematics club of the institution, dedicated to fostering mathematical thinking, competitive problem-solving, and academic excellence. Founded in 2018, it organises national-level olympiads, workshops, and inter-college quiz competitions. The society has over 500 active members and has produced multiple national math olympiad finalists." },
-  { ticker: "ENIGMA", name: "Enigma Computer Science", price: 3987.60, changePercent: -0.56, about: "Enigma is the premier computer science and coding club, focused on software development, competitive programming, and emerging technologies. It hosts annual hackathons, CTF cybersecurity contests, and open-source contribution drives. Enigma alumni have gone on to roles at leading tech companies and research institutions worldwide." },
-  { ticker: "GASMONKEYS", name: "Gas Monkeys", price: 1578.90, changePercent: 1.20, about: "Gas Monkeys is the automotive and mechanical engineering club, known for building custom vehicles, go-karts, and participating in national-level design challenges. The club maintains a dedicated workshop and has won multiple podium finishes at collegiate racing events. Members gain hands-on experience in fabrication, engine tuning, and aerodynamics." },
-  { ticker: "MASTERSHOT", name: "MasterShot", price: 1689.25, changePercent: 0.73, about: "MasterShot is the media and entertainment society specialising in filmmaking, photography, and visual storytelling. The club produces short films, documentaries, and covers all major campus events. Their annual film festival attracts entries from colleges across the country and has been featured in regional media outlets." },
-  { ticker: "ERUDITE", name: "Erudite", price: 1087.40, changePercent: -0.78, about: "Erudite is the literary and general knowledge society, promoting reading culture, debating, and quizzing. The club publishes a quarterly magazine, hosts Model United Nations sessions, and runs the campus book exchange programme. Erudite members consistently rank among the top debaters at national parliamentary debate circuits." },
-  { ticker: "INSIGHT", name: "Insight", price: 468.55, changePercent: 1.18, about: "Insight is the data analytics and business intelligence club, bridging the gap between data science and real-world decision making. Members work on live datasets, build dashboards, and compete in analytics case competitions. The club partners with startups and NGOs to provide pro-bono data consulting services." },
-  { ticker: "CELESTE", name: "Celeste", price: 1645.30, changePercent: 1.79, about: "Celeste is the astronomy and space science research club, operating the campus observatory and organising stargazing nights, astrophotography workshops, and guest lectures from ISRO scientists. The club has contributed to citizen science projects and published observational data in international astronomy journals." },
+  // ── MATHSOC Group ─────────────────────
+  { ticker: "MACAD", name: "MathSoc Academy", price: 1198.50, changePercent: 1.21, parentCompany: "MATHSOC", about: "MathSoc Academy is the education arm of Math Society Group, running coaching programmes, olympiad prep courses, and inter-college quiz competitions. With 500+ enrolled students, it is the largest maths education platform on campus." },
+  { ticker: "MPUB", name: "MathSoc Publishing", price: 685.20, changePercent: 0.64, parentCompany: "MATHSOC", about: "MathSoc Publishing produces academic journals, problem sets, and reference books used across 30+ colleges. Its quarterly journal 'Proof' is considered the gold standard for collegiate mathematics publications." },
+  { ticker: "MTEK", name: "MathSoc Tech", price: 2112.80, changePercent: 1.22, parentCompany: "MATHSOC", about: "MathSoc Tech builds edtech tools including an adaptive problem-solving platform, a LaTeX collaboration editor, and gamified learning apps. Its products serve 2,000+ daily active users." },
+  // ── ENIGMA Group ──────────────────────
+  { ticker: "ESOFT", name: "Enigma Software", price: 1842.90, changePercent: -0.56, parentCompany: "ENIGMA", about: "Enigma Software is the development wing of Enigma Group, specialising in open-source projects, competitive programming tools, and campus utility apps. Members have contributed 500+ PRs to major OSS projects." },
+  { ticker: "ECLOUD", name: "Enigma Cloud", price: 3215.40, changePercent: -0.58, parentCompany: "ENIGMA", about: "Enigma Cloud provides cloud infrastructure and hosting services for campus applications. It manages the college's event platform, attendance systems, and collaborative dev environments." },
+  { ticker: "ENAI", name: "Enigma AI", price: 4512.60, changePercent: 1.41, parentCompany: "ENIGMA", about: "Enigma AI is the artificial intelligence research lab of Enigma Group. It builds ML models for campus analytics, runs AI workshops, and has published papers at collegiate AI conferences." },
+  // ── GASMONKEYS Group ──────────────────
+  { ticker: "GMRACE", name: "GM Racing", price: 892.30, changePercent: -0.74, parentCompany: "GASMONKEYS", about: "GM Racing is the competitive motorsport division of Gas Monkeys Group. The team builds go-karts and electric vehicles for national-level racing events, with multiple podium finishes." },
+  { ticker: "GMAUTO", name: "GM Automotive", price: 1456.20, changePercent: 1.21, parentCompany: "GASMONKEYS", about: "GM Automotive designs and fabricates custom automotive components and aftermarket parts. The workshop serves the campus fleet and external clients with precision machining." },
+  { ticker: "GMSERV", name: "GM Services", price: 562.80, changePercent: -0.44, parentCompany: "GASMONKEYS", about: "GM Services provides maintenance, repair, and technical consultation for campus vehicles and equipment. It runs a fully equipped service bay and a mobile repair unit." },
+  // ── MASTERSHOT Group ──────────────────
+  { ticker: "MSSTD", name: "MS Studios", price: 1087.30, changePercent: 0.75, parentCompany: "MASTERSHOT", about: "MS Studios is the film production division of MasterShot Group. It produces short films, documentaries, and covers all major campus events. Its annual film festival attracts entries from 50+ colleges." },
+  { ticker: "MSDIGI", name: "MS Digital", price: 785.40, changePercent: 0.72, parentCompany: "MASTERSHOT", about: "MS Digital handles digital content creation — podcasts, social media campaigns, and digital marketing for campus organisations. It manages 15+ social channels with 100K+ combined followers." },
+  { ticker: "MSMEDIA", name: "MS Media", price: 1352.70, changePercent: 0.48, parentCompany: "MASTERSHOT", about: "MS Media is the distribution and broadcasting arm of MasterShot Group. It operates the campus streaming platform, manages rights licensing, and runs the college radio station." },
+  // ── ERUDITE Group ─────────────────────
+  { ticker: "ERLEARN", name: "Erudite Learn", price: 618.70, changePercent: -0.79, parentCompany: "ERUDITE", about: "Erudite Learn is the online learning platform of Erudite Group, offering courses in debate, public speaking, and critical thinking. It hosts weekly workshops and Model UN preparation sessions." },
+  { ticker: "ERPRESS", name: "Erudite Press", price: 342.10, changePercent: 1.45, parentCompany: "ERUDITE", about: "Erudite Press is the publishing house of Erudite Group. It publishes a quarterly literary magazine, curates the campus book exchange programme, and runs a writer-in-residence fellowship." },
+  { ticker: "ERLAB", name: "Erudite Labs", price: 891.50, changePercent: 0.82, parentCompany: "ERUDITE", about: "Erudite Labs is the research division of Erudite Group, conducting studies in linguistics, cognitive science, and educational psychology. It has published 12 papers in peer-reviewed journals." },
+  // ── INSIGHT Group ─────────────────────
+  { ticker: "INDATA", name: "Insight Data", price: 282.45, changePercent: 1.18, parentCompany: "INSIGHT", about: "Insight Data is the analytics arm of Insight Group, building dashboards, running data competitions, and providing pro-bono data consulting to startups and NGOs on campus." },
+  { ticker: "INMKT", name: "Insight Markets", price: 428.90, changePercent: -0.35, parentCompany: "INSIGHT", about: "Insight Markets conducts market research and consumer behaviour studies for campus businesses. It publishes the bi-monthly 'Campus Pulse' report tracking student spending trends." },
+  { ticker: "INCON", name: "Insight Consulting", price: 192.40, changePercent: 0.94, parentCompany: "INSIGHT", about: "Insight Consulting offers advisory services to student-run startups and college clubs. It has advised on 30+ business plans and helped secure \u20B92L+ in seed funding for campus ventures." },
+  // ── CELESTE Group ─────────────────────
+  { ticker: "CELRES", name: "Celeste Research", price: 984.20, changePercent: 1.28, parentCompany: "CELESTE", about: "Celeste Research is the space science division of Celeste Group, operating the campus observatory and contributing to citizen science projects. It has published observational data in international journals." },
+  { ticker: "CELENR", name: "Celeste Energy", price: 1542.80, changePercent: 0.95, parentCompany: "CELESTE", about: "Celeste Energy focuses on clean energy research — solar panel optimisation, wind tunnel experiments, and campus sustainability initiatives. It reduced campus energy costs by 12% last year." },
+  { ticker: "CELBIO", name: "Celeste Bio", price: 2148.60, changePercent: 1.81, parentCompany: "CELESTE", about: "Celeste BioSystems is the biotechnology arm of Celeste Group, conducting research in algae-based biofuels, water purification, and bioinformatics. Three patents pending for novel purification methods." },
 ];
 
 const stockFundamentals: Record<string, StockFundamentals> = {
-  MATHSOC: { marketCap: "14.5Cr", pe: 28.4, eps: 101.84, bookValue: 1820.0, roe: 18.2, w52High: 3120.0, w52Low: 1950.0, volume: "15.8M", avgVolume: "12.1M", sector: "Education" },
-  ENIGMA: { marketCap: "19.9Cr", pe: 34.2, eps: 116.60, bookValue: 2540.0, roe: 22.5, w52High: 4250.0, w52Low: 2680.0, volume: "7.8M", avgVolume: "9.3M", sector: "Technology" },
-  GASMONKEYS: { marketCap: "7.9Cr", pe: 15.8, eps: 99.93, bookValue: 980.0, roe: 14.6, w52High: 1820.0, w52Low: 1020.0, volume: "12.4M", avgVolume: "10.8M", sector: "Automotive" },
-  MASTERSHOT: { marketCap: "8.4Cr", pe: 22.1, eps: 76.44, bookValue: 1120.0, roe: 16.8, w52High: 1890.0, w52Low: 1150.0, volume: "8.5M", avgVolume: "7.2M", sector: "Media & Entertainment" },
-  ERUDITE: { marketCap: "5.4Cr", pe: 19.6, eps: 55.48, bookValue: 720.0, roe: 20.1, w52High: 1240.0, w52Low: 680.0, volume: "14.3M", avgVolume: "11.5M", sector: "Education" },
-  INSIGHT: { marketCap: "2.3Cr", pe: 12.4, eps: 37.79, bookValue: 310.0, roe: 24.3, w52High: 520.0, w52Low: 290.0, volume: "22.1M", avgVolume: "18.4M", sector: "Analytics" },
-  CELESTE: { marketCap: "8.2Cr", pe: 31.5, eps: 52.23, bookValue: 1050.0, roe: 15.4, w52High: 1780.0, w52Low: 980.0, volume: "9.2M", avgVolume: "7.6M", sector: "Science & Research" },
+  // MATHSOC subs
+  MACAD:  { marketCap: "6.0Cr", pe: 24.8, eps: 48.33, bookValue: 820.0, roe: 17.6, w52High: 1380.0, w52Low: 780.0, volume: "9.4M", avgVolume: "7.8M", sector: "Education" },
+  MPUB:   { marketCap: "3.4Cr", pe: 18.2, eps: 37.65, bookValue: 480.0, roe: 14.2, w52High: 760.0, w52Low: 420.0, volume: "5.2M", avgVolume: "4.6M", sector: "Education" },
+  MTEK:   { marketCap: "10.6Cr", pe: 32.6, eps: 64.81, bookValue: 1540.0, roe: 20.8, w52High: 2350.0, w52Low: 1450.0, volume: "6.8M", avgVolume: "5.4M", sector: "Technology" },
+  // ENIGMA subs
+  ESOFT:  { marketCap: "9.2Cr", pe: 28.4, eps: 64.89, bookValue: 1280.0, roe: 21.2, w52High: 2100.0, w52Low: 1280.0, volume: "8.2M", avgVolume: "7.1M", sector: "Technology" },
+  ECLOUD: { marketCap: "16.1Cr", pe: 36.8, eps: 87.37, bookValue: 2200.0, roe: 23.5, w52High: 3600.0, w52Low: 2150.0, volume: "5.4M", avgVolume: "4.8M", sector: "Technology" },
+  ENAI:   { marketCap: "22.6Cr", pe: 42.1, eps: 107.19, bookValue: 3100.0, roe: 25.8, w52High: 4800.0, w52Low: 2900.0, volume: "4.1M", avgVolume: "3.6M", sector: "Technology" },
+  // GASMONKEYS subs
+  GMRACE: { marketCap: "4.5Cr", pe: 16.2, eps: 55.08, bookValue: 620.0, roe: 13.8, w52High: 980.0, w52Low: 580.0, volume: "7.3M", avgVolume: "6.2M", sector: "Automotive" },
+  GMAUTO: { marketCap: "7.3Cr", pe: 19.4, eps: 75.06, bookValue: 980.0, roe: 16.2, w52High: 1620.0, w52Low: 920.0, volume: "8.8M", avgVolume: "7.4M", sector: "Automotive" },
+  GMSERV: { marketCap: "2.8Cr", pe: 12.8, eps: 43.97, bookValue: 380.0, roe: 11.4, w52High: 640.0, w52Low: 350.0, volume: "6.1M", avgVolume: "5.2M", sector: "Automotive" },
+  // MASTERSHOT subs
+  MSSTD:  { marketCap: "5.4Cr", pe: 22.6, eps: 48.11, bookValue: 740.0, roe: 17.8, w52High: 1240.0, w52Low: 720.0, volume: "6.5M", avgVolume: "5.6M", sector: "Media & Entertainment" },
+  MSDIGI: { marketCap: "3.9Cr", pe: 17.4, eps: 45.14, bookValue: 540.0, roe: 15.2, w52High: 860.0, w52Low: 520.0, volume: "9.4M", avgVolume: "8.1M", sector: "Media & Entertainment" },
+  MSMEDIA:{ marketCap: "6.8Cr", pe: 26.2, eps: 51.63, bookValue: 920.0, roe: 18.6, w52High: 1520.0, w52Low: 880.0, volume: "4.8M", avgVolume: "4.2M", sector: "Media & Entertainment" },
+  // ERUDITE subs
+  ERLEARN:{ marketCap: "3.1Cr", pe: 15.8, eps: 39.16, bookValue: 420.0, roe: 16.4, w52High: 720.0, w52Low: 380.0, volume: "10.1M", avgVolume: "8.6M", sector: "Education" },
+  ERPRESS:{ marketCap: "1.7Cr", pe: 11.4, eps: 30.01, bookValue: 240.0, roe: 19.2, w52High: 380.0, w52Low: 210.0, volume: "11.2M", avgVolume: "9.4M", sector: "Education" },
+  ERLAB:  { marketCap: "4.5Cr", pe: 21.8, eps: 40.90, bookValue: 620.0, roe: 18.8, w52High: 1020.0, w52Low: 580.0, volume: "5.8M", avgVolume: "4.9M", sector: "Science & Research" },
+  // INSIGHT subs
+  INDATA: { marketCap: "1.4Cr", pe: 10.8, eps: 26.15, bookValue: 195.0, roe: 22.4, w52High: 320.0, w52Low: 175.0, volume: "15.3M", avgVolume: "12.8M", sector: "Analytics" },
+  INMKT:  { marketCap: "2.1Cr", pe: 14.6, eps: 29.38, bookValue: 310.0, roe: 18.2, w52High: 490.0, w52Low: 280.0, volume: "7.8M", avgVolume: "6.5M", sector: "Analytics" },
+  INCON:  { marketCap: "0.96Cr", pe: 8.4, eps: 22.90, bookValue: 140.0, roe: 20.6, w52High: 225.0, w52Low: 120.0, volume: "12.4M", avgVolume: "10.2M", sector: "Analytics" },
+  // CELESTE subs
+  CELRES: { marketCap: "4.9Cr", pe: 24.6, eps: 40.01, bookValue: 680.0, roe: 16.8, w52High: 1080.0, w52Low: 650.0, volume: "5.5M", avgVolume: "4.7M", sector: "Science & Research" },
+  CELENR: { marketCap: "7.7Cr", pe: 29.8, eps: 51.77, bookValue: 1040.0, roe: 17.4, w52High: 1720.0, w52Low: 980.0, volume: "4.6M", avgVolume: "3.9M", sector: "Energy" },
+  CELBIO: { marketCap: "10.7Cr", pe: 35.4, eps: 60.69, bookValue: 1480.0, roe: 19.8, w52High: 2380.0, w52Low: 1350.0, volume: "6.2M", avgVolume: "5.3M", sector: "Science & Research" },
 };
 
 export const stockDirectory: Record<string, StockInfo> = {};
 
 const perStockEvents: Record<string, StockInfo["events"]> = {
-  MATHSOC: [
+  MACAD: [
     { title: "Q4 Results Announcement", date: "2026-07-10", type: "RESULTS" },
     { title: "Annual General Meeting", date: "2026-08-02", type: "AGM" },
   ],
-  ENIGMA: [
-    { title: "Q4 Results Announcement", date: "2026-07-05", type: "RESULTS" },
-    { title: "Interim Dividend — ₹12/share", date: "2026-07-20", type: "DIVIDEND" },
-    { title: "Tech Expo Showcase", date: "2026-08-15", type: "EVENT" },
+  MTEK: [
+    { title: "Product Launch — LaTeX Editor v3", date: "2026-07-15", type: "EVENT" },
   ],
-  GASMONKEYS: [
+  ESOFT: [
+    { title: "Q4 Results Announcement", date: "2026-07-05", type: "RESULTS" },
+    { title: "Open Source Contribution Drive", date: "2026-08-15", type: "EVENT" },
+  ],
+  ECLOUD: [
+    { title: "Interim Dividend — \u20B912/share", date: "2026-07-20", type: "DIVIDEND" },
+  ],
+  ENAI: [
+    { title: "AI Expo Showcase", date: "2026-08-10", type: "EVENT" },
+    { title: "Q4 Results Announcement", date: "2026-07-08", type: "RESULTS" },
+  ],
+  GMAUTO: [
     { title: "Annual General Meeting", date: "2026-07-18", type: "AGM" },
     { title: "Q4 Results Announcement", date: "2026-08-01", type: "RESULTS" },
   ],
-  MASTERSHOT: [
+  GMRACE: [
+    { title: "National Racing Championship", date: "2026-07-25", type: "EVENT" },
+  ],
+  MSSTD: [
     { title: "Film Festival Premiere", date: "2026-07-12", type: "EVENT" },
     { title: "Q4 Results Announcement", date: "2026-08-05", type: "RESULTS" },
   ],
-  ERUDITE: [
+  ERLEARN: [
     { title: "Q4 Results Announcement", date: "2026-07-15", type: "RESULTS" },
   ],
-  INSIGHT: [
+  INDATA: [
     { title: "Annual Data Summit", date: "2026-07-08", type: "EVENT" },
     { title: "Q4 Results Announcement", date: "2026-07-22", type: "RESULTS" },
-    { title: "Final Dividend — ₹8/share", date: "2026-08-10", type: "DIVIDEND" },
+    { title: "Final Dividend — \u20B98/share", date: "2026-08-10", type: "DIVIDEND" },
   ],
-  CELESTE: [
+  CELRES: [
     { title: "Observatory Open Night", date: "2026-07-14", type: "EVENT" },
     { title: "Q4 Results Announcement", date: "2026-07-28", type: "RESULTS" },
+  ],
+  CELBIO: [
+    { title: "Biotech Research Symposium", date: "2026-07-20", type: "EVENT" },
   ],
 };
 
@@ -565,6 +720,8 @@ for (const s of allStocksRaw) {
 // Enriched flat list for screener / stocks page (merges fundamentals + sparkline)
 const holdingSparklines: Record<string, number[]> = {};
 for (const h of holdings) holdingSparklines[h.ticker] = h.sparkline;
+const watchlistSparklines: Record<string, number[]> = {};
+for (const w of watchlist) watchlistSparklines[w.ticker] = w.sparkline;
 
 export const allStocksEnriched = allStocksRaw.map((s) => {
   const f = stockFundamentals[s.ticker];
@@ -576,7 +733,7 @@ export const allStocksEnriched = allStocksRaw.map((s) => {
     sector: f.sector,
     pe: f.pe,
     volume: parseFloat(f.volume) * 1_000_000,
-    sparkline: holdingSparklines[s.ticker] || [s.price, s.price, s.price, s.price, s.price],
+    sparkline: holdingSparklines[s.ticker] || watchlistSparklines[s.ticker] || [s.price, s.price, s.price, s.price, s.price],
   };
 });
 
@@ -613,6 +770,7 @@ export function generateOrderBook(basePrice: number): OrderBook {
 export const enigmaCompanyData = {
   ticker: "ENIGMA",
   sharesInCirculation: 50000,
+  subsidiaries: ["ESOFT", "ECLOUD", "ENAI"],
   shareholders: [
     { name: "Aditya Verma", shares: 8500, percentage: 17.0 },
     { name: "Riya Sharma", shares: 6200, percentage: 12.4 },
@@ -622,9 +780,9 @@ export const enigmaCompanyData = {
     { name: "Sneha Iyer", shares: 2900, percentage: 5.8 },
   ],
   companyNews: [
-    { id: "CN-1", title: "Enigma wins National Hackathon 2026", content: "Enigma's team secured first place at the National Collegiate Hackathon held in Bangalore, beating 200+ teams.", timestamp: Date.now() - 86400000 * 2 },
-    { id: "CN-2", title: "New CTF Cybersecurity Lab launched", content: "Enigma inaugurated a dedicated cybersecurity lab with state-of-the-art infrastructure for CTF competitions.", timestamp: Date.now() - 86400000 * 7 },
-    { id: "CN-3", title: "Open-source contribution drive hits 500 PRs", content: "Members contributed over 500 pull requests to major open-source projects during the spring contribution drive.", timestamp: Date.now() - 86400000 * 14 },
+    { id: "CN-1", title: "Enigma AI wins National Hackathon 2026", content: "Enigma AI's team secured first place at the National Collegiate Hackathon held in Bangalore, beating 200+ teams.", timestamp: Date.now() - 86400000 * 2 },
+    { id: "CN-2", title: "Enigma Cloud launches new CTF Lab", content: "Enigma Cloud inaugurated a dedicated cybersecurity lab with state-of-the-art infrastructure for CTF competitions.", timestamp: Date.now() - 86400000 * 7 },
+    { id: "CN-3", title: "Enigma Software hits 500 open-source PRs", content: "Members contributed over 500 pull requests to major open-source projects during the spring contribution drive.", timestamp: Date.now() - 86400000 * 14 },
   ],
   companyEvents: [
     { id: "CE-1", title: "Annual Hackathon", date: "2026-04-25", type: "EVENT" as const },

@@ -37,7 +37,7 @@ export default function AdminNewsPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
-    submitNews(title.trim(), content.trim(), "ENIGMA");
+    submitNews(title.trim(), content.trim(), "ESOFT");
     setTitle("");
     setContent("");
     setShowForm(false);

@@ -1,29 +1,44 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, ArrowLeft, List, CalendarDays } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
-interface CalendarEvent {
+interface WeekEvent {
   day: number;
-  month: number;
-  year: number;
+  weekday: string;
   title: string;
   type: "AGM" | "RESULTS" | "EVENT";
   ticker: string;
-  impact: string;
+  time: string;
+  description: string;
 }
 
-const events: CalendarEvent[] = [
-  { day: 15, month: 5, year: 2026, title: "MATHSOC ANNUAL MEET", type: "AGM", ticker: "MATHSOC", impact: "Board elections & budget approval" },
-  { day: 18, month: 5, year: 2026, title: "ENIGMA Quarterly Results", type: "RESULTS", ticker: "ENIGMA", impact: "Revenue up 12% expected" },
-  { day: 22, month: 5, year: 2026, title: "GASMONKEYS Racing Event", type: "EVENT", ticker: "GASMONKEYS", impact: "National-level showcasing" },
-  { day: 25, month: 5, year: 2026, title: "CELESTE Star Gazing Night", type: "EVENT", ticker: "CELESTE", impact: "Public engagement drive" },
-  { day: 28, month: 5, year: 2026, title: "MASTERSHOT Film Premiere", type: "EVENT", ticker: "MASTERSHOT", impact: "Festival circuit entry" },
-  { day: 2, month: 6, year: 2026, title: "ERUDITE Quiz Championship", type: "EVENT", ticker: "ERUDITE", impact: "National media coverage" },
-  { day: 10, month: 6, year: 2026, title: "INSIGHT Research Symposium", type: "EVENT", ticker: "INSIGHT", impact: "Industry partnerships" },
+const WEEK_DAYS = [
+  { day: 20, weekday: "SUN", label: "20" },
+  { day: 21, weekday: "MON", label: "21" },
+  { day: 22, weekday: "TUE", label: "22" },
+  { day: 23, weekday: "WED", label: "23" },
+  { day: 24, weekday: "THU", label: "24" },
+  { day: 25, weekday: "FRI", label: "25" },
+  { day: 26, weekday: "SAT", label: "26" },
+  { day: 27, weekday: "SUN", label: "27" },
+];
+
+const events: WeekEvent[] = [
+  { day: 20, weekday: "SUN", title: "MACAD Annual Open Day", type: "EVENT", ticker: "MACAD", time: "10:00 AM", description: "Public lecture series and campus tour" },
+  { day: 20, weekday: "SUN", title: "CELRES Research Showcase", type: "EVENT", ticker: "CELRES", time: "2:00 PM", description: "Telescope demo and night sky workshop" },
+  { day: 21, weekday: "MON", title: "ESOFT Quarterly Results", type: "RESULTS", ticker: "ESOFT", time: "11:00 AM", description: "Q4 revenue expected up 12%" },
+  { day: 22, weekday: "TUE", title: "GMRACE Sprint Championship", type: "EVENT", ticker: "GMRACE", time: "3:00 PM", description: "National-level karting showcase" },
+  { day: 22, weekday: "TUE", title: "ERLEARN Quiz Finals", type: "EVENT", ticker: "ERLEARN", time: "5:00 PM", description: "Inter-college quiz championship" },
+  { day: 23, weekday: "WED", title: "MSSTD Film Premiere", type: "EVENT", ticker: "MSSTD", time: "6:30 PM", description: "Short film festival circuit entry" },
+  { day: 24, weekday: "THU", title: "INDATA Annual General Meeting", type: "AGM", ticker: "INDATA", time: "10:00 AM", description: "Board elections and budget approval" },
+  { day: 24, weekday: "THU", title: "ENAI Product Launch", type: "EVENT", ticker: "ENAI", time: "4:00 PM", description: "New ML toolkit release demo" },
+  { day: 25, weekday: "FRI", title: "MPUB Book Fair", type: "EVENT", ticker: "MPUB", time: "11:00 AM", description: "Academic publications showcase" },
+  { day: 26, weekday: "SAT", title: "CELBIO Lab Open House", type: "EVENT", ticker: "CELBIO", time: "9:00 AM", description: "Biotech lab demonstrations" },
+  { day: 27, weekday: "SUN", title: "GMAUTO Auto Expo", type: "EVENT", ticker: "GMAUTO", time: "10:00 AM", description: "Custom build showcase and test drives" },
 ];
 
 const typeAccent: Record<string, string> = {
@@ -38,274 +53,100 @@ const typeBadge: Record<string, string> = {
   EVENT: "bg-white/5 text-white/40",
 };
 
-const typeDot: Record<string, string> = {
-  AGM: "bg-white/50",
-  RESULTS: "bg-up",
-  EVENT: "bg-white/20",
-};
-
-const MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-const DAY_NAMES = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
-
-type ViewMode = "CALENDAR" | "LIST";
-
 export default function EventsPage() {
   const router = useRouter();
-  const [viewMonth, setViewMonth] = useState(5);
-  const [viewYear, setViewYear] = useState(2026);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>("CALENDAR");
 
-  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-  const firstDayOfWeek = new Date(viewYear, viewMonth, 1).getDay();
-
-  const eventsThisMonth = useMemo(
-    () => events.filter((e) => e.month === viewMonth && e.year === viewYear),
-    [viewMonth, viewYear]
+  const filteredEvents = useMemo(
+    () => selectedDay === null ? events : events.filter((e) => e.day === selectedDay),
+    [selectedDay]
   );
 
-  const eventDays = useMemo(
-    () => new Map(eventsThisMonth.map((e) => [e.day, e])),
-    [eventsThisMonth]
-  );
-
-  const selectedEvents = selectedDay
-    ? events.filter((e) => e.day === selectedDay && e.month === viewMonth && e.year === viewYear)
-    : eventsThisMonth;
-
-  const allEventsSorted = useMemo(
-    () => [...events].sort((a, b) => new Date(a.year, a.month, a.day).getTime() - new Date(b.year, b.month, b.day).getTime()),
-    []
-  );
-
-  function prevMonth() {
-    if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
-    else setViewMonth((m) => m - 1);
-    setSelectedDay(null);
-  }
-
-  function nextMonth() {
-    if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
-    else setViewMonth((m) => m + 1);
-    setSelectedDay(null);
-  }
+  const eventCountByDay = useMemo(() => {
+    const map = new Map<number, number>();
+    events.forEach((e) => map.set(e.day, (map.get(e.day) || 0) + 1));
+    return map;
+  }, []);
 
   return (
     <div className="py-6 pb-24 md:pb-12">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} aria-label="Go back" className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white active:bg-white/[0.04] transition-colors">
-            <ArrowLeft size={15} />
-          </button>
-          <div>
-            <h1 className="font-[var(--font-anton)] text-xl tracking-[0.1em] uppercase">EVENTS CALENDAR</h1>
-            <p className="text-[10px] tracking-[0.15em] text-white/30 mt-0.5">{eventsThisMonth.length} EVENTS THIS MONTH</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-0">
-          {(["CALENDAR", "LIST"] as ViewMode[]).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              className={`px-4 py-2.5 text-[10px] tracking-[0.15em] border-b-2 transition-all duration-300 ${
-                viewMode === mode
-                  ? "text-white border-white"
-                  : "text-white/40 border-transparent hover:text-white/60"
-              }`}
-            >
-              {mode === "CALENDAR" ? <CalendarDays size={12} className="inline mr-1.5" /> : <List size={12} className="inline mr-1.5" />}
-              {mode}
-            </button>
-          ))}
+      <div className="flex items-center gap-3 mb-2">
+        <button onClick={() => router.back()} aria-label="Go back" className="w-11 h-11 border border-white/20 flex items-center justify-center hover:border-white active:bg-white/[0.04] transition-colors">
+          <ArrowLeft size={15} />
+        </button>
+        <div>
+          <h1 className="font-[var(--font-anton)] text-xl tracking-[0.1em] uppercase">MCSE EVENTS</h1>
+          <p className="text-[10px] tracking-[0.15em] text-white/30 mt-0.5">APRIL 20 &ndash; 27</p>
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        {viewMode === "CALENDAR" ? (
-          <motion.div
-            key="calendar"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="md:grid md:grid-cols-[13fr_7fr] md:gap-8">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <button onClick={prevMonth} className="w-10 h-10 border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors">
-                    <ChevronLeft size={14} className="text-white/40" />
-                  </button>
-                  <p className="font-[var(--font-anton)] text-lg tracking-[0.15em]">{MONTH_NAMES[viewMonth]} {viewYear}</p>
-                  <button onClick={nextMonth} className="w-10 h-10 border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors">
-                    <ChevronRight size={14} className="text-white/40" />
-                  </button>
-                </div>
+      {/* Day pill strip */}
+      <div className="flex gap-1.5 overflow-x-auto scrollbar-hide py-4 mb-6">
+        <button
+          onClick={() => setSelectedDay(null)}
+          className={`shrink-0 flex flex-col items-center px-4 py-2.5 border transition-all duration-200 ${
+            selectedDay === null
+              ? "border-white/50 bg-white/5 text-white"
+              : "border-white/8 text-white/30 hover:border-white/20 hover:text-white/50"
+          }`}
+        >
+          <span className="text-[8px] tracking-[0.2em]">ALL</span>
+          <span className="font-[var(--font-anton)] text-sm mt-0.5">{events.length}</span>
+        </button>
+        {WEEK_DAYS.map((wd) => {
+          const count = eventCountByDay.get(wd.day) || 0;
+          const isSelected = selectedDay === wd.day;
+          return (
+            <button
+              key={wd.day}
+              onClick={() => setSelectedDay(isSelected ? null : wd.day)}
+              className={`shrink-0 flex flex-col items-center px-4 py-2.5 border transition-all duration-200 ${
+                isSelected
+                  ? "border-white/50 bg-white/5 text-white"
+                  : count > 0
+                    ? "border-white/8 text-white/40 hover:border-white/20 hover:text-white/60"
+                    : "border-white/4 text-white/15"
+              }`}
+            >
+              <span className="text-[8px] tracking-[0.2em]">{wd.weekday}</span>
+              <span className="font-[var(--font-anton)] text-sm mt-0.5">{wd.label}</span>
+              {count > 0 && (
+                <div className={`w-1 h-1 mt-1 ${isSelected ? "bg-white" : "bg-white/30"}`} />
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-                <div className="border border-white/8 mb-6">
-                  <div className="grid grid-cols-7">
-                    {DAY_NAMES.map((d) => (
-                      <div key={d} className="text-center py-2 text-[9px] tracking-[0.2em] text-white/20 border-b border-white/6">{d}</div>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-7">
-                    {Array.from({ length: firstDayOfWeek }).map((_, i) => (
-                      <div key={`empty-${i}`} className="aspect-square border-b border-r border-white/4" />
-                    ))}
-                    {Array.from({ length: daysInMonth }).map((_, i) => {
-                      const day = i + 1;
-                      const ev = eventDays.get(day);
-                      const isSelected = selectedDay === day;
-                      return (
-                        <button
-                          key={day}
-                          onClick={() => setSelectedDay(isSelected ? null : (ev ? day : null))}
-                          className={`aspect-square border-b border-r border-white/4 flex flex-col items-center justify-center gap-1 transition-colors relative ${
-                            isSelected ? "bg-white/10" : ev ? "hover:bg-white/[0.04]" : ""
-                          }`}
-                        >
-                          <span className={`text-[11px] ${ev ? "text-white" : "text-white/20"}`}>{day}</span>
-                          {ev && <div className={`w-1.5 h-1.5 ${typeDot[ev.type] || "bg-white/20"}`} />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="md:hidden mt-4">
-                  <p className="text-[9px] tracking-[0.2em] text-white/25 mb-3">
-                    {selectedDay ? `EVENTS ON ${MONTH_NAMES[viewMonth]} ${selectedDay}` : `ALL EVENTS · ${MONTH_NAMES[viewMonth]}`}
-                  </p>
-                  {selectedEvents.length === 0 && (
-                    <p className="text-[11px] text-white/20 py-8 text-center">No events this month</p>
-                  )}
-                  <div className="space-y-2">
-                    {selectedEvents.map((ev, i) => (
-                      <div key={i}>
-                        <Link
-                          href={`/stock/${ev.ticker}`}
-                          className={`flex items-center gap-4 border border-white/6 border-l-2 ${typeAccent[ev.type]} p-4 hover:bg-white/[0.03] transition-colors`}
-                        >
-                          <div className="w-12 text-center shrink-0">
-                            <p className="text-[9px] tracking-[0.12em] text-white/25">{MONTH_NAMES[ev.month]}</p>
-                            <p className="font-[var(--font-anton)] text-lg">{ev.day}</p>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em] mb-0.5">{ev.title}</p>
-                            <p className="text-[10px] text-white/30">{ev.ticker} · {ev.impact}</p>
-                          </div>
-                          <span className={`text-[8px] tracking-[0.15em] px-2 py-1 shrink-0 ${typeBadge[ev.type]}`}>{ev.type}</span>
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <aside className="hidden md:block space-y-6">
-                <div className="border border-white/10 p-5">
-                  <p className="text-[9px] tracking-[0.15em] text-white/30 mb-3">
-                    {selectedDay ? `EVENTS ON ${MONTH_NAMES[viewMonth]} ${selectedDay}` : `ALL EVENTS · ${MONTH_NAMES[viewMonth]}`}
-                  </p>
-                  {selectedEvents.length === 0 && (
-                    <p className="text-[11px] text-white/20 py-6 text-center">No events this month</p>
-                  )}
-                  <div className="space-y-2">
-                    {selectedEvents.map((ev, i) => (
-                      <div key={i}>
-                        <Link
-                          href={`/stock/${ev.ticker}`}
-                          className={`flex items-center gap-3 border border-white/6 border-l-2 ${typeAccent[ev.type]} p-3 hover:bg-white/[0.03] transition-colors`}
-                        >
-                          <div className="w-10 text-center shrink-0">
-                            <p className="text-[8px] tracking-[0.12em] text-white/25">{MONTH_NAMES[ev.month]}</p>
-                            <p className="font-[var(--font-anton)] text-base">{ev.day}</p>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-[var(--font-anton)] text-[12px] tracking-[0.05em] mb-0.5">{ev.title}</p>
-                            <p className="text-[9px] text-white/30">{ev.ticker} · {ev.impact}</p>
-                          </div>
-                          <span className={`text-[8px] tracking-[0.15em] px-2 py-1 shrink-0 ${typeBadge[ev.type]}`}>{ev.type}</span>
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="border border-white/10 p-5">
-                  <p className="text-[9px] tracking-[0.15em] text-white/30 mb-3">EVENT TYPES</p>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-white/50" />
-                      <span className="text-[10px] text-white/40">AGM â€” Annual General Meeting</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-up" />
-                      <span className="text-[10px] text-white/40">RESULTS â€” Quarterly / Annual Results</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-white/20" />
-                      <span className="text-[10px] text-white/40">EVENT â€” Club Activity / Exhibition</span>
-                    </div>
-                  </div>
-                </div>
-              </aside>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="list"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.2 }}
-            className="max-w-2xl"
-          >
-            <div className="relative pl-8 md:pl-12">
-              <div className="absolute left-3 md:left-5 top-0 bottom-0 w-px bg-white/8" />
-              {allEventsSorted.map((ev, i) => {
-                const showMonthHeader = i === 0 || ev.month !== allEventsSorted[i - 1].month;
-                return (
-                  <div key={i}>
-                    {showMonthHeader && (
-                      <div className="relative mb-4 mt-6 first:mt-0">
-                        <div className="absolute -left-8 md:-left-12 w-6 md:w-10 flex justify-center">
-                          <div className="w-2.5 h-2.5 bg-white/20 border border-white/30" />
-                        </div>
-                        <p className="font-[var(--font-anton)] text-sm tracking-[0.15em] text-white/50">{MONTH_NAMES[ev.month]} {ev.year}</p>
-                      </div>
-                    )}
-                    <motion.div
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="relative mb-3"
-                    >
-                      <div className="absolute -left-8 md:-left-12 w-6 md:w-10 flex justify-center top-4">
-                        <div className={`w-1.5 h-1.5 ${typeDot[ev.type]}`} />
-                      </div>
-                      <Link
-                        href={`/stock/${ev.ticker}`}
-                        className={`flex items-center gap-4 border border-white/6 border-l-2 ${typeAccent[ev.type]} p-4 hover:bg-white/[0.03] transition-colors`}
-                      >
-                        <div className="w-12 text-center shrink-0">
-                          <p className="text-[9px] tracking-[0.12em] text-white/25">{MONTH_NAMES[ev.month]}</p>
-                          <p className="font-[var(--font-anton)] text-lg">{ev.day}</p>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em] mb-0.5">{ev.title}</p>
-                          <p className="text-[10px] text-white/30">{ev.ticker} · {ev.impact}</p>
-                        </div>
-                        <span className={`text-[8px] tracking-[0.15em] px-2 py-1 shrink-0 ${typeBadge[ev.type]}`}>{ev.type}</span>
-                      </Link>
-                    </motion.div>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
+      {/* Event cards */}
+      <div className="max-w-2xl space-y-2">
+        {filteredEvents.length === 0 && (
+          <p className="text-[11px] text-white/20 py-12 text-center">No events on this day</p>
         )}
-      </AnimatePresence>
+        {filteredEvents.map((ev, i) => (
+          <motion.div
+            key={`${ev.ticker}-${ev.day}-${i}`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.04 }}
+          >
+            <Link
+              href={`/stock/${ev.ticker}`}
+              className={`flex items-center gap-4 border border-white/6 border-l-2 ${typeAccent[ev.type]} p-4 hover:bg-white/[0.03] transition-colors`}
+            >
+              <div className="w-12 text-center shrink-0">
+                <p className="text-[8px] tracking-[0.15em] text-white/25">{ev.weekday}</p>
+                <p className="font-[var(--font-anton)] text-lg">{ev.day}</p>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em] mb-0.5">{ev.title}</p>
+                <p className="text-[10px] text-white/30">{ev.ticker} &middot; {ev.time} &middot; {ev.description}</p>
+              </div>
+              <span className={`text-[8px] tracking-[0.15em] px-2 py-1 shrink-0 ${typeBadge[ev.type]}`}>{ev.type}</span>
+            </Link>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }

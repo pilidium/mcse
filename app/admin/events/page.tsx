@@ -35,7 +35,7 @@ export default function AdminEventsPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !date) return;
-    addEvent(title.trim(), description.trim(), date, "ENIGMA");
+    addEvent(title.trim(), description.trim(), date, "ESOFT");
     setTitle("");
     setDescription("");
     setDate("");

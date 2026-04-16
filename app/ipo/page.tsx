@@ -354,8 +354,6 @@ function IPODetail({
           <div className="space-y-3">
             {[
               { label: "Overall", value: ipo.subscriptionTimes, delay: 0.1 },
-              { label: "Retail", value: ipo.retailSubscription, delay: 0.15 },
-              { label: "NII", value: ipo.niiSubscription, delay: 0.2 },
             ].map((sub) => (
               <div key={sub.label}>
                 <div className="flex items-center justify-between mb-1.5">

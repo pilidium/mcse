@@ -58,19 +58,19 @@ interface TradingState {
 const INITIAL_BALANCE = 100000;
 
 const MOCK_ORDERS: Order[] = [
-  { id: "ORD-001", ticker: "MATHSOC", name: "Math Society", type: "BUY", orderType: "DELIVERY", pricingType: "MARKET", qty: 5, price: 2840.00, total: 14200.00, status: "COMPLETED", timestamp: Date.now() - 86400000 * 3 },
-  { id: "ORD-002", ticker: "ENIGMA", name: "Enigma Computer Science", type: "BUY", orderType: "DELIVERY", pricingType: "MARKET", qty: 3, price: 3920.50, total: 11761.50, status: "COMPLETED", timestamp: Date.now() - 86400000 * 2 },
-  { id: "ORD-003", ticker: "CELESTE", name: "Celeste", type: "BUY", orderType: "INTRADAY", pricingType: "MARKET", qty: 10, price: 1610.00, total: 16100.00, status: "COMPLETED", timestamp: Date.now() - 86400000 },
-  { id: "ORD-004", ticker: "MATHSOC", name: "Math Society", type: "SELL", orderType: "DELIVERY", pricingType: "MARKET", qty: 2, price: 2892.45, total: 5784.90, status: "COMPLETED", timestamp: Date.now() - 43200000 },
-  { id: "ORD-005", ticker: "GASMONKEYS", name: "Gas Monkeys", type: "BUY", orderType: "DELIVERY", pricingType: "MARKET", qty: 8, price: 1560.00, total: 12480.00, status: "COMPLETED", timestamp: Date.now() - 21600000 },
+  { id: "ORD-001", ticker: "MACAD", name: "MathSoc Academy", type: "BUY", orderType: "DELIVERY", pricingType: "MARKET", qty: 5, price: 1150.00, total: 5750.00, status: "COMPLETED", timestamp: Date.now() - 86400000 * 3 },
+  { id: "ORD-002", ticker: "ECLOUD", name: "Enigma Cloud", type: "BUY", orderType: "DELIVERY", pricingType: "MARKET", qty: 3, price: 3180.50, total: 9541.50, status: "COMPLETED", timestamp: Date.now() - 86400000 * 2 },
+  { id: "ORD-003", ticker: "CELBIO", name: "Celeste Bio", type: "BUY", orderType: "INTRADAY", pricingType: "MARKET", qty: 10, price: 2090.00, total: 20900.00, status: "COMPLETED", timestamp: Date.now() - 86400000 },
+  { id: "ORD-004", ticker: "MACAD", name: "MathSoc Academy", type: "SELL", orderType: "DELIVERY", pricingType: "MARKET", qty: 2, price: 1198.50, total: 2397.00, status: "COMPLETED", timestamp: Date.now() - 43200000 },
+  { id: "ORD-005", ticker: "GMAUTO", name: "GM Automotive", type: "BUY", orderType: "DELIVERY", pricingType: "MARKET", qty: 8, price: 1420.00, total: 11360.00, status: "COMPLETED", timestamp: Date.now() - 21600000 },
 ];
 
 const MOCK_TRANSACTIONS: Transaction[] = [
-  { id: "TXN-002", type: "BUY", ticker: "MATHSOC", name: "Math Society", qty: 5, price: 2840.00, amount: -14200.00, balance: 85800.00, timestamp: Date.now() - 86400000 * 3, description: "Bought 5 MATHSOC @ \u20B92,840.00" },
-  { id: "TXN-003", type: "BUY", ticker: "ENIGMA", name: "Enigma Computer Science", qty: 3, price: 3920.50, amount: -11761.50, balance: 74038.50, timestamp: Date.now() - 86400000 * 2, description: "Bought 3 ENIGMA @ \u20B93,920.50" },
-  { id: "TXN-004", type: "BUY", ticker: "CELESTE", name: "Celeste", qty: 10, price: 1610.00, amount: -16100.00, balance: 57938.50, timestamp: Date.now() - 86400000, description: "Bought 10 CELESTE @ \u20B91,610.00" },
-  { id: "TXN-005", type: "SELL", ticker: "MATHSOC", name: "Math Society", qty: 2, price: 2892.45, amount: 5784.90, balance: 63723.40, timestamp: Date.now() - 43200000, description: "Sold 2 MATHSOC @ \u20B92,892.45" },
-  { id: "TXN-006", type: "BUY", ticker: "GASMONKEYS", name: "Gas Monkeys", qty: 8, price: 1560.00, amount: -12480.00, balance: 51243.40, timestamp: Date.now() - 21600000, description: "Bought 8 GASMONKEYS @ \u20B91,560.00" },
+  { id: "TXN-002", type: "BUY", ticker: "MACAD", name: "MathSoc Academy", qty: 5, price: 1150.00, amount: -5750.00, balance: 94250.00, timestamp: Date.now() - 86400000 * 3, description: "Bought 5 MACAD @ \u20B91,150.00" },
+  { id: "TXN-003", type: "BUY", ticker: "ECLOUD", name: "Enigma Cloud", qty: 3, price: 3180.50, amount: -9541.50, balance: 84708.50, timestamp: Date.now() - 86400000 * 2, description: "Bought 3 ECLOUD @ \u20B93,180.50" },
+  { id: "TXN-004", type: "BUY", ticker: "CELBIO", name: "Celeste Bio", qty: 10, price: 2090.00, amount: -20900.00, balance: 63808.50, timestamp: Date.now() - 86400000, description: "Bought 10 CELBIO @ \u20B92,090.00" },
+  { id: "TXN-005", type: "SELL", ticker: "MACAD", name: "MathSoc Academy", qty: 2, price: 1198.50, amount: 2397.00, balance: 66205.50, timestamp: Date.now() - 43200000, description: "Sold 2 MACAD @ \u20B91,198.50" },
+  { id: "TXN-006", type: "BUY", ticker: "GMAUTO", name: "GM Automotive", qty: 8, price: 1420.00, amount: -11360.00, balance: 54845.50, timestamp: Date.now() - 21600000, description: "Bought 8 GMAUTO @ \u20B91,420.00" },
 ];
 
 const TradingContext = createContext<TradingState>({

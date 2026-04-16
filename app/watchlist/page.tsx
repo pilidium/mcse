@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, Plus, X, Eye } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, X, Eye, ArrowUpDown } from "lucide-react";
 import Sparkline from "@/components/Sparkline";
 import LoginPrompt from "@/components/LoginPrompt";
 import { useAuth } from "@/lib/AuthContext";
@@ -20,6 +20,7 @@ export default function WatchlistPage() {
   const [watchlists, setWatchlists] = useState<string[]>(["My Watchlist"]);
   const [activeList, setActiveList] = useState(0);
   const [newListName, setNewListName] = useState("");
+  const [sortOpen, setSortOpen] = useState(false);
 
   const filtered = watchlist.filter(
     (s) =>
@@ -159,19 +160,30 @@ export default function WatchlistPage() {
 
       {/* Mobile: sort + card list */}
       <div className="md:hidden">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[9px] tracking-[0.15em] text-white/30 uppercase">SORT BY</span>
-          <select
-            value={sortKey}
-            onChange={(e) => { setSortKey(e.target.value as SortKey); setSortDir("desc"); }}
-            className="bg-transparent border border-white/15 text-[10px] tracking-[0.1em] text-white/60 px-3 py-1.5 outline-none appearance-none cursor-pointer"
-            style={{ fontSize: '16px' }}
+        <div className="flex items-center gap-3 mb-3 relative">
+          <button
+            onClick={() => setSortOpen(!sortOpen)}
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-white/15 text-[10px] tracking-[0.1em] text-white/60 hover:text-white hover:border-white transition-colors"
           >
-            <option value="ticker" className="bg-bg">NAME</option>
-            <option value="price" className="bg-bg">PRICE</option>
-            <option value="dayChangePercent" className="bg-bg">CHANGE %</option>
-            <option value="volume" className="bg-bg">VOLUME</option>
-          </select>
+            <ArrowUpDown size={11} />
+            SORT
+          </button>
+          {sortOpen && (
+            <div className="absolute top-full left-0 mt-1 z-20 border border-white/15 bg-bg min-w-[140px]">
+              {(["ticker", "price", "dayChangePercent", "volume"] as SortKey[]).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => { setSortKey(key); setSortDir("desc"); setSortOpen(false); }}
+                  className={`block w-full text-left px-4 py-2.5 text-[10px] tracking-[0.1em] transition-colors ${sortKey === key ? "text-white bg-white/[0.06]" : "text-white/50 hover:text-white hover:bg-white/[0.03]"}`}
+                >
+                  {{ ticker: "NAME", price: "PRICE", dayChangePercent: "CHANGE %", volume: "VOLUME" }[key]}
+                </button>
+              ))}
+            </div>
+          )}
+          <span className="text-[9px] tracking-[0.1em] text-white/25 ml-auto">
+            {{ ticker: "NAME", price: "PRICE", dayChangePercent: "CHANGE %", volume: "VOLUME" }[sortKey]}
+          </span>
         </div>
         <div className="space-y-2">
         {sorted.map((stock) => (
