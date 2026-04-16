@@ -101,9 +101,6 @@ export default function StocksPage() {
               href={`/stock/${stock.ticker}`}
               className="flex items-center gap-4 bg-white/[0.02] border border-white/6 p-4 hover:bg-white/[0.04] active:bg-white/[0.06] transition-colors"
             >
-              <div className="w-11 h-11 border border-white/20 flex items-center justify-center shrink-0">
-                <span className="text-[9px] tracking-[0.1em] text-white/40">{stock.ticker.slice(0, 3)}</span>
-              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{stock.ticker}</p>
                 <p className="text-[10px] text-white/40 truncate mt-0.5">{stock.name}</p>

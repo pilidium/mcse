@@ -103,7 +103,7 @@ export default function ETFsPage() {
         ))}
       </div>
 
-      <div className="space-y-2 max-w-3xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredEtfs.map((etf, idx) => {
           const isOpen = expanded === etf.ticker;
           return (
@@ -116,91 +116,77 @@ export default function ETFsPage() {
             >
               <button
                 onClick={() => setExpanded(isOpen ? null : etf.ticker)}
-                className="w-full flex items-center gap-4 p-4 hover:bg-white/[0.03] transition-colors text-left"
+                className="w-full p-5 hover:bg-white/[0.03] transition-colors text-left"
               >
-                <div className="w-10 h-10 border border-white/20 flex items-center justify-center shrink-0">
-                  <span className="text-[8px] tracking-[0.1em] text-white/40">{etf.ticker.slice(0, 3)}</span>
-                </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{etf.name}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="min-w-0">
+                    <p className="font-[var(--font-anton)] text-[14px] tracking-[0.05em]">{etf.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
                       <span className="text-[9px] text-white/30">{etf.ticker}</span>
                       <span className="text-[8px] tracking-[0.1em] text-white/20 px-1.5 py-0.5 border border-white/8">{etf.category}</span>
                     </div>
                   </div>
-                  <div className="hidden md:flex items-center gap-6">
-                    <div className="text-right">
-                      <p className="text-[9px] tracking-[0.1em] text-white/20">1Y</p>
-                      <p className={`text-[12px] font-medium ${etf.return1Y >= 0 ? "text-up" : "text-down"}`}>
-                        {etf.return1Y >= 0 ? "+" : ""}{etf.return1Y}%
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[9px] tracking-[0.1em] text-white/20">EXP</p>
-                      <p className="text-[12px] text-white/50">{etf.expenseRatio.toFixed(2)}%</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[9px] tracking-[0.1em] text-white/20">AUM</p>
-                      <p className="text-[12px] text-white/50">{etf.aum}</p>
-                    </div>
-                  </div>
-                  <Sparkline data={etf.sparkline} width={52} height={22} positive={etf.change >= 0} />
-                  <div className="text-right shrink-0 min-w-[80px]">
-                    <p className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{etf.price.toFixed(2)}</p>
+                  <ChevronDown size={14} className={`text-white/25 transition-transform shrink-0 ${isOpen ? "rotate-180" : ""}`} />
+                </div>
+
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <p className="font-[var(--font-anton)] text-[16px]">{"\u20B9"}{etf.price.toFixed(2)}</p>
                     <p className={`text-[11px] font-medium ${etf.change >= 0 ? "text-up" : "text-down"}`}>
                       {etf.change >= 0 ? "+" : ""}{etf.change.toFixed(2)}%
                     </p>
                   </div>
-                  <ChevronDown size={14} className={`text-white/25 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-                </button>
+                  <Sparkline data={etf.sparkline} width={60} height={22} positive={etf.change >= 0} />
+                </div>
 
-                <AnimatePresence>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-4 pb-4 border-t border-white/6 pt-4">
-                        <div className="grid grid-cols-3 gap-[1px] bg-white/8 mb-4 md:hidden">
-                          <div className="bg-bg p-3 text-center">
-                            <p className="text-[8px] tracking-[0.15em] text-white/25 mb-0.5">1Y RETURN</p>
-                            <p className={`font-[var(--font-anton)] text-sm ${etf.return1Y >= 0 ? "text-up" : "text-down"}`}>
-                              {etf.return1Y >= 0 ? "+" : ""}{etf.return1Y}%
-                            </p>
-                          </div>
-                          <div className="bg-bg p-3 text-center">
-                            <p className="text-[8px] tracking-[0.15em] text-white/25 mb-0.5">EXP RATIO</p>
-                            <p className="text-[12px] text-white/60">{etf.expenseRatio.toFixed(2)}%</p>
-                          </div>
-                          <div className="bg-bg p-3 text-center">
-                            <p className="text-[8px] tracking-[0.15em] text-white/25 mb-0.5">AUM</p>
-                            <p className="text-[12px] text-white/60">{etf.aum}</p>
-                          </div>
-                        </div>
+                <div className="grid grid-cols-3 gap-[1px] bg-white/8">
+                  <div className="bg-bg p-2.5 text-center">
+                    <p className="text-[8px] tracking-[0.15em] text-white/25 mb-0.5">1Y</p>
+                    <p className={`text-[12px] font-medium ${etf.return1Y >= 0 ? "text-up" : "text-down"}`}>
+                      {etf.return1Y >= 0 ? "+" : ""}{etf.return1Y}%
+                    </p>
+                  </div>
+                  <div className="bg-bg p-2.5 text-center">
+                    <p className="text-[8px] tracking-[0.15em] text-white/25 mb-0.5">EXP</p>
+                    <p className="text-[12px] text-white/50">{etf.expenseRatio.toFixed(2)}%</p>
+                  </div>
+                  <div className="bg-bg p-2.5 text-center">
+                    <p className="text-[8px] tracking-[0.15em] text-white/25 mb-0.5">AUM</p>
+                    <p className="text-[12px] text-white/50">{etf.aum}</p>
+                  </div>
+                </div>
+              </button>
 
-                        <div className="flex items-center gap-1.5 mb-3">
-                          <PieChart size={11} className="text-white/25" />
-                          <p className="text-[9px] tracking-[0.15em] text-white/25">TOP HOLDINGS</p>
-                        </div>
-                        <div className="space-y-1.5">
-                          {etf.holdings.map((h) => (
-                            <div key={h.name} className="flex items-center gap-3">
-                              <div className="flex-1 h-1.5 bg-white/6 overflow-hidden">
-                                <div className="h-full bg-white/20" style={{ width: `${h.weight}%` }} />
-                              </div>
-                              <span className="text-[10px] text-white/50 w-24 truncate">{h.name}</span>
-                              <span className="text-[10px] text-white/30 w-8 text-right">{h.weight}%</span>
-                            </div>
-                          ))}
-                        </div>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-5 pb-5 border-t border-white/6 pt-4">
+                      <div className="flex items-center gap-1.5 mb-3">
+                        <PieChart size={11} className="text-white/25" />
+                        <p className="text-[9px] tracking-[0.15em] text-white/25">TOP HOLDINGS</p>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                      <div className="space-y-1.5">
+                        {etf.holdings.map((h) => (
+                          <div key={h.name} className="flex items-center gap-3">
+                            <div className="flex-1 h-1.5 bg-white/6 overflow-hidden">
+                              <div className="h-full bg-white/20" style={{ width: `${h.weight}%` }} />
+                            </div>
+                            <span className="text-[10px] text-white/50 w-24 truncate">{h.name}</span>
+                            <span className="text-[10px] text-white/30 w-8 text-right">{h.weight}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
             );
           })}
 

@@ -21,6 +21,7 @@ export default function WatchlistPage() {
   const [activeList, setActiveList] = useState(0);
   const [newListName, setNewListName] = useState("");
   const [sortOpen, setSortOpen] = useState(false);
+  const [mobileValue, setMobileValue] = useState<"price" | "dayChangePercent" | "volume">("price");
 
   const filtered = watchlist.filter(
     (s) =>
@@ -181,9 +182,17 @@ export default function WatchlistPage() {
               ))}
             </div>
           )}
-          <span className="text-[9px] tracking-[0.1em] text-white/25 ml-auto">
-            {{ ticker: "NAME", price: "PRICE", dayChangePercent: "CHANGE %", volume: "VOLUME" }[sortKey]}
-          </span>
+          <div className="flex items-center gap-0 ml-auto">
+            {(["price", "dayChangePercent", "volume"] as const).map((key) => (
+              <button
+                key={key}
+                onClick={() => setMobileValue(key)}
+                className={`px-2.5 py-1 text-[9px] tracking-[0.1em] transition-colors ${mobileValue === key ? "text-white" : "text-white/30"}`}
+              >
+                {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[key]}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="space-y-2">
         {sorted.map((stock) => (
@@ -192,23 +201,20 @@ export default function WatchlistPage() {
               href={`/stock/${stock.ticker}`}
               className="flex items-center gap-4 bg-white/[0.02] border border-white/6 p-4 hover:bg-white/[0.04] active:bg-white/[0.06] transition-colors"
             >
-              <div className="w-11 h-11 border border-white/20 flex items-center justify-center shrink-0">
-                <span className="text-[9px] tracking-[0.1em] text-white/40">{stock.ticker.slice(0, 3)}</span>
-              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{stock.ticker}</p>
                 <p className="text-[11px] text-white/40 truncate mt-0.5">{stock.name}</p>
               </div>
               <Sparkline data={stock.sparkline} width={52} height={22} positive={stock.dayChangePercent >= 0} />
-              <div className="text-right shrink-0 min-w-[80px]">
-                <p className="font-[var(--font-anton)] text-[13px]">
-                  {"₹"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                </p>
-                <p className={`text-[11px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
-                  {stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%
-                </p>
-                {stock.shares && (
-                  <p className="text-[9px] text-white/25">{stock.shares} shares</p>
+              <div className="text-right shrink-0 min-w-[70px]">
+                {mobileValue === "price" && (
+                  <span className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                )}
+                {mobileValue === "dayChangePercent" && (
+                  <span className={`text-[12px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</span>
+                )}
+                {mobileValue === "volume" && (
+                  <span className="text-[12px] text-white/50">{stock.volume}</span>
                 )}
               </div>
             </Link>
@@ -250,9 +256,6 @@ export default function WatchlistPage() {
             >
               <div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 border border-white/20 flex items-center justify-center shrink-0">
-                    <span className="text-[8px] tracking-[0.05em] text-white/40">{stock.ticker.slice(0, 3)}</span>
-                  </div>
                   <div>
                     <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{stock.ticker}</p>
                     <p className="text-[10px] text-white/40 mt-0.5">

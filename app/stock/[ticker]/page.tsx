@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, use, useCallback, useMemo } from "react";
-import { ArrowLeft, Star, Bookmark, X, Copy, Check } from "lucide-react";
+import { ArrowLeft, Star, Bookmark, X, Copy, Check, ExternalLink, Users, Calendar } from "lucide-react";
 import Portal from "@/components/Portal";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { stockDirectory, holdings, newsItems, formatRelativeTime, generateOrderBook } from "@/lib/mockData";
+import { stockDirectory, holdings, newsItems, formatRelativeTime, generateOrderBook, parentDirectory, parentCompanies } from "@/lib/mockData";
 import { useTrading } from "@/lib/TradingContext";
 import { usePreferences } from "@/lib/PreferencesContext";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
@@ -33,7 +33,7 @@ export default function StockDetailPage({
   const [mobileOrderOpen, setMobileOrderOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<"ORDER" | "BOOK" | "HISTORY">("ORDER");
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [sectionTab, setSectionTab] = useState<"OVERVIEW" | "NEWS" | "EVENTS">("OVERVIEW");
+  const [sectionTab, setSectionTab] = useState<"OVERVIEW" | "NEWS" | "EVENTS" | "COMPANY">("OVERVIEW");
   const [tickerCopied, setTickerCopied] = useState(false);
   const { confirmOrders } = usePreferences();
 
@@ -151,9 +151,6 @@ export default function StockDetailPage({
             <ArrowLeft size={15} />
           </button>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 border border-white/25 flex items-center justify-center">
-              <span className="text-[9px] tracking-[0.1em] text-white/50">{stock.ticker.slice(0, 3)}</span>
-            </div>
             <div>
               <button
                 onClick={() => {
@@ -256,7 +253,7 @@ export default function StockDetailPage({
 
           {/* Section tabs — Groww style */}
           <div className="flex items-center gap-0 mb-6 md:mb-8 border-b border-white/8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto scrollbar-hide">
-            {(["OVERVIEW", "NEWS", "EVENTS"] as const).map((tab) => (
+            {(["OVERVIEW", "NEWS", "EVENTS", "COMPANY"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setSectionTab(tab)}
@@ -440,11 +437,76 @@ export default function StockDetailPage({
               )}
             </div>
           )}
+
+          {sectionTab === "COMPANY" && (() => {
+            const parent = parentCompanies.find(p => p.subsidiaries.includes(ticker.toUpperCase()));
+            if (!parent) return <p className="text-[11px] text-white/25 py-12 text-center tracking-[0.1em]">NO PARENT COMPANY DATA</p>;
+            const siblings = parent.subsidiaries.filter(t => t !== ticker.toUpperCase()).map(t => stockDirectory[t]).filter(Boolean);
+            return (
+              <div className="space-y-6">
+                <div className="border border-white/6 p-5">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-11 h-11 border border-white/25 flex items-center justify-center">
+                      <span className="font-[var(--font-anton)] text-base text-white/70">{parent.logoLetter}</span>
+                    </div>
+                    <div>
+                      <Link href={`/company/${parent.ticker}`} className="group inline-flex items-center gap-1.5">
+                        <span className="font-[var(--font-anton)] text-[15px] tracking-[0.05em] group-hover:text-white transition-colors">{parent.name}</span>
+                        <ExternalLink size={10} className="text-white/20 group-hover:text-white/60 transition-colors" />
+                      </Link>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[9px] tracking-[0.15em] text-white/30">{parent.ticker}</span>
+                        <span className="text-[8px] tracking-[0.1em] text-white/20 px-1.5 py-0.5 border border-white/8">{parent.sector}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[12px] leading-[1.8] text-white/50">{parent.about}</p>
+                </div>
+
+                <div className="flex items-center gap-6 text-[11px] text-white/40">
+                  <div className="flex items-center gap-1.5">
+                    <Users size={11} className="text-white/20" />
+                    <span>{parent.totalEmployees} members</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Calendar size={11} className="text-white/20" />
+                    <span>Est. {parent.founded}</span>
+                  </div>
+                </div>
+
+                {siblings.length > 0 && (
+                  <div>
+                    <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-3">SIBLING SUBSIDIARIES</p>
+                    <div className="space-y-2">
+                      {siblings.map((sub) => (
+                        <Link
+                          key={sub.ticker}
+                          href={`/stock/${sub.ticker}`}
+                          className="flex items-center gap-4 border border-white/6 p-4 hover:bg-white/[0.03] transition-colors"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{sub.ticker}</p>
+                            <p className="text-[10px] text-white/40 mt-0.5">{sub.name}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="font-[var(--font-anton)] text-[13px]">{'\u20B9'}{sub.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                            <p className={`text-[10px] font-medium ${sub.changePercent >= 0 ? "text-up" : "text-down"}`}>
+                              {sub.changePercent >= 0 ? "+" : ""}{sub.changePercent.toFixed(2)}%
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Right column (desktop): Sticky order panel + order book + news + orders */}
         <aside className="hidden md:block border-l border-white/8 pl-6">
-          <div className="sticky top-[6rem] space-y-6">
+          <div className="sticky top-[6rem] max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-hide space-y-6">
             <div>
             <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-3">PLACE ORDER</p>
 

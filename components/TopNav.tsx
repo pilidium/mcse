@@ -113,7 +113,7 @@ export default function TopNav() {
           </Link>
 
           {/* Center: Desktop Tabs */}
-          <div className="hidden md:flex items-stretch h-full gap-0">
+          <div className="hidden md:flex items-stretch h-full gap-0 ml-6 md:ml-10">
             {desktopTabs.map((tab) => {
               const active = isActive(tab.href);
               return (

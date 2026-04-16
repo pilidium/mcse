@@ -8,6 +8,7 @@ export default function TickerTape() {
   const items = [...tickerTapeItems, ...tickerTapeItems];
   const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
+  const hasDragged = useRef(false);
   const startX = useRef(0);
   const resumeTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
@@ -26,14 +27,19 @@ export default function TickerTape() {
 
   const onDown = useCallback((clientX: number) => {
     dragging.current = true;
+    hasDragged.current = false;
     startX.current = clientX;
     if (resumeTimer.current) clearTimeout(resumeTimer.current);
-    pauseAnimation();
-  }, [pauseAnimation]);
+  }, []);
 
   const onMove = useCallback((clientX: number) => {
     if (!dragging.current || !trackRef.current) return;
     const delta = clientX - startX.current;
+    if (!hasDragged.current && Math.abs(delta) > 5) {
+      hasDragged.current = true;
+      pauseAnimation();
+    }
+    if (!hasDragged.current) return;
     startX.current = clientX;
     const style = getComputedStyle(trackRef.current);
     const matrix = new DOMMatrix(style.transform);
@@ -43,12 +49,12 @@ export default function TickerTape() {
     if (newX > 0) newX -= totalW;
     if (newX < -totalW) newX += totalW;
     trackRef.current.style.transform = `translateX(${newX}px)`;
-  }, []);
+  }, [pauseAnimation]);
 
   const onUp = useCallback(() => {
     if (!dragging.current) return;
     dragging.current = false;
-    scheduleResume();
+    if (hasDragged.current) scheduleResume();
   }, [scheduleResume]);
 
   useEffect(() => {

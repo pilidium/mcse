@@ -5,19 +5,18 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { newsItems, formatRelativeTime, allStocksEnriched } from "@/lib/mockData";
 
-const tickers = ["ALL", ...Array.from(new Set(newsItems.map((n) => n.ticker)))];
+const sectors = ["ALL", ...Array.from(new Set(allStocksEnriched.map((s) => s.sector)))];
 
 export default function NewsPage() {
   const [filter, setFilter] = useState("ALL");
 
-  const filtered = useMemo(
-    () => (filter === "ALL" ? newsItems : newsItems.filter((n) => n.ticker === filter)),
-    [filter]
-  );
-
-  const featured = filtered[0];
-  const rest = filtered.slice(1);
-  const featuredStock = featured ? allStocksEnriched.find((s) => s.ticker === featured.ticker) : null;
+  const filtered = useMemo(() => {
+    if (filter === "ALL") return newsItems;
+    return newsItems.filter((n) => {
+      const stock = allStocksEnriched.find((s) => s.ticker === n.ticker);
+      return stock?.sector === filter;
+    });
+  }, [filter]);
 
   return (
     <div className="py-6">
@@ -26,95 +25,61 @@ export default function NewsPage() {
         <span className="text-[9px] tracking-[0.2em] text-white/20">{filtered.length} STORIES</span>
       </div>
 
-      {/* Horizontal ticker filter */}
-      <div className="flex flex-wrap gap-1.5 mb-6">
-        {tickers.map((t) => (
+      {/* Sector filter */}
+      <div className="flex flex-wrap gap-0 mb-8 border-b border-white/8 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+        {sectors.map((s) => (
           <button
-            key={t}
-            onClick={() => setFilter(t)}
-            className={`text-[9px] tracking-[0.1em] px-3 py-1.5 border-b-2 transition-colors ${
-              filter === t ? "border-white text-white" : "border-transparent text-white/30 hover:text-white/60"
+            key={s}
+            onClick={() => setFilter(s)}
+            className={`text-[10px] tracking-[0.12em] px-4 py-3 border-b-2 transition-colors whitespace-nowrap ${
+              filter === s ? "border-white text-white" : "border-transparent text-white/30 hover:text-white/60"
             }`}
           >
-            {t}
+            {s}
           </button>
         ))}
       </div>
 
-      {/* Featured story */}
-      {featured && (
-        <motion.div
-          key={`featured-${featured.ticker}`}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <Link
-            href={`/stock/${featured.ticker}`}
-            className="block border border-white/10 hover:border-white/20 transition-colors duration-300"
-          >
-            <div className="p-6 md:p-10">
-              <div className="flex items-center gap-3 mb-5">
-                <span className="text-[8px] tracking-[0.15em] text-white/30 border border-white/10 px-2.5 py-0.5">
-                  {featured.ticker}
-                </span>
-                {featuredStock && (
-                  <span className="text-[8px] tracking-[0.12em] text-white/15">{featuredStock.sector}</span>
-                )}
-                <span className={`text-[9px] font-medium ml-auto ${featured.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
-                  {featured.dayChangePercent >= 0 ? "+" : ""}{featured.dayChangePercent.toFixed(2)}%
-                </span>
-              </div>
-              <p className="font-[var(--font-anton)] text-xl md:text-3xl tracking-[0.02em] leading-tight mb-6 max-w-2xl">
-                {featured.headline}
-              </p>
-              <div className="flex items-center gap-4 text-white/30">
-                <span className="text-[10px]">{featured.name}</span>
-                <span className="text-white/10">&middot;</span>
-                <span className="text-[10px]">{"\u20B9"}{featured.price.toFixed(2)}</span>
-                <span className="text-[9px] ml-auto text-white/20">{formatRelativeTime(featured.timestamp)}</span>
-              </div>
-            </div>
-          </Link>
-        </motion.div>
-      )}
-
-      {/* Story list */}
-      <div className="max-w-3xl">
-        {rest.map((news, i) => {
+      {/* Card grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map((news, i) => {
           const stock = allStocksEnriched.find((s) => s.ticker === news.ticker);
           return (
             <motion.div
               key={`${news.ticker}-${i}`}
-              initial={{ opacity: 0, y: 4 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
+              transition={{ delay: i * 0.04 }}
             >
               <Link
                 href={`/stock/${news.ticker}`}
-                className="flex items-start gap-4 py-4 border-b border-white/6 hover:bg-white/[0.02] transition-colors duration-300 -mx-2 px-2"
+                className="block border border-white/6 p-5 hover:bg-white/[0.03] hover:border-white/12 transition-all duration-300 h-full"
               >
-                <div className={`w-0.5 h-10 shrink-0 mt-0.5 ${news.dayChangePercent >= 0 ? "bg-up/40" : "bg-down/40"}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-[var(--font-anton)] text-[10px] tracking-[0.06em]">{news.ticker}</span>
-                    {stock && (
-                      <span className="text-[8px] text-white/20">{stock.sector}</span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-white/45 leading-relaxed line-clamp-2">{news.headline}</p>
-                </div>
-                <div className="shrink-0 text-right pt-0.5">
-                  <p className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
+                <div className="flex items-center gap-2 mb-3">
+                  {stock && (
+                    <span className="text-[8px] tracking-[0.12em] text-white/20 px-1.5 py-0.5 border border-white/8">
+                      {stock.sector}
+                    </span>
+                  )}
+                  <span className="font-[var(--font-anton)] text-[10px] tracking-[0.06em] text-white/50">{news.ticker}</span>
+                  <span className={`text-[9px] font-medium ml-auto ${news.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
                     {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
-                  </p>
-                  <p className="text-[9px] text-white/20 mt-0.5">{formatRelativeTime(news.timestamp)}</p>
+                  </span>
+                </div>
+                <p className="text-[12px] text-white/60 leading-[1.7] line-clamp-3 mb-4">{news.headline}</p>
+                <div className="flex items-center justify-between mt-auto">
+                  <span className="text-[10px] text-white/30">{news.name}</span>
+                  <span className="text-[9px] text-white/20">{formatRelativeTime(news.timestamp)}</span>
                 </div>
               </Link>
             </motion.div>
           );
         })}
       </div>
+
+      {filtered.length === 0 && (
+        <p className="text-[11px] text-white/25 py-16 text-center tracking-[0.1em]">NO STORIES IN THIS SECTOR</p>
+      )}
     </div>
   );
 }

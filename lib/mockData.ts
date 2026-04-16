@@ -4,14 +4,18 @@ export interface IndexData {
   value: number;
   change: number;
   changePercent: number;
+  sparkline: number[];
 }
 
 export const indices: IndexData[] = [
-  { name: "AEON 50", value: 23519.35, change: 187.45, changePercent: 0.80 },
-  { name: "AEDEX", value: 77478.93, change: 602.75, changePercent: 0.78 },
-  { name: "BANKAEON", value: 50892.15, change: -123.40, changePercent: -0.24 },
-  { name: "MIDCAPEON", value: 11245.60, change: 89.30, changePercent: 0.80 },
-  { name: "FINAEON", value: 23412.80, change: 45.20, changePercent: 0.19 },
+  { name: "AEON 50", value: 23519.35, change: 187.45, changePercent: 0.80, sparkline: [23200, 23280, 23350, 23410, 23460, 23500, 23519] },
+  { name: "AEDEX", value: 77478.93, change: 602.75, changePercent: 0.78, sparkline: [76800, 76950, 77100, 77250, 77350, 77420, 77478] },
+  { name: "BANKAEON", value: 50892.15, change: -123.40, changePercent: -0.24, sparkline: [51050, 51010, 50980, 50950, 50920, 50900, 50892] },
+  { name: "MIDCAPEON", value: 11245.60, change: 89.30, changePercent: 0.80, sparkline: [11140, 11160, 11180, 11200, 11220, 11238, 11245] },
+  { name: "FINAEON", value: 23412.80, change: 45.20, changePercent: 0.19, sparkline: [23360, 23370, 23380, 23390, 23400, 23408, 23412] },
+  { name: "ITAEON", value: 38642.10, change: 312.80, changePercent: 0.82, sparkline: [38280, 38350, 38420, 38480, 38550, 38610, 38642] },
+  { name: "AUTOAEON", value: 21834.50, change: -78.60, changePercent: -0.36, sparkline: [21920, 21900, 21880, 21860, 21848, 21840, 21834] },
+  { name: "PHARMAEON", value: 17298.40, change: 142.30, changePercent: 0.83, sparkline: [17120, 17150, 17190, 17220, 17255, 17280, 17298] },
 ];
 
 // ─── Parent Companies (holding companies, not traded) ───
@@ -20,6 +24,10 @@ export interface ParentCompany {
   name: string;
   about: string;
   subsidiaries: string[];
+  totalEmployees: number;
+  logoLetter: string;
+  founded: string;
+  sector: string;
 }
 
 export const parentCompanies: ParentCompany[] = [
@@ -28,42 +36,70 @@ export const parentCompanies: ParentCompany[] = [
     name: "Math Society Group",
     about: "Math Society is the flagship mathematics club of the institution. As a holding company it oversees its three subsidiaries: MathSoc Academy (education), MathSoc Publishing (academic publishing), and MathSoc Tech (edtech solutions).",
     subsidiaries: ["MACAD", "MPUB", "MTEK"],
+    totalEmployees: 240,
+    logoLetter: "M",
+    founded: "2018",
+    sector: "Education",
   },
   {
     ticker: "ENIGMA",
     name: "Enigma Group",
     about: "Enigma is the premier computer science and coding club. As a holding company it manages Enigma Software (development), Enigma Cloud (cloud services), and Enigma AI (artificial intelligence research).",
     subsidiaries: ["ESOFT", "ECLOUD", "ENAI"],
+    totalEmployees: 310,
+    logoLetter: "E",
+    founded: "2017",
+    sector: "Technology",
   },
   {
     ticker: "GASMONKEYS",
     name: "Gas Monkeys Group",
     about: "Gas Monkeys is the automotive and mechanical engineering club. The holding company oversees GM Racing (racing events), GM Automotive (parts manufacturing), and GM Services (maintenance and repair).",
     subsidiaries: ["GMRACE", "GMAUTO", "GMSERV"],
+    totalEmployees: 180,
+    logoLetter: "G",
+    founded: "2019",
+    sector: "Automotive",
   },
   {
     ticker: "MASTERSHOT",
     name: "MasterShot Group",
     about: "MasterShot is the media and entertainment society. The holding company manages MS Studios (film production), MS Digital (digital content), and MS Media (media distribution).",
     subsidiaries: ["MSSTD", "MSDIGI", "MSMEDIA"],
+    totalEmployees: 220,
+    logoLetter: "S",
+    founded: "2018",
+    sector: "Media & Entertainment",
   },
   {
     ticker: "ERUDITE",
     name: "Erudite Group",
     about: "Erudite is the literary and general knowledge society. The holding company oversees Erudite Learn (learning platform), Erudite Press (publishing house), and Erudite Labs (research division).",
     subsidiaries: ["ERLEARN", "ERPRESS", "ERLAB"],
+    totalEmployees: 195,
+    logoLetter: "R",
+    founded: "2017",
+    sector: "Education",
   },
   {
     ticker: "INSIGHT",
     name: "Insight Group",
     about: "Insight is the data analytics and business intelligence club. The holding company manages Insight Data (analytics), Insight Markets (market research), and Insight Consulting (advisory services).",
     subsidiaries: ["INDATA", "INMKT", "INCON"],
+    totalEmployees: 165,
+    logoLetter: "I",
+    founded: "2020",
+    sector: "Analytics",
   },
   {
     ticker: "CELESTE",
     name: "Celeste Group",
     about: "Celeste is the astronomy and space science research club. The holding company oversees Celeste Research (space research), Celeste Energy (clean energy), and Celeste BioSystems (biotechnology).",
     subsidiaries: ["CELRES", "CELENR", "CELBIO"],
+    totalEmployees: 275,
+    logoLetter: "C",
+    founded: "2019",
+    sector: "Science & Research",
   },
 ];
 

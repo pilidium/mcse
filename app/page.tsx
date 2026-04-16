@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import Sparkline from "@/components/Sparkline";
 import { useAuth } from "@/lib/AuthContext";
 import {
-  mostTraded,
+  indices,
   topGainers,
   topLosers,
   volumeShockers,
@@ -45,6 +45,7 @@ export default function ExplorePage() {
   const [moverSort, setMoverSort] = useState<MoverSortKey>("dayChangePercent");
   const [moverSortDir, setMoverSortDir] = useState<SortDir>("desc");
   const [moverSortOpen, setMoverSortOpen] = useState(false);
+  const [moverMobileValue, setMoverMobileValue] = useState<"price" | "dayChangePercent" | "volume">("price");
   const { isLoggedIn } = useAuth();
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -82,7 +83,7 @@ export default function ExplorePage() {
       if (typeof av === "string") return moverSortDir === "asc" ? av.localeCompare(bv as string) : (bv as string).localeCompare(av);
       return moverSortDir === "asc" ? (av as number) - (bv as number) : (bv as number) - (av as number);
     });
-    return arr;
+    return arr.slice(0, 7);
   }, [activeTab, moverSort, moverSortDir]);
 
   function toggleMoverSort(key: MoverSortKey) {
@@ -316,20 +317,25 @@ export default function ExplorePage() {
               TOP MOVERS TODAY
             </h2>
 
-            <div className="flex items-center gap-0 mb-5 overflow-x-auto scrollbar-hide">
-              {(["GAINERS", "LOSERS", "VOLUME"] as MoverTab[]).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2.5 text-[10px] tracking-[0.15em] border-b-2 transition-all duration-300 whitespace-nowrap ${
-                    activeTab === tab
-                      ? "text-white border-white"
-                      : "text-white/40 border-transparent hover:text-white/60"
-                  }`}
-                >
-                  {tab === "VOLUME" ? "VOLUME SHOCKERS" : tab}
-                </button>
-              ))}
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide">
+                {(["GAINERS", "LOSERS", "VOLUME"] as MoverTab[]).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2.5 text-[10px] tracking-[0.15em] border-b-2 transition-all duration-300 whitespace-nowrap ${
+                      activeTab === tab
+                        ? "text-white border-white"
+                        : "text-white/40 border-transparent hover:text-white/60"
+                    }`}
+                  >
+                    {tab === "VOLUME" ? "VOLUME SHOCKERS" : tab}
+                  </button>
+                ))}
+              </div>
+              <Link href="/markets" className="hidden md:flex items-center gap-1 text-[9px] tracking-[0.12em] text-white/30 hover:text-white transition-colors shrink-0">
+                SEE ALL <ChevronRight size={11} />
+              </Link>
             </div>
 
             {/* Mobile: sort + card list */}
@@ -355,9 +361,17 @@ export default function ExplorePage() {
                     ))}
                   </div>
                 )}
-                <span className="text-[9px] tracking-[0.1em] text-white/25 ml-auto">
-                  {{ ticker: "NAME", price: "PRICE", dayChangePercent: "CHANGE %", volume: "VOLUME" }[moverSort]}
-                </span>
+                <div className="flex items-center gap-0 ml-auto">
+                  {(["price", "dayChangePercent", "volume"] as const).map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => setMoverMobileValue(key)}
+                      className={`px-2.5 py-1 text-[9px] tracking-[0.1em] transition-colors ${moverMobileValue === key ? "text-white" : "text-white/30"}`}
+                    >
+                      {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[key]}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="space-y-2">
               {currentMovers.map((stock) => (
@@ -366,25 +380,28 @@ export default function ExplorePage() {
                   href={`/stock/${stock.ticker}`}
                   className="flex items-center gap-4 bg-white/[0.02] border border-white/6 p-4 hover:bg-white/[0.04] active:bg-white/[0.06] transition-colors"
                 >
-                  <div className="w-11 h-11 border border-white/20 flex items-center justify-center shrink-0">
-                    <span className="text-[9px] tracking-[0.1em] text-white/40">{stock.ticker.slice(0, 3)}</span>
-                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{stock.ticker}</p>
                     <p className="text-[11px] text-white/40 truncate mt-0.5">{stock.name}</p>
                   </div>
                   <Sparkline data={stock.sparkline} width={52} height={22} positive={stock.dayChangePercent >= 0} />
-                  <div className="text-right shrink-0 min-w-[80px]">
-                    <p className="font-[var(--font-anton)] text-[13px]">
-                      {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                    </p>
-                    <p className={`text-[11px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
-                      {stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%
-                    </p>
+                  <div className="text-right shrink-0 min-w-[70px]">
+                    {moverMobileValue === "price" && (
+                      <span className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                    )}
+                    {moverMobileValue === "dayChangePercent" && (
+                      <span className={`text-[12px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</span>
+                    )}
+                    {moverMobileValue === "volume" && (
+                      <span className="text-[12px] text-white/50">{stock.volume}</span>
+                    )}
                   </div>
                 </Link>
               ))}
               </div>
+              <Link href="/markets" className="flex items-center justify-center gap-1 mt-3 py-2.5 text-[9px] tracking-[0.12em] text-white/30 hover:text-white transition-colors border border-white/6">
+                SEE ALL <ChevronRight size={11} />
+              </Link>
             </div>
 
             {/* Desktop table with sortable headers */}
@@ -430,34 +447,36 @@ export default function ExplorePage() {
             </div>
           </motion.div>
 
-          {/* MOST TRADED (desktop, below movers) */}
+          {/* MARKET INDICES (desktop, below movers) */}
           <motion.div
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.08, ease: [0.25, 0.1, 0.25, 1] }}
             className="hidden md:block mb-10"
           >
-            <h2 className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.1em] uppercase mb-5">
-              MOST TRADED
-            </h2>
-            <div className="space-y-0">
-              {mostTraded.map((s) => (
-                <Link
-                  key={s.ticker}
-                  href={`/stock/${s.ticker}`}
-                  className="flex items-center justify-between py-3 border-b border-white/6 hover:bg-white/[0.04] transition-colors group"
+            <Link href="/markets" className="flex items-center justify-between mb-5 group">
+              <h2 className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.1em] uppercase">
+                MARKET INDICES
+              </h2>
+              <ChevronRight size={14} className="text-white/20 group-hover:text-white/50 transition-colors" />
+            </Link>
+            <div className="grid grid-cols-2 gap-[1px] bg-white/8">
+              {indices.map((idx) => (
+                <div
+                  key={idx.name}
+                  className="bg-bg p-4 hover:bg-white/[0.03] transition-colors"
                 >
-                  <div>
-                    <p className="font-[var(--font-anton)] text-[12px] tracking-[0.05em]">{s.ticker}</p>
-                    <p className="text-[9px] text-white/30">{s.name}</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] tracking-[0.1em] text-white/50">{idx.name}</p>
+                    <Sparkline data={idx.sparkline} width={40} height={14} positive={idx.changePercent >= 0} />
                   </div>
-                  <div className="text-right">
-                    <p className="font-[var(--font-anton)] text-[12px]">{"\u20B9"}{s.price.toLocaleString("en-IN")}</p>
-                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
-                      {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
-                    </p>
-                  </div>
-                </Link>
+                  <p className="font-[var(--font-anton)] text-[15px] tracking-tight mb-0.5">
+                    {idx.value.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className={`text-[10px] font-medium ${idx.changePercent >= 0 ? "text-up" : "text-down"}`}>
+                    {idx.change >= 0 ? "+" : ""}{idx.change.toFixed(2)} ({idx.changePercent >= 0 ? "+" : ""}{idx.changePercent.toFixed(2)}%)
+                  </p>
+                </div>
               ))}
             </div>
           </motion.div>

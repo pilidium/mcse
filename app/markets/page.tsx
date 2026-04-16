@@ -1,40 +1,96 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { TrendingUp, TrendingDown, BarChart3, Activity } from "lucide-react";
+import { ChevronDown, ChevronUp, Activity, ArrowUpDown } from "lucide-react";
 import Sparkline from "@/components/Sparkline";
 import {
   indices,
-  topGainers,
-  topLosers,
-  mostTraded,
-  volumeShockers,
-  newsItems,
+  allStocksEnriched,
   marketBreadth,
-  formatRelativeTime,
 } from "@/lib/mockData";
 
-const moversTabsMap = { GAINERS: topGainers, LOSERS: topLosers, VOLUME: volumeShockers };
-type MoversTab = keyof typeof moversTabsMap;
+const sectors = ["ALL", ...Array.from(new Set(allStocksEnriched.map((s) => s.sector)))];
+
+type SortKey = "ticker" | "price" | "dayChangePercent" | "pe" | "volume" | "sector";
+type SortDir = "asc" | "desc";
+
+type MobileValueKey = "price" | "dayChangePercent" | "volume" | "pe";
+const mobileValueLabels: Record<MobileValueKey, string> = {
+  price: "PRICE",
+  dayChangePercent: "CHG%",
+  volume: "VOL",
+  pe: "P/E",
+};
 
 export default function MarketsPage() {
-  const [moversTab, setMoversTab] = useState<MoversTab>("GAINERS");
-  const activeMovers = moversTabsMap[moversTab];
+  const [sectorFilter, setSectorFilter] = useState("ALL");
+  const [sortKey, setSortKey] = useState<SortKey>("dayChangePercent");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [mobileSort, setMobileSort] = useState<SortKey>("dayChangePercent");
+  const [mobileSortOpen, setMobileSortOpen] = useState(false);
+  const [mobileValue, setMobileValue] = useState<MobileValueKey>("dayChangePercent");
+
   const totalBreadth = marketBreadth.advances + marketBreadth.declines + marketBreadth.unchanged;
   const advPct = ((marketBreadth.advances / totalBreadth) * 100).toFixed(1);
   const decPct = ((marketBreadth.declines / totalBreadth) * 100).toFixed(1);
+
+  const filtered = useMemo(() => {
+    const stocks = sectorFilter === "ALL" ? [...allStocksEnriched] : allStocksEnriched.filter((s) => s.sector === sectorFilter);
+    const key = sortKey;
+    stocks.sort((a, b) => {
+      let av: string | number, bv: string | number;
+      if (key === "ticker") { av = a.ticker; bv = b.ticker; }
+      else if (key === "sector") { av = a.sector; bv = b.sector; }
+      else { av = a[key]; bv = b[key]; }
+      if (typeof av === "string") return sortDir === "asc" ? av.localeCompare(bv as string) : (bv as string).localeCompare(av);
+      return sortDir === "asc" ? (av as number) - (bv as number) : (bv as number) - (av as number);
+    });
+    return stocks;
+  }, [sectorFilter, sortKey, sortDir]);
+
+  const mobileFiltered = useMemo(() => {
+    const stocks = sectorFilter === "ALL" ? [...allStocksEnriched] : allStocksEnriched.filter((s) => s.sector === sectorFilter);
+    stocks.sort((a, b) => {
+      const key = mobileSort;
+      let av: string | number, bv: string | number;
+      if (key === "ticker") { av = a.ticker; bv = b.ticker; }
+      else if (key === "sector") { av = a.sector; bv = b.sector; }
+      else { av = a[key]; bv = b[key]; }
+      if (typeof av === "string") return av.localeCompare(bv as string);
+      return (bv as number) - (av as number);
+    });
+    return stocks;
+  }, [sectorFilter, mobileSort]);
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortKey(key); setSortDir("desc"); }
+  }
+
+  function sortIcon(col: SortKey) {
+    return sortKey === col
+      ? sortDir === "asc" ? <ChevronUp size={10} className="inline ml-0.5" /> : <ChevronDown size={10} className="inline ml-0.5" />
+      : <ChevronDown size={10} className="inline ml-0.5 opacity-30" />;
+  }
+
+  function formatMobileValue(stock: typeof allStocksEnriched[0]) {
+    switch (mobileValue) {
+      case "price": return <span className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>;
+      case "dayChangePercent": return <span className={`text-[12px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</span>;
+      case "volume": return <span className="text-[12px] text-white/50">{(stock.volume / 1_000_000).toFixed(1)}M</span>;
+      case "pe": return <span className="text-[12px] text-white/50">{stock.pe.toFixed(1)}</span>;
+    }
+  }
 
   return (
     <div className="py-6 md:py-8 md:pb-12">
       {/* Header */}
       <div className="flex items-end justify-between mb-8">
         <div>
-          <h1 className="font-[var(--font-anton)] text-xl md:text-2xl tracking-[0.1em] uppercase">
-            MARKETS
-          </h1>
-          <p className="text-[10px] tracking-[0.15em] text-white/30 mt-1">LIVE OVERVIEW</p>
+          <h1 className="font-[var(--font-anton)] text-xl md:text-2xl tracking-[0.1em] uppercase">MARKETS</h1>
+          <p className="text-[10px] tracking-[0.15em] text-white/30 mt-1">{allStocksEnriched.length} STOCKS</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-up animate-pulse" />
@@ -42,37 +98,27 @@ export default function MarketsPage() {
         </div>
       </div>
 
-      {/* Indices â€” hero cards */}
-      <section className="mb-10">
-        <div className="grid gap-[1px] bg-white/8 grid-cols-2 md:grid-cols-5">
+      {/* Indices tiles */}
+      <section className="mb-8">
+        <div className="grid gap-[1px] bg-white/8 grid-cols-2 md:grid-cols-4">
           {indices.map((idx, i) => (
             <motion.div
               key={idx.name}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04 }}
-              className="bg-bg p-4 md:p-5 group hover:bg-white/[0.02] transition-colors"
+              transition={{ delay: i * 0.03 }}
+              className="bg-bg p-4 hover:bg-white/[0.02] transition-colors"
             >
-              <p className="text-[8px] md:text-[9px] tracking-[0.15em] text-white/30 uppercase mb-2">
-                {idx.name}
-              </p>
-              <p className="font-[var(--font-anton)] text-base md:text-lg tracking-tight mb-0.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-[8px] tracking-[0.15em] text-white/30 uppercase">{idx.name}</p>
+                <Sparkline data={idx.sparkline} width={36} height={12} positive={idx.changePercent >= 0} />
+              </div>
+              <p className="font-[var(--font-anton)] text-[15px] tracking-tight mb-0.5">
                 {idx.value.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
               </p>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`text-[10px] font-medium ${
-                    idx.changePercent >= 0 ? "text-up" : "text-down"
-                  }`}
-                >
-                  {idx.changePercent >= 0 ? "+" : ""}
-                  {idx.changePercent.toFixed(2)}%
-                </span>
-                <span className="text-[9px] text-white/20">
-                  {idx.changePercent >= 0 ? "+" : ""}
-                  {idx.change.toFixed(2)}
-                </span>
-              </div>
+              <p className={`text-[10px] font-medium ${idx.changePercent >= 0 ? "text-up" : "text-down"}`}>
+                {idx.change >= 0 ? "+" : ""}{idx.change.toFixed(2)} ({idx.changePercent >= 0 ? "+" : ""}{idx.changePercent.toFixed(2)}%)
+              </p>
             </motion.div>
           ))}
         </div>
@@ -82,26 +128,17 @@ export default function MarketsPage() {
       <motion.section
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="mb-10"
+        transition={{ delay: 0.1 }}
+        className="mb-8"
       >
         <div className="flex items-center gap-2 mb-3">
           <Activity size={13} className="text-white/30" />
           <h2 className="text-[9px] tracking-[0.2em] text-white/30 uppercase">MARKET BREADTH</h2>
         </div>
         <div className="flex h-2 w-full overflow-hidden">
-          <div
-            className="bg-up transition-all"
-            style={{ width: `${advPct}%` }}
-          />
-          <div
-            className="bg-white/15 transition-all"
-            style={{ width: `${((marketBreadth.unchanged / totalBreadth) * 100).toFixed(1)}%` }}
-          />
-          <div
-            className="bg-down transition-all"
-            style={{ width: `${decPct}%` }}
-          />
+          <div className="bg-up transition-all" style={{ width: `${advPct}%` }} />
+          <div className="bg-white/15 transition-all" style={{ width: `${((marketBreadth.unchanged / totalBreadth) * 100).toFixed(1)}%` }} />
+          <div className="bg-down transition-all" style={{ width: `${decPct}%` }} />
         </div>
         <div className="flex justify-between mt-2">
           <span className="text-[9px] text-up">{marketBreadth.advances} advances ({advPct}%)</span>
@@ -110,132 +147,142 @@ export default function MarketsPage() {
         </div>
       </motion.section>
 
-      {/* Main content: 2-col */}
-      <div className="md:grid md:grid-cols-[3fr_2fr] md:gap-8">
-        {/* Left â€” Tabbed Movers */}
-        <div>
-          <div className="flex items-center gap-0 mb-4">
-            {(Object.keys(moversTabsMap) as MoversTab[]).map((tab) => (
+      {/* Sector filter tabs */}
+      <div className="flex items-center gap-0 mb-6 border-b border-white/8 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+        {sectors.map((s) => (
+          <button
+            key={s}
+            onClick={() => setSectorFilter(s)}
+            className={`px-4 py-3 text-[10px] tracking-[0.12em] border-b-2 transition-colors whitespace-nowrap ${
+              sectorFilter === s ? "border-white text-white" : "border-transparent text-white/30 hover:text-white/60"
+            }`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      {/* Desktop: full sortable table */}
+      <div className="hidden md:block">
+        <div className="grid grid-cols-[2fr_80px_110px_80px_70px_70px_70px_100px] gap-3 px-4 py-2 border-b border-white/12">
+          <button onClick={() => toggleSort("ticker")} className="text-[8px] tracking-[0.15em] text-white/30 uppercase text-left hover:text-white transition-colors">
+            COMPANY {sortIcon("ticker")}
+          </button>
+          <span className="text-[8px] tracking-[0.15em] text-white/30 uppercase text-center">CHART</span>
+          <button onClick={() => toggleSort("price")} className="text-[8px] tracking-[0.15em] text-white/30 uppercase text-right hover:text-white transition-colors">
+            PRICE {sortIcon("price")}
+          </button>
+          <button onClick={() => toggleSort("dayChangePercent")} className="text-[8px] tracking-[0.15em] text-white/30 uppercase text-right hover:text-white transition-colors">
+            CHG% {sortIcon("dayChangePercent")}
+          </button>
+          <button onClick={() => toggleSort("volume")} className="text-[8px] tracking-[0.15em] text-white/30 uppercase text-right hover:text-white transition-colors">
+            VOL {sortIcon("volume")}
+          </button>
+          <button onClick={() => toggleSort("pe")} className="text-[8px] tracking-[0.15em] text-white/30 uppercase text-right hover:text-white transition-colors">
+            P/E {sortIcon("pe")}
+          </button>
+          <button onClick={() => toggleSort("sector")} className="text-[8px] tracking-[0.15em] text-white/30 uppercase text-right hover:text-white transition-colors">
+            SECTOR {sortIcon("sector")}
+          </button>
+          <span />
+        </div>
+
+        {filtered.map((stock, i) => (
+          <motion.div
+            key={stock.ticker}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.02 }}
+          >
+            <Link
+              href={`/stock/${stock.ticker}`}
+              className="grid grid-cols-[2fr_80px_110px_80px_70px_70px_70px_100px] gap-3 items-center px-4 py-3 border-b border-white/6 hover:bg-white/[0.04] transition-colors"
+            >
+              <div className="min-w-0">
+                <p className="font-[var(--font-anton)] text-[12px] tracking-[0.05em]">{stock.ticker}</p>
+                <p className="text-[9px] text-white/30 truncate">{stock.name}</p>
+              </div>
+              <div className="flex justify-center">
+                <Sparkline data={stock.sparkline} width={56} height={18} positive={stock.dayChangePercent >= 0} />
+              </div>
+              <p className="font-[var(--font-anton)] text-[12px] text-right">
+                {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </p>
+              <p className={`text-[10px] font-medium text-right ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
+                {stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%
+              </p>
+              <p className="text-[10px] text-white/40 text-right">{(stock.volume / 1_000_000).toFixed(1)}M</p>
+              <p className="text-[10px] text-white/40 text-right">{stock.pe.toFixed(1)}</p>
+              <p className="text-[9px] text-white/25 text-right">{stock.sector}</p>
+              <span />
+            </Link>
+          </motion.div>
+        ))}
+
+        {filtered.length === 0 && (
+          <p className="text-[11px] text-white/25 py-16 text-center tracking-[0.1em]">NO STOCKS IN THIS SECTOR</p>
+        )}
+      </div>
+
+      {/* Mobile: card view with sort + tappable value */}
+      <div className="md:hidden">
+        <div className="flex items-center justify-between mb-4 relative">
+          <button
+            onClick={() => setMobileSortOpen(!mobileSortOpen)}
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-white/15 text-[10px] tracking-[0.1em] text-white/60 hover:text-white hover:border-white transition-colors"
+          >
+            <ArrowUpDown size={11} />
+            SORT
+          </button>
+          {mobileSortOpen && (
+            <div className="absolute top-full left-0 mt-1 z-20 border border-white/15 bg-bg min-w-[140px]">
+              {(["ticker", "price", "dayChangePercent", "volume", "pe"] as SortKey[]).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => { setMobileSort(key); setMobileSortOpen(false); }}
+                  className={`block w-full text-left px-4 py-2.5 text-[10px] tracking-[0.1em] transition-colors ${mobileSort === key ? "text-white bg-white/[0.06]" : "text-white/50 hover:text-white hover:bg-white/[0.03]"}`}
+                >
+                  {{ ticker: "NAME", price: "PRICE", dayChangePercent: "CHANGE %", volume: "VOLUME", pe: "P/E", sector: "SECTOR" }[key]}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center gap-0">
+            {(Object.keys(mobileValueLabels) as MobileValueKey[]).map((key) => (
               <button
-                key={tab}
-                onClick={() => setMoversTab(tab)}
-                className={`px-4 py-2.5 text-[10px] tracking-[0.15em] border-b-2 transition-all duration-300 whitespace-nowrap ${
-                  moversTab === tab
-                    ? "text-white border-white"
-                    : "text-white/40 border-transparent hover:text-white/60"
-                }`}
+                key={key}
+                onClick={() => setMobileValue(key)}
+                className={`px-2.5 py-1 text-[9px] tracking-[0.1em] transition-colors ${mobileValue === key ? "text-white" : "text-white/30"}`}
               >
-                {tab === "GAINERS" && <TrendingUp size={11} className="inline mr-1.5" />}
-                {tab === "LOSERS" && <TrendingDown size={11} className="inline mr-1.5" />}
-                {tab === "VOLUME" && <BarChart3 size={11} className="inline mr-1.5" />}
-                {tab === "VOLUME" ? "VOLUME SHOCKERS" : tab}
+                {mobileValueLabels[key]}
               </button>
             ))}
           </div>
-
-          {/* Table header */}
-          <div className="hidden md:grid grid-cols-[2fr_60px_1fr_80px] gap-3 px-4 py-2 text-[8px] tracking-[0.15em] text-white/25 uppercase border-b border-white/8 mb-0">
-            <span>STOCK</span>
-            <span className="text-center">CHART</span>
-            <span className="text-right">PRICE</span>
-            <span className="text-right">{moversTab === "VOLUME" ? "VOL" : "CHG%"}</span>
-          </div>
-
-          <div className="border border-white/8 border-t-0">
-            {activeMovers.map((s, i) => (
-              <motion.div
-                key={`${moversTab}-${s.ticker}`}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
-              >
-                <Link
-                  href={`/stock/${s.ticker}`}
-                  className="grid grid-cols-[2fr_60px_1fr_80px] gap-3 items-center px-4 py-3 border-b border-white/6 last:border-0 hover:bg-white/[0.03] transition-colors"
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] tracking-[0.05em] text-white/20 w-4">{i + 1}</span>
-                      <div>
-                        <p className="font-[var(--font-anton)] text-[12px] tracking-[0.05em]">{s.ticker}</p>
-                        <p className="text-[9px] text-white/30 truncate">{s.name}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <Sparkline data={s.sparkline} width={44} height={16} positive={s.dayChangePercent >= 0} />
-                  </div>
-                  <p className="font-[var(--font-anton)] text-[12px] text-right">
-                    {"\u20B9"}{s.price.toLocaleString("en-IN")}
-                  </p>
-                  <div className="text-right">
-                    {moversTab === "VOLUME" ? (
-                      <span className="text-[10px] font-medium text-white/50">{s.volume}</span>
-                    ) : (
-                      <span className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
-                        {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
-                      </span>
-                    )}
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Most Traded â€” ranked list below movers */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mt-10"
-          >
-            <h2 className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-4">MOST TRADED TODAY</h2>
-            <div className="space-y-0 border border-white/8">
-              {mostTraded.map((s, i) => (
-                <Link
-                  key={s.ticker}
-                  href={`/stock/${s.ticker}`}
-                  className="flex items-center gap-4 px-4 py-3 border-b border-white/6 last:border-0 hover:bg-white/[0.03] transition-colors"
-                >
-                  <span className="font-[var(--font-anton)] text-[18px] text-white/10 w-6 text-center">{i + 1}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-[var(--font-anton)] text-[12px] tracking-[0.05em]">{s.ticker}</p>
-                    <p className="text-[9px] text-white/30 truncate">{s.name}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-[var(--font-anton)] text-[12px]">{"\u20B9"}{s.price.toLocaleString("en-IN")}</p>
-                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
-                      {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </motion.div>
         </div>
 
-        {/* Right sidebar â€” Stocks in News */}
-        <aside className="hidden md:block mt-8 md:mt-0">
-          <h2 className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-4">STOCKS IN NEWS</h2>
-          <div className="space-y-0">
-            {newsItems.slice(0, 6).map((n, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 + i * 0.04 }}
-                className="border-b border-white/6 last:border-0 py-3"
-              >
-                <p className="text-[11px] text-white/60 leading-relaxed mb-1">{n.headline}</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] text-white/20">{n.name}</span>
-                  <span className="text-white/10">&middot;</span>
-                  <span className="text-[9px] text-white/15">{formatRelativeTime(n.timestamp)}</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </aside>
+        <div className="space-y-2">
+          {mobileFiltered.map((stock) => (
+            <Link
+              key={stock.ticker}
+              href={`/stock/${stock.ticker}`}
+              className="flex items-center gap-4 bg-white/[0.02] border border-white/6 p-4 hover:bg-white/[0.04] active:bg-white/[0.06] transition-colors"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{stock.ticker}</p>
+                <p className="text-[10px] text-white/40 truncate mt-0.5">{stock.name}</p>
+                <p className="text-[9px] text-white/20 mt-0.5">{stock.sector}</p>
+              </div>
+              <Sparkline data={stock.sparkline} width={48} height={18} positive={stock.dayChangePercent >= 0} />
+              <div className="text-right shrink-0 min-w-[70px]">
+                {formatMobileValue(stock)}
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {mobileFiltered.length === 0 && (
+          <p className="text-[11px] text-white/25 py-16 text-center tracking-[0.1em]">NO STOCKS IN THIS SECTOR</p>
+        )}
       </div>
     </div>
   );

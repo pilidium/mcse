@@ -219,9 +219,6 @@ export default function ScreenerPage() {
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-4 border border-white/6 p-4 hover:bg-white/[0.03] transition-colors"
             >
-              <div className="w-10 h-10 border border-white/20 flex items-center justify-center shrink-0">
-                <span className="text-[8px] tracking-[0.1em] text-white/40">{s.ticker.slice(0, 3)}</span>
-              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em]">{s.ticker}</p>
                 <p className="text-[10px] text-white/30">{s.sector}</p>
