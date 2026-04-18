@@ -30,6 +30,7 @@ export default function ScreenerPage() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [mobileSortOpen, setMobileSortOpen] = useState(false);
+  const [mobileValue, setMobileValue] = useState<"price" | "dayChangePercent" | "volume">("price");
 
   const filtered = useMemo(() => {
     return allStocksEnriched
@@ -176,15 +177,12 @@ export default function ScreenerPage() {
                 {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
               </span>
               <span className="text-[11px] text-right text-white/40">{(s.volume / 1000).toFixed(0)}K</span>
-              <div className="flex items-center justify-end gap-1">
+              <div className="flex items-center justify-end">
                 {s.dayChangePercent >= 0 ? (
                   <TrendingUp size={14} className="text-up" />
                 ) : (
                   <TrendingDown size={14} className="text-down" />
                 )}
-                <span className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
-                  {s.dayChangePercent >= 0 ? "UP" : "DOWN"}
-                </span>
               </div>
               <Sparkline data={s.sparkline} width={48} height={18} positive={s.dayChangePercent >= 0} />
             </motion.div>
@@ -196,10 +194,21 @@ export default function ScreenerPage() {
       <div className="md:hidden space-y-2">
         <div className="flex items-center justify-between mb-3 relative">
           <span className="text-[9px] tracking-[0.15em] text-white/30 uppercase">RESULTS</span>
-          <button
-            onClick={() => setMobileSortOpen(!mobileSortOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-[0.1em] border border-white/15 text-white/50 hover:text-white hover:border-white transition-all"
-          >
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] tracking-[0.1em] text-white/25">VALUE</span>
+            <button
+              onClick={() => setMobileValue((v) => {
+                const order: typeof v[] = ["price", "dayChangePercent", "volume"];
+                return order[(order.indexOf(v) + 1) % order.length];
+              })}
+              className="px-3 py-1.5 border border-white/15 text-[10px] tracking-[0.1em] text-white/50 hover:text-white hover:border-white transition-all"
+            >
+              {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[mobileValue]}
+            </button>
+            <button
+              onClick={() => setMobileSortOpen(!mobileSortOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-[0.1em] border border-white/15 text-white/50 hover:text-white hover:border-white transition-all"
+            >
             <ArrowUpDown size={11} />
             {currentSortLabel}
           </button>
@@ -218,6 +227,7 @@ export default function ScreenerPage() {
               ))}
             </div>
           )}
+          </div>
         </div>
         {filtered.map((s) => (
           <Link key={s.ticker} href={`/stock/${s.ticker}`}>
@@ -232,10 +242,30 @@ export default function ScreenerPage() {
               </div>
               <Sparkline data={s.sparkline} width={44} height={18} positive={s.dayChangePercent >= 0} />
               <div className="text-right shrink-0 min-w-[70px]">
-                <p className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{s.price.toFixed(2)}</p>
-                <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
-                  {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
-                </p>
+                {mobileValue === "price" && (
+                  <>
+                    <p className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{s.price.toFixed(2)}</p>
+                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
+                      {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
+                    </p>
+                  </>
+                )}
+                {mobileValue === "dayChangePercent" && (
+                  <>
+                    <p className={`font-[var(--font-anton)] text-[13px] ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
+                      {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
+                    </p>
+                    <p className="text-[10px] text-white/30">{"\u20B9"}{s.price.toFixed(2)}</p>
+                  </>
+                )}
+                {mobileValue === "volume" && (
+                  <>
+                    <p className="font-[var(--font-anton)] text-[13px]">{(s.volume / 1000).toFixed(0)}K</p>
+                    <p className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
+                      {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
+                    </p>
+                  </>
+                )}
               </div>
             </motion.div>
           </Link>

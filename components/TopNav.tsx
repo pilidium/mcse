@@ -107,7 +107,7 @@ function TopNavInner() {
     <>
       {/* Desktop + Mobile Top Nav */}
       <nav className="relative z-10 bg-bg/95 backdrop-blur-md border-b border-white/10" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <div className="max-w-[1280px] mx-auto flex items-center justify-between h-14 px-4 md:px-12">
+        <div className="flex items-center justify-between h-14 px-4 md:px-12">
           {/* Left: Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
             <Image

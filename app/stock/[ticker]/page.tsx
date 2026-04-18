@@ -119,7 +119,7 @@ export default function StockDetailPage({
           )}
         </AnimatePresence>
 
-        <div className="fixed left-0 right-0 z-[55] md:hidden border-t border-white/12 bg-bg/95 backdrop-blur-md" style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}>
+        <div className="fixed left-0 right-0 z-[55] md:hidden border-t border-white/10 bg-bg/95 backdrop-blur-md" style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}>
           <div className="flex">
             <motion.button
               whileTap={{ scale: 0.97 }}
@@ -469,9 +469,9 @@ export default function StockDetailPage({
           </>
           )}
 
-          {/* News tab content (mobile) */}
+          {/* News tab content */}
           {sectionTab === "NEWS" && (
-            <div className="md:hidden space-y-3">
+            <div className="space-y-3">
               {stockNews.length > 0 ? stockNews.map((news, i) => (
                 <div key={i} className="border border-white/8 p-4">
                   <p className="text-[12px] text-white/60 leading-relaxed mb-2">{news.headline}</p>
@@ -494,9 +494,9 @@ export default function StockDetailPage({
             </div>
           )}
 
-          {/* Events tab content (mobile) */}
+          {/* Events tab content */}
           {sectionTab === "EVENTS" && (
-            <div className="md:hidden space-y-3">
+            <div className="space-y-3">
               {stock.events && stock.events.length > 0 ? stock.events.map((event, i) => {
                 const typeColors: Record<string, string> = {
                   RESULTS: "text-[#00D26A] border-[#00D26A]/30 bg-[#00D26A]/5",
@@ -854,7 +854,7 @@ export default function StockDetailPage({
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "tween", duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-              className="fixed bottom-0 left-0 right-0 z-[60] md:hidden bg-bg border-t border-white/12 max-h-[85dvh] overflow-hidden flex flex-col"
+              className="fixed bottom-0 left-0 right-0 z-[60] md:hidden bg-bg border-t border-white/10 max-h-[85dvh] overflow-hidden flex flex-col"
               style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
             >
               {/* Panel header */}
@@ -891,11 +891,11 @@ export default function StockDetailPage({
                 {mobileTab === "ORDER" && (
                   <motion.div
                     key="ORDER"
-                    initial={{ opacity: 0, x: 10 }}
+                    initial={{ opacity: 0, x: 6 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
+                    exit={{ opacity: 0, x: -6 }}
                     transition={{ duration: 0.15 }}
-                    className="px-5 py-5 space-y-5"
+                    className="px-5 py-5 space-y-5 min-h-[420px]"
                   >
                     {/* Buy/Sell toggle */}
                     <div className="flex gap-0">
@@ -990,11 +990,11 @@ export default function StockDetailPage({
                 {mobileTab === "BOOK" && orderBook && (
                   <motion.div
                     key="BOOK"
-                    initial={{ opacity: 0, x: 10 }}
+                    initial={{ opacity: 0, x: 6 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
+                    exit={{ opacity: 0, x: -6 }}
                     transition={{ duration: 0.15 }}
-                    className="px-4 py-4"
+                    className="px-4 py-4 min-h-[420px]"
                   >
                     <div className="grid grid-cols-3 gap-0 px-2 py-2 border-b border-white/6">
                       <span className="text-[8px] tracking-[0.1em] text-white/20">BID</span>
@@ -1031,11 +1031,11 @@ export default function StockDetailPage({
                 {mobileTab === "HISTORY" && (
                   <motion.div
                     key="HISTORY"
-                    initial={{ opacity: 0, x: 10 }}
+                    initial={{ opacity: 0, x: 6 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
+                    exit={{ opacity: 0, x: -6 }}
                     transition={{ duration: 0.15 }}
-                    className="px-4 py-4"
+                    className="px-4 py-4 min-h-[420px]"
                   >
                     {tickerOrders.length > 0 ? (
                       <div className="space-y-2">

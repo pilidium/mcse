@@ -86,7 +86,7 @@ export default function TickerTape() {
   }, [onDown, onMove, onUp]);
 
   return (
-    <div className="ticker-wrap w-full h-8 bg-bg/95 backdrop-blur-sm border-b border-white/8 overflow-hidden select-none cursor-grab active:cursor-grabbing">
+    <div className="ticker-wrap w-full h-8 bg-bg/95 backdrop-blur-md border-b border-white/8 overflow-hidden select-none cursor-grab active:cursor-grabbing">
       <div ref={trackRef} className="flex items-center h-full animate-ticker whitespace-nowrap">
         {items.map((item, i) => (
           <Link

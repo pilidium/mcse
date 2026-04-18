@@ -223,7 +223,7 @@ export default function IPOPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="md:hidden fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm"
+              className="md:hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
               onClick={() => setMobileDetailOpen(false)}
             >
               <motion.div

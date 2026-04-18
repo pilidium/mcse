@@ -74,7 +74,7 @@ function EnigmaDashboard() {
   const [activeSub, setActiveSub] = useState(co.subsidiaries[0]);
   const sub = stockDirectory[activeSub];
   const fund = sub.fundamentals;
-  const chartData = sub.chartData["1D"];
+  const chartData = sub.chartData["3D"];
   const { companyNews, companyEvents } = useAdmin();
 
   const recentNews = companyNews.slice(0, 3);
@@ -167,7 +167,7 @@ function EnigmaDashboard() {
             transition={{ duration: 0.4, delay: 0.1 }}
             className="border border-white/10 p-5"
           >
-            <p className="text-[9px] tracking-[0.15em] text-white/30 mb-4">STOCK PERFORMANCE · 1M</p>
+            <p className="text-[9px] tracking-[0.15em] text-white/30 mb-4">STOCK PERFORMANCE · 3D</p>
             <div className="h-48 md:h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>

@@ -599,13 +599,13 @@ function generateChartData(basePrice: number): Record<string, { day: string; pri
   }
   oneH[oneH.length - 1].price = basePrice;
 
-  // 3H: every 10 minutes from 10:00 to 13:00 (19 points)
+  // 3H: every minute from 10:00 to 12:59 (180 points)
   const threeH: { day: string; price: number }[] = [];
-  for (let h = 10; h <= 13; h++) {
-    const end = h === 13 ? 1 : 6;
-    for (let s = 0; s < end; s++) {
-      const mm = String(s * 10).padStart(2, "0");
-      threeH.push({ day: `${h}:${mm}`, price: rng(basePrice, 0.015) });
+  for (let h = 10; h <= 12; h++) {
+    for (let m = 0; m < 60; m++) {
+      const mm = String(m).padStart(2, "0");
+      const drift = Math.abs((h - 10) * 60 + m - 90) / 90;
+      threeH.push({ day: `${h}:${mm}`, price: rng(basePrice, 0.015 * (1 - drift * 0.3)) });
     }
   }
   threeH[threeH.length - 1].price = basePrice;
