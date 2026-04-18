@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronUp, ChevronDown, ArrowLeft, SlidersHorizontal, X, ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
+import { ChevronUp, ChevronDown, ArrowLeft, SlidersHorizontal, X, ArrowUpDown } from "lucide-react";
 import Sparkline from "@/components/Sparkline";
 import { allStocksEnriched } from "@/lib/mockData";
 
@@ -59,7 +59,6 @@ export default function ScreenerPage() {
     sortKey === k ? (sortDir === "asc" ? <ChevronUp size={10} /> : <ChevronDown size={10} />) : null;
 
   const avgChange = filtered.length ? (filtered.reduce((s, x) => s + x.dayChangePercent, 0) / filtered.length) : 0;
-  const currentSortLabel = SORT_OPTIONS.find((o) => o.key === sortKey)?.label ?? "SORT";
 
   return (
     <div className="py-6 pb-24 md:pb-12">
@@ -117,7 +116,7 @@ export default function ScreenerPage() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             className="overflow-hidden mb-4"
           >
             <div className="border border-white/8 p-4 flex flex-wrap gap-6 items-end">
@@ -149,20 +148,19 @@ export default function ScreenerPage() {
 
       {/* Desktop table */}
       <div className="hidden md:block">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-2 px-4 py-2 border-b border-white/8 text-[9px] tracking-[0.15em] text-white/30">
+        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_80px] gap-2 px-4 py-2 border-b border-white/8 text-[9px] tracking-[0.15em] text-white/30">
           <button onClick={() => toggleSort("ticker")} className="flex items-center gap-1 text-left hover:text-white transition-colors">TICKER {renderSortIcon("ticker")}</button>
           <button onClick={() => toggleSort("price")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">PRICE {renderSortIcon("price")}</button>
           <button onClick={() => toggleSort("change")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">CHG% {renderSortIcon("change")}</button>
           <button onClick={() => toggleSort("volume")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">VOL {renderSortIcon("volume")}</button>
           <span className="text-right">TREND</span>
-          <span />
         </div>
         {filtered.map((s) => (
           <Link key={s.ticker} href={`/stock/${s.ticker}`}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-2 px-4 py-3 border-b border-white/4 hover:bg-white/[0.02] transition-colors items-center"
+              className="grid grid-cols-[2fr_1fr_1fr_1fr_80px] gap-2 px-4 py-3 border-b border-white/4 hover:bg-white/[0.02] transition-colors items-center"
             >
               <div>
                 <span className="font-[var(--font-anton)] text-[12px]">{s.ticker}</span>
@@ -178,13 +176,8 @@ export default function ScreenerPage() {
               </span>
               <span className="text-[11px] text-right text-white/40">{(s.volume / 1000).toFixed(0)}K</span>
               <div className="flex items-center justify-end">
-                {s.dayChangePercent >= 0 ? (
-                  <TrendingUp size={14} className="text-up" />
-                ) : (
-                  <TrendingDown size={14} className="text-down" />
-                )}
+                <Sparkline data={s.sparkline} width={60} height={20} positive={s.dayChangePercent >= 0} />
               </div>
-              <Sparkline data={s.sparkline} width={48} height={18} positive={s.dayChangePercent >= 0} />
             </motion.div>
           </Link>
         ))}
@@ -192,28 +185,16 @@ export default function ScreenerPage() {
 
       {/* Mobile cards */}
       <div className="md:hidden space-y-2">
-        <div className="flex items-center justify-between mb-3 relative">
-          <span className="text-[9px] tracking-[0.15em] text-white/30 uppercase">RESULTS</span>
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] tracking-[0.1em] text-white/25">VALUE</span>
-            <button
-              onClick={() => setMobileValue((v) => {
-                const order: typeof v[] = ["price", "dayChangePercent", "volume"];
-                return order[(order.indexOf(v) + 1) % order.length];
-              })}
-              className="px-3 py-1.5 border border-white/15 text-[10px] tracking-[0.1em] text-white/50 hover:text-white hover:border-white transition-all"
-            >
-              {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[mobileValue]}
-            </button>
-            <button
-              onClick={() => setMobileSortOpen(!mobileSortOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-[0.1em] border border-white/15 text-white/50 hover:text-white hover:border-white transition-all"
-            >
+        <div className="flex items-center gap-3 mb-3 relative">
+          <button
+            onClick={() => setMobileSortOpen(!mobileSortOpen)}
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-white/15 text-[10px] tracking-[0.1em] text-white/60 hover:text-white hover:border-white transition-colors"
+          >
             <ArrowUpDown size={11} />
-            {currentSortLabel}
+            SORT
           </button>
           {mobileSortOpen && (
-            <div className="absolute right-0 top-full mt-1 z-30 border border-white/15 bg-bg min-w-[140px] shadow-xl">
+            <div className="absolute top-full left-0 mt-1 z-30 border border-white/15 bg-bg min-w-[140px] shadow-xl">
               {SORT_OPTIONS.map((opt) => (
                 <button
                   key={opt.key}
@@ -227,6 +208,17 @@ export default function ScreenerPage() {
               ))}
             </div>
           )}
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-[9px] tracking-[0.1em] text-white/25">VALUE</span>
+            <button
+              onClick={() => setMobileValue((v) => {
+                const order: typeof v[] = ["price", "dayChangePercent", "volume"];
+                return order[(order.indexOf(v) + 1) % order.length];
+              })}
+              className="px-3 py-1.5 border border-white/15 text-[10px] tracking-[0.1em] text-white/50 hover:text-white hover:border-white transition-all"
+            >
+              {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[mobileValue]}
+            </button>
           </div>
         </div>
         {filtered.map((s) => (

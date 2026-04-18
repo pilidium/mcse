@@ -267,9 +267,10 @@ export default function IPOPage() {
         <AnimatePresence>
           {toast && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
               className="fixed left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-up text-black text-[11px] tracking-[0.08em] font-semibold flex items-center gap-2"
               style={{ bottom: 'calc(env(safe-area-inset-bottom) + 5rem)' }}
             >

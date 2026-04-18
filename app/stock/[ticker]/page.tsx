@@ -6,7 +6,7 @@ import Portal from "@/components/Portal";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { stockDirectory, holdings, newsItems, formatRelativeTime, generateOrderBook, parentDirectory, parentCompanies } from "@/lib/mockData";
+import { stockDirectory, holdings, newsItems, formatRelativeTime, generateOrderBook, parentCompanies } from "@/lib/mockData";
 import { useTrading } from "@/lib/TradingContext";
 import { usePreferences } from "@/lib/PreferencesContext";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
@@ -46,6 +46,26 @@ export default function StockDetailPage({
   const orderBook = useMemo(() => stock ? generateOrderBook(stock.price) : null, [stock]);
 
   const effectivePrice = pricingType === "LIMIT" && limitPrice ? parseFloat(limitPrice) : (stock?.price ?? 0);
+
+  // Pre-compute candle data with deterministic offsets to avoid purity errors
+  const candleData = useMemo(() => {
+    if (!stock) return [];
+    const cd = stock.chartData[range] || stock.chartData["1D"];
+    const vals = cd.map((d: { price: number }) => d.price);
+    const n = vals.length;
+    if (n < 2) return [];
+    const candles: { open: number; close: number; high: number; low: number }[] = [];
+    for (let i = 1; i < n; i++) {
+      const open = vals[i - 1];
+      const close = vals[i];
+      // Deterministic spread based on index
+      const spread = 0.001 + (((i * 7 + 3) % 11) / 11) * 0.002;
+      const high = Math.max(open, close) * (1 + spread);
+      const low = Math.min(open, close) * (1 - spread);
+      candles.push({ open, close, high, low });
+    }
+    return candles;
+  }, [stock, range]);
 
   const executeOrder = useCallback(() => {
     if (!stock) return;
@@ -94,7 +114,7 @@ export default function StockDetailPage({
   }
 
   const chartData = stock.chartData[range] || stock.chartData["1D"];
-  const chartValues = chartData.map((d) => d.price);
+  const chartValues = chartData.map((d: { price: number }) => d.price);
 
   return (
     <div className="mobile-stock-pad md:pb-0">
@@ -104,9 +124,10 @@ export default function StockDetailPage({
         <AnimatePresence>
           {orderMsg && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
               className={`fixed left-1/2 -translate-x-1/2 z-[70] px-6 py-3 border text-[11px] tracking-[0.1em] ${
                 orderMsg.success
                   ? "bg-[#00D26A]/10 border-[#00D26A]/30 text-[#00D26A]"
@@ -238,23 +259,14 @@ export default function StockDetailPage({
               ) : (
                 <svg viewBox="0 0 960 280" width={960} height={280} className="block overflow-visible" style={{ maxWidth: '100%', height: 'auto' }}>
                   {(() => {
-                    const n = chartValues.length;
-                    if (n < 2) return null;
+                    if (candleData.length === 0) return null;
                     const allMin = Math.min(...chartValues);
                     const allMax = Math.max(...chartValues);
                     const priceRange = allMax - allMin || 1;
                     const pad = 2;
-                    const candles = [];
-                    for (let i = 1; i < n; i++) {
-                      const open = chartValues[i - 1];
-                      const close = chartValues[i];
-                      const high = Math.max(open, close) * (1 + Math.random() * 0.003);
-                      const low = Math.min(open, close) * (1 - Math.random() * 0.003);
-                      candles.push({ open, close, high, low });
-                    }
-                    const barW = (960 - pad * 2) / candles.length;
+                    const barW = (960 - pad * 2) / candleData.length;
                     const toY = (v: number) => 280 - pad - ((v - allMin) / priceRange) * (280 - pad * 2);
-                    return candles.map((c, i) => {
+                    return candleData.map((c, i) => {
                       const x = pad + i * barW + barW / 2;
                       const bullish = c.close >= c.open;
                       const color = bullish ? "var(--color-up)" : "var(--color-down)";
@@ -846,6 +858,7 @@ export default function StockDetailPage({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setMobileOrderOpen(false)}
               className="fixed inset-0 z-[60] bg-black/60 md:hidden"
             />
@@ -886,16 +899,16 @@ export default function StockDetailPage({
               </div>
 
               {/* Tab content */}
-              <div className="overflow-y-auto flex-1 min-h-[400px]">
-                <AnimatePresence mode="wait">
+              <div className="overflow-y-auto flex-1" style={{ height: '420px' }}>
+                <AnimatePresence mode="wait" initial={false}>
                 {mobileTab === "ORDER" && (
                   <motion.div
                     key="ORDER"
-                    initial={{ opacity: 0, x: 6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -6 }}
-                    transition={{ duration: 0.15 }}
-                    className="px-5 py-5 space-y-5 min-h-[420px]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
+                    className="px-5 py-5 space-y-5 h-[420px] overflow-y-auto"
                   >
                     {/* Buy/Sell toggle */}
                     <div className="flex gap-0">
@@ -990,11 +1003,11 @@ export default function StockDetailPage({
                 {mobileTab === "BOOK" && orderBook && (
                   <motion.div
                     key="BOOK"
-                    initial={{ opacity: 0, x: 6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -6 }}
-                    transition={{ duration: 0.15 }}
-                    className="px-4 py-4 min-h-[420px]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
+                    className="px-4 py-4 h-[420px] overflow-y-auto"
                   >
                     <div className="grid grid-cols-3 gap-0 px-2 py-2 border-b border-white/6">
                       <span className="text-[8px] tracking-[0.1em] text-white/20">BID</span>
@@ -1031,11 +1044,11 @@ export default function StockDetailPage({
                 {mobileTab === "HISTORY" && (
                   <motion.div
                     key="HISTORY"
-                    initial={{ opacity: 0, x: 6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -6 }}
-                    transition={{ duration: 0.15 }}
-                    className="px-4 py-4 min-h-[420px]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
+                    className="px-4 py-4 h-[420px] overflow-y-auto"
                   >
                     {tickerOrders.length > 0 ? (
                       <div className="space-y-2">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Eye, EyeOff, ChevronDown, ChevronUp, BarChart3, X, ArrowUpDown, Minus, Plus } from "lucide-react";
+import { Eye, EyeOff, ChevronDown, ChevronUp, BarChart3, ArrowUpDown, Minus, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sparkline from "@/components/Sparkline";
 import Link from "next/link";

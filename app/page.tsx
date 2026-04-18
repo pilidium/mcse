@@ -283,7 +283,7 @@ export default function ExplorePage() {
           PRODUCTS & TOOLS
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-white/8">
-          {filteredProducts.map((item, i) => {
+          {filteredProducts.map((item) => {
             const Icon = iconMap[item.icon] || Target;
             const route = productRoutes[item.label] || "/";
             return (
