@@ -5,7 +5,7 @@ import { ArrowLeft, Users, Calendar, Building2, ExternalLink } from "lucide-reac
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { parentDirectory, stockDirectory } from "@/lib/mockData";
+import { parentDirectory, stockDirectory, newsItems, formatRelativeTime } from "@/lib/mockData";
 import Sparkline from "@/components/Sparkline";
 
 export default function CompanyDetailPage({
@@ -99,7 +99,7 @@ export default function CompanyDetailPage({
                         <p className="text-[10px] text-white/25 mt-0.5">{sub.fundamentals.sector}</p>
                       </div>
                       <Sparkline
-                        data={sub.chartData["1W"].map((d) => d.price)}
+                        data={sub.chartData["1D"].map((d) => d.price)}
                         width={60}
                         height={24}
                         positive={sub.changePercent >= 0}
@@ -117,6 +117,50 @@ export default function CompanyDetailPage({
                   </motion.div>
                 ))}
               </div>
+            </div>
+
+            {/* News & Events */}
+            <div>
+              <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-4">LATEST NEWS</p>
+              {(() => {
+                const subTickers = company.subsidiaries;
+                const companyNews = newsItems.filter(n => subTickers.includes(n.ticker));
+                const companyEvents = subsidiaries.flatMap(s => (s.events || []).map(e => ({ ...e, ticker: s.ticker })));
+                if (companyNews.length === 0 && companyEvents.length === 0) {
+                  return (
+                    <div className="border border-white/6 border-dashed p-8 text-center">
+                      <Calendar size={20} className="mx-auto text-white/10 mb-3" />
+                      <p className="text-[11px] tracking-[0.1em] text-white/20">No news or events yet</p>
+                      <p className="text-[9px] text-white/10 mt-1.5">Updates will appear here during APR 24{"\u2013"}26</p>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="space-y-2">
+                    {companyNews.slice(0, 3).map((news, i) => (
+                      <Link key={i} href={`/stock/${news.ticker}`} className="block border border-white/6 p-4 hover:bg-white/[0.03] transition-colors">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="font-[var(--font-anton)] text-[10px] tracking-[0.05em] text-white/40">{news.ticker}</span>
+                          <span className={`text-[9px] font-medium ${news.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
+                            {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{news.headline}</p>
+                        <p className="text-[8px] text-white/15 mt-1.5">{formatRelativeTime(news.timestamp)}</p>
+                      </Link>
+                    ))}
+                    {companyEvents.slice(0, 2).map((event, i) => (
+                      <div key={`ev-${i}`} className="border border-white/6 p-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[8px] tracking-[0.1em] text-white/20 px-1.5 py-0.5 border border-white/8">{event.type}</span>
+                          <p className="text-[11px] text-white/50">{event.title}</p>
+                        </div>
+                        <span className="text-[9px] text-white/20 ml-2">{event.ticker}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           </div>
 

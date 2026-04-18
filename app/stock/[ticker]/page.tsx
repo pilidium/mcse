@@ -12,7 +12,7 @@ import { usePreferences } from "@/lib/PreferencesContext";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
 import Sparkline from "@/components/Sparkline";
 
-const timeRanges = ["1D", "1W", "1M", "3M", "6M", "1Y", "5Y", "ALL"] as const;
+const timeRanges = ["1H", "3H", "1D", "3D"] as const;
 
 export default function StockDetailPage({
   params,
@@ -667,9 +667,9 @@ export default function StockDetailPage({
             )}
 
             {/* Stock News */}
-            {stockNews.length > 0 && (
-              <div>
-                <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-3">NEWS</h3>
+            <div>
+              <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-3">NEWS</h3>
+              {stockNews.length > 0 ? (
                 <div className="space-y-2">
                   {stockNews.map((news, i) => (
                     <div key={i} className="border border-white/8 p-4 hover:bg-white/[0.02] transition-colors">
@@ -683,13 +683,18 @@ export default function StockDetailPage({
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="border border-white/6 border-dashed p-6 text-center">
+                  <p className="text-[10px] tracking-[0.1em] text-white/20">No news yet for {stock.ticker}</p>
+                  <p className="text-[9px] text-white/10 mt-1">Check back during trading hours</p>
+                </div>
+              )}
+            </div>
 
             {/* Stock Events */}
-            {stock.events && stock.events.length > 0 && (
-              <div>
-                <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-3">UPCOMING EVENTS</h3>
+            <div>
+              <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-3">UPCOMING EVENTS</h3>
+              {stock.events && stock.events.length > 0 ? (
                 <div className="space-y-2">
                   {stock.events.map((event, i) => {
                     const typeColors: Record<string, string> = {
@@ -713,8 +718,13 @@ export default function StockDetailPage({
                     );
                   })}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="border border-white/6 border-dashed p-6 text-center">
+                  <p className="text-[10px] tracking-[0.1em] text-white/20">No upcoming events</p>
+                  <p className="text-[9px] text-white/10 mt-1">APR 24{"\u2013"}26 event calendar</p>
+                </div>
+              )}
+            </div>
 
             {/* Order History */}
             {tickerOrders.length > 0 && (

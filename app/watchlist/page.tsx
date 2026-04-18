@@ -208,13 +208,22 @@ export default function WatchlistPage() {
               <Sparkline data={stock.sparkline} width={52} height={22} positive={stock.dayChangePercent >= 0} />
               <div className="text-right shrink-0 min-w-[70px]">
                 {mobileValue === "price" && (
-                  <span className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  <>
+                    <p className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                    <p className={`text-[10px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</p>
+                  </>
                 )}
                 {mobileValue === "dayChangePercent" && (
-                  <span className={`text-[12px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</span>
+                  <>
+                    <p className={`font-[var(--font-anton)] text-[13px] ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</p>
+                    <p className="text-[10px] text-white/30">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                  </>
                 )}
                 {mobileValue === "volume" && (
-                  <span className="text-[12px] text-white/50">{stock.volume}</span>
+                  <>
+                    <p className="text-[12px] text-white/50">{stock.volume}</p>
+                    <p className={`text-[10px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</p>
+                  </>
                 )}
               </div>
             </Link>

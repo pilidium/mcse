@@ -16,6 +16,7 @@ import {
   newsItems,
   formatRelativeTime,
   parentCompanies,
+  stockDirectory,
   type MoverStock,
 } from "@/lib/mockData";
 
@@ -388,13 +389,22 @@ export default function ExplorePage() {
                   <Sparkline data={stock.sparkline} width={52} height={22} positive={stock.dayChangePercent >= 0} />
                   <div className="text-right shrink-0 min-w-[70px]">
                     {moverMobileValue === "price" && (
-                      <span className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                      <>
+                        <p className="font-[var(--font-anton)] text-[13px]">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                        <p className={`text-[10px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</p>
+                      </>
                     )}
                     {moverMobileValue === "dayChangePercent" && (
-                      <span className={`text-[12px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</span>
+                      <>
+                        <p className={`font-[var(--font-anton)] text-[13px] ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</p>
+                        <p className="text-[10px] text-white/30">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                      </>
                     )}
                     {moverMobileValue === "volume" && (
-                      <span className="text-[12px] text-white/50">{stock.volume}</span>
+                      <>
+                        <p className="text-[12px] text-white/50">{stock.volume}</p>
+                        <p className={`text-[10px] font-medium ${stock.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>{stock.dayChangePercent >= 0 ? "+" : ""}{stock.dayChangePercent.toFixed(2)}%</p>
+                      </>
                     )}
                   </div>
                 </Link>
@@ -462,7 +472,7 @@ export default function ExplorePage() {
               <ChevronRight size={14} className="text-white/20 group-hover:text-white/50 transition-colors" />
             </Link>
             <div className="grid grid-cols-2 gap-[1px] bg-white/8">
-              {indices.map((idx) => (
+              {indices.slice(0, 4).map((idx) => (
                 <div
                   key={idx.name}
                   className="bg-bg p-4 hover:bg-white/[0.03] transition-colors"
@@ -490,30 +500,42 @@ export default function ExplorePage() {
             className="mb-9 md:mb-10"
           >
             <h2 className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.1em] uppercase mb-5">
-              PARENT COMPANIES
+              HOLDING COMPANIES
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-[1px] bg-white/8">
-              {parentCompanies.map((pc) => (
-                <Link
-                  key={pc.ticker}
-                  href={`/company/${pc.ticker}`}
-                  className="bg-bg p-4 md:p-5 hover:bg-white/[0.03] transition-colors group"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-9 h-9 border border-white/20 flex items-center justify-center shrink-0">
-                      <span className="font-[var(--font-anton)] text-sm text-white/60">{pc.logoLetter}</span>
+            <div className="space-y-[1px] bg-white/8">
+              {parentCompanies.map((pc) => {
+                const subs = pc.subsidiaries.map(t => stockDirectory[t]).filter(Boolean);
+                const avgChange = subs.length > 0 ? subs.reduce((s, sub) => s + sub.changePercent, 0) / subs.length : 0;
+                return (
+                  <Link
+                    key={pc.ticker}
+                    href={`/company/${pc.ticker}`}
+                    className="flex items-center gap-4 bg-bg p-4 md:p-5 hover:bg-white/[0.03] transition-colors group"
+                  >
+                    <div className="w-10 h-10 border border-white/20 flex items-center justify-center shrink-0 group-hover:border-white/40 transition-colors">
+                      <span className="font-[var(--font-anton)] text-base text-white/60">{pc.logoLetter}</span>
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-[var(--font-anton)] text-[12px] md:text-[13px] tracking-[0.05em] group-hover:text-white transition-colors truncate">{pc.name}</p>
-                      <p className="text-[9px] tracking-[0.1em] text-white/25">{pc.ticker}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em] group-hover:text-white transition-colors">{pc.name}</p>
+                        <span className="text-[8px] tracking-[0.1em] text-white/15 px-1.5 py-0.5 border border-white/8 hidden md:inline">{pc.sector}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        {subs.map(sub => (
+                          <span key={sub.ticker} className="text-[9px] tracking-[0.08em] text-white/25">{sub.ticker}</span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-[9px] text-white/30">
-                    <span>{pc.sector}</span>
-                    <span>{pc.subsidiaries.length} subs</span>
-                  </div>
-                </Link>
-              ))}
+                    <div className="text-right shrink-0">
+                      <p className={`text-[12px] font-medium ${avgChange >= 0 ? "text-up" : "text-down"}`}>
+                        {avgChange >= 0 ? "+" : ""}{avgChange.toFixed(2)}%
+                      </p>
+                      <p className="text-[9px] text-white/20 mt-0.5">{subs.length} subs</p>
+                    </div>
+                    <ChevronRight size={12} className="text-white/15 group-hover:text-white/40 transition-colors shrink-0 hidden md:block" />
+                  </Link>
+                );
+              })}
             </div>
           </motion.div>
 

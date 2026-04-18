@@ -590,6 +590,24 @@ export interface StockInfo {
 function generateChartData(basePrice: number): Record<string, { day: string; price: number }[]> {
   const rng = (p: number, pct: number) => +(p * (1 + (Math.random() - 0.5) * pct)).toFixed(2);
   return {
+    "1H": [
+      { day: "10:00", price: rng(basePrice, 0.005) },
+      { day: "10:10", price: rng(basePrice, 0.006) },
+      { day: "10:20", price: rng(basePrice, 0.007) },
+      { day: "10:30", price: rng(basePrice, 0.006) },
+      { day: "10:40", price: rng(basePrice, 0.005) },
+      { day: "10:50", price: rng(basePrice, 0.004) },
+      { day: "11:00", price: basePrice },
+    ],
+    "3H": [
+      { day: "10:00", price: rng(basePrice, 0.01) },
+      { day: "10:30", price: rng(basePrice, 0.012) },
+      { day: "11:00", price: rng(basePrice, 0.015) },
+      { day: "11:30", price: rng(basePrice, 0.012) },
+      { day: "12:00", price: rng(basePrice, 0.01) },
+      { day: "12:30", price: rng(basePrice, 0.008) },
+      { day: "13:00", price: basePrice },
+    ],
     "1D": [
       { day: "10:00", price: rng(basePrice, 0.02) },
       { day: "11:15", price: rng(basePrice, 0.02) },
@@ -599,35 +617,14 @@ function generateChartData(basePrice: number): Record<string, { day: string; pri
       { day: "16:15", price: rng(basePrice, 0.01) },
       { day: "17:30", price: basePrice },
     ],
-    "1W": [
-      { day: "Mon", price: rng(basePrice, 0.06) },
-      { day: "Tue", price: rng(basePrice, 0.05) },
-      { day: "Wed", price: rng(basePrice, 0.04) },
-      { day: "Thu", price: rng(basePrice, 0.05) },
-      { day: "Fri", price: rng(basePrice, 0.03) },
-    ],
-    "1M": [
-      { day: "W1", price: rng(basePrice, 0.1) },
-      { day: "W2", price: rng(basePrice, 0.08) },
-      { day: "W3", price: rng(basePrice, 0.05) },
-      { day: "W4", price: basePrice },
-    ],
-    "1Y": [
-      { day: "Jan", price: rng(basePrice, 0.3) },
-      { day: "Mar", price: rng(basePrice, 0.25) },
-      { day: "May", price: rng(basePrice, 0.2) },
-      { day: "Jul", price: rng(basePrice, 0.15) },
-      { day: "Sep", price: rng(basePrice, 0.1) },
-      { day: "Nov", price: rng(basePrice, 0.05) },
-      { day: "Dec", price: basePrice },
-    ],
-    ALL: [
-      { day: "2020", price: rng(basePrice, 0.6) },
-      { day: "2021", price: rng(basePrice, 0.4) },
-      { day: "2022", price: rng(basePrice, 0.35) },
-      { day: "2023", price: rng(basePrice, 0.2) },
-      { day: "2024", price: rng(basePrice, 0.1) },
-      { day: "2025", price: basePrice },
+    "3D": [
+      { day: "APR 24", price: rng(basePrice, 0.04) },
+      { day: "24 EVE", price: rng(basePrice, 0.035) },
+      { day: "APR 25", price: rng(basePrice, 0.03) },
+      { day: "25 EVE", price: rng(basePrice, 0.025) },
+      { day: "APR 26", price: rng(basePrice, 0.02) },
+      { day: "26 EVE", price: rng(basePrice, 0.01) },
+      { day: "CLOSE", price: basePrice },
     ],
   };
 }
