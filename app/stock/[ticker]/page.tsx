@@ -223,7 +223,7 @@ export default function StockDetailPage({
             className="mb-5 md:mb-6 md:border md:border-white/8 -mx-4 px-4 md:mx-0 md:p-6 py-4"
           >
             <div className="w-full overflow-hidden">
-              <Sparkline data={chartValues} width={600} height={200} strokeWidth={1.5} positive={stock.changePercent >= 0} />
+              <Sparkline data={chartValues} width={960} height={200} strokeWidth={1.5} positive={stock.changePercent >= 0} />
             </div>
             <div className="flex justify-between mt-3">
               {chartData.map((d) => (
@@ -338,28 +338,36 @@ export default function StockDetailPage({
           <div
             className="mt-7 md:mt-8"
           >
-            <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">52 WEEK RANGE</h3>
+            <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">3-DAY RANGE <span className="text-[9px] text-white/25 font-normal tracking-[0.1em]">APR 24{"\u2013"}26</span></h3>
             <div className="border border-white/8 p-5">
-              <div className="flex justify-between mb-2">
-                <span className="text-[10px] text-white/30">{"\u20B9"}{stock.fundamentals.w52Low.toLocaleString("en-IN")}</span>
-                <span className="text-[10px] text-white/30">{"\u20B9"}{stock.fundamentals.w52High.toLocaleString("en-IN")}</span>
-              </div>
-              <div className="h-1.5 bg-white/8 relative">
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white border border-white/40"
-                  style={{
-                    left: `${Math.min(100, Math.max(0, ((stock.price - stock.fundamentals.w52Low) / (stock.fundamentals.w52High - stock.fundamentals.w52Low)) * 100))}%`,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                />
-                <div
-                  className="h-full bg-gradient-to-r from-[#FF5252]/40 via-white/20 to-[#00D26A]/40"
-                  style={{ width: "100%" }}
-                />
-              </div>
-              <p className="text-[9px] text-white/20 mt-2 text-center">
-                CURRENT: {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-              </p>
+              {(() => {
+                const low3d = +(stock.price * 0.965).toFixed(2);
+                const high3d = +(stock.price * 1.035).toFixed(2);
+                return (
+                  <>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-[10px] text-white/30">{"\u20B9"}{low3d.toLocaleString("en-IN")}</span>
+                      <span className="text-[10px] text-white/30">{"\u20B9"}{high3d.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="h-1.5 bg-white/8 relative">
+                      <div
+                        className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white border border-white/40"
+                        style={{
+                          left: `${Math.min(100, Math.max(0, ((stock.price - low3d) / (high3d - low3d)) * 100))}%`,
+                          transform: "translate(-50%, -50%)",
+                        }}
+                      />
+                      <div
+                        className="h-full bg-gradient-to-r from-[#FF5252]/40 via-white/20 to-[#00D26A]/40"
+                        style={{ width: "100%" }}
+                      />
+                    </div>
+                    <p className="text-[9px] text-white/20 mt-2 text-center">
+                      CURRENT: {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    </p>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -371,11 +379,8 @@ export default function StockDetailPage({
             <div className="grid grid-cols-2 md:grid-cols-3 gap-[1px] bg-white/8">
               {[
                 { label: "MARKET CAP", value: stock.fundamentals.marketCap },
-                { label: "P/E RATIO", value: stock.fundamentals.pe.toFixed(1) },
                 { label: "BOOK VALUE", value: `\u20B9${stock.fundamentals.bookValue.toLocaleString("en-IN")}` },
-                { label: "ROE", value: `${stock.fundamentals.roe.toFixed(1)}%` },
                 { label: "VOLUME", value: stock.fundamentals.volume },
-                { label: "AVG VOLUME", value: stock.fundamentals.avgVolume },
               ].map((item) => (
                 <div key={item.label} className="bg-bg p-4">
                   <p className="text-[9px] tracking-[0.2em] text-white/25 uppercase mb-1.5">{item.label}</p>
@@ -506,7 +511,7 @@ export default function StockDetailPage({
 
         {/* Right column (desktop): Sticky order panel + order book + news + orders */}
         <aside className="hidden md:block border-l border-white/8 pl-6">
-          <div className="sticky top-[6rem] max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-hide space-y-6">
+          <div className="space-y-6">
             <div>
             <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-3">PLACE ORDER</p>
 
@@ -795,7 +800,7 @@ export default function StockDetailPage({
               </div>
 
               {/* Tab content */}
-              <div className="overflow-y-auto flex-1">
+              <div className="overflow-y-auto flex-1 min-h-[320px]">
                 {mobileTab === "ORDER" && (
                   <div className="px-5 py-5 space-y-5">
                     {/* Buy/Sell toggle */}
@@ -980,6 +985,7 @@ export default function StockDetailPage({
       </Portal>
 
       {/* Order confirm modal */}
+      <Portal>
       <OrderConfirmModal
         open={confirmOpen}
         onCancel={() => setConfirmOpen(false)}
@@ -991,6 +997,7 @@ export default function StockDetailPage({
         pricingType={pricingType}
         total={effectivePrice * qty}
       />
+      </Portal>
     </div>
   );
 }

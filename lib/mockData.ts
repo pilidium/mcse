@@ -591,13 +591,13 @@ function generateChartData(basePrice: number): Record<string, { day: string; pri
   const rng = (p: number, pct: number) => +(p * (1 + (Math.random() - 0.5) * pct)).toFixed(2);
   return {
     "1D": [
-      { day: "9:15", price: rng(basePrice, 0.02) },
       { day: "10:00", price: rng(basePrice, 0.02) },
-      { day: "11:00", price: rng(basePrice, 0.03) },
-      { day: "12:00", price: rng(basePrice, 0.02) },
-      { day: "13:00", price: rng(basePrice, 0.02) },
-      { day: "14:00", price: rng(basePrice, 0.01) },
-      { day: "15:30", price: basePrice },
+      { day: "11:15", price: rng(basePrice, 0.02) },
+      { day: "12:30", price: rng(basePrice, 0.03) },
+      { day: "13:45", price: rng(basePrice, 0.02) },
+      { day: "15:00", price: rng(basePrice, 0.02) },
+      { day: "16:15", price: rng(basePrice, 0.01) },
+      { day: "17:30", price: basePrice },
     ],
     "1W": [
       { day: "Mon", price: rng(basePrice, 0.06) },
@@ -698,48 +698,48 @@ export const stockDirectory: Record<string, StockInfo> = {};
 
 const perStockEvents: Record<string, StockInfo["events"]> = {
   MACAD: [
-    { title: "Q4 Results Announcement", date: "2026-07-10", type: "RESULTS" },
-    { title: "Annual General Meeting", date: "2026-08-02", type: "AGM" },
+    { title: "Q4 Results Announcement", date: "2026-04-24", type: "RESULTS" },
+    { title: "Annual General Meeting", date: "2026-04-26", type: "AGM" },
   ],
   MTEK: [
-    { title: "Product Launch — LaTeX Editor v3", date: "2026-07-15", type: "EVENT" },
+    { title: "Product Launch — LaTeX Editor v3", date: "2026-04-25", type: "EVENT" },
   ],
   ESOFT: [
-    { title: "Q4 Results Announcement", date: "2026-07-05", type: "RESULTS" },
-    { title: "Open Source Contribution Drive", date: "2026-08-15", type: "EVENT" },
+    { title: "Q4 Results Announcement", date: "2026-04-24", type: "RESULTS" },
+    { title: "Open Source Contribution Drive", date: "2026-04-26", type: "EVENT" },
   ],
   ECLOUD: [
-    { title: "Interim Dividend — \u20B912/share", date: "2026-07-20", type: "DIVIDEND" },
+    { title: "Interim Dividend — \u20B912/share", date: "2026-04-25", type: "DIVIDEND" },
   ],
   ENAI: [
-    { title: "AI Expo Showcase", date: "2026-08-10", type: "EVENT" },
-    { title: "Q4 Results Announcement", date: "2026-07-08", type: "RESULTS" },
+    { title: "AI Expo Showcase", date: "2026-04-26", type: "EVENT" },
+    { title: "Q4 Results Announcement", date: "2026-04-24", type: "RESULTS" },
   ],
   GMAUTO: [
-    { title: "Annual General Meeting", date: "2026-07-18", type: "AGM" },
-    { title: "Q4 Results Announcement", date: "2026-08-01", type: "RESULTS" },
+    { title: "Annual General Meeting", date: "2026-04-25", type: "AGM" },
+    { title: "Q4 Results Announcement", date: "2026-04-26", type: "RESULTS" },
   ],
   GMRACE: [
-    { title: "National Racing Championship", date: "2026-07-25", type: "EVENT" },
+    { title: "National Racing Championship", date: "2026-04-25", type: "EVENT" },
   ],
   MSSTD: [
-    { title: "Film Festival Premiere", date: "2026-07-12", type: "EVENT" },
-    { title: "Q4 Results Announcement", date: "2026-08-05", type: "RESULTS" },
+    { title: "Film Festival Premiere", date: "2026-04-24", type: "EVENT" },
+    { title: "Q4 Results Announcement", date: "2026-04-26", type: "RESULTS" },
   ],
   ERLEARN: [
-    { title: "Q4 Results Announcement", date: "2026-07-15", type: "RESULTS" },
+    { title: "Q4 Results Announcement", date: "2026-04-25", type: "RESULTS" },
   ],
   INDATA: [
-    { title: "Annual Data Summit", date: "2026-07-08", type: "EVENT" },
-    { title: "Q4 Results Announcement", date: "2026-07-22", type: "RESULTS" },
-    { title: "Final Dividend — \u20B98/share", date: "2026-08-10", type: "DIVIDEND" },
+    { title: "Annual Data Summit", date: "2026-04-24", type: "EVENT" },
+    { title: "Q4 Results Announcement", date: "2026-04-25", type: "RESULTS" },
+    { title: "Final Dividend — \u20B98/share", date: "2026-04-26", type: "DIVIDEND" },
   ],
   CELRES: [
-    { title: "Observatory Open Night", date: "2026-07-14", type: "EVENT" },
-    { title: "Q4 Results Announcement", date: "2026-07-28", type: "RESULTS" },
+    { title: "Observatory Open Night", date: "2026-04-24", type: "EVENT" },
+    { title: "Q4 Results Announcement", date: "2026-04-26", type: "RESULTS" },
   ],
   CELBIO: [
-    { title: "Biotech Research Symposium", date: "2026-07-20", type: "EVENT" },
+    { title: "Biotech Research Symposium", date: "2026-04-25", type: "EVENT" },
   ],
 };
 

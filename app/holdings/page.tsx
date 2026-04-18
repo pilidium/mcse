@@ -514,7 +514,7 @@ export default function HoldingsPage() {
                 href={`/stock/${selectedStock.ticker}`}
                 className="block mt-3 text-[10px] tracking-[0.1em] text-white/30 hover:text-white transition-colors text-center"
               >
-                VIEW STOCK DETAILS ?
+                VIEW STOCK DETAILS
               </Link>
             </div>
           )}

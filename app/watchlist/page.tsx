@@ -183,15 +183,15 @@ export default function WatchlistPage() {
             </div>
           )}
           <div className="flex items-center gap-0 ml-auto">
-            {(["price", "dayChangePercent", "volume"] as const).map((key) => (
-              <button
-                key={key}
-                onClick={() => setMobileValue(key)}
-                className={`px-2.5 py-1 text-[9px] tracking-[0.1em] transition-colors ${mobileValue === key ? "text-white" : "text-white/30"}`}
-              >
-                {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[key]}
-              </button>
-            ))}
+            <button
+              onClick={() => setMobileValue((d) => {
+                const order: typeof d[] = ["price", "dayChangePercent", "volume"];
+                return order[(order.indexOf(d) + 1) % order.length];
+              })}
+              className="px-3 py-1.5 border border-white/15 text-[9px] tracking-[0.1em] text-white/60 hover:text-white hover:border-white transition-colors"
+            >
+              {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[mobileValue]}
+            </button>
           </div>
         </div>
         <div className="space-y-2">

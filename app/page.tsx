@@ -15,6 +15,7 @@ import {
   productsAndTools,
   newsItems,
   formatRelativeTime,
+  parentCompanies,
   type MoverStock,
 } from "@/lib/mockData";
 
@@ -362,15 +363,15 @@ export default function ExplorePage() {
                   </div>
                 )}
                 <div className="flex items-center gap-0 ml-auto">
-                  {(["price", "dayChangePercent", "volume"] as const).map((key) => (
-                    <button
-                      key={key}
-                      onClick={() => setMoverMobileValue(key)}
-                      className={`px-2.5 py-1 text-[9px] tracking-[0.1em] transition-colors ${moverMobileValue === key ? "text-white" : "text-white/30"}`}
-                    >
-                      {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[key]}
-                    </button>
-                  ))}
+                  <button
+                    onClick={() => setMoverMobileValue((d) => {
+                      const order: typeof d[] = ["price", "dayChangePercent", "volume"];
+                      return order[(order.indexOf(d) + 1) % order.length];
+                    })}
+                    className="px-3 py-1.5 border border-white/15 text-[9px] tracking-[0.1em] text-white/60 hover:text-white hover:border-white transition-colors"
+                  >
+                    {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[moverMobileValue]}
+                  </button>
                 </div>
               </div>
               <div className="space-y-2">
@@ -481,6 +482,41 @@ export default function ExplorePage() {
             </div>
           </motion.div>
 
+          {/* PARENT COMPANIES */}
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+            className="mb-9 md:mb-10"
+          >
+            <h2 className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.1em] uppercase mb-5">
+              PARENT COMPANIES
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-[1px] bg-white/8">
+              {parentCompanies.map((pc) => (
+                <Link
+                  key={pc.ticker}
+                  href={`/company/${pc.ticker}`}
+                  className="bg-bg p-4 md:p-5 hover:bg-white/[0.03] transition-colors group"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-9 h-9 border border-white/20 flex items-center justify-center shrink-0">
+                      <span className="font-[var(--font-anton)] text-sm text-white/60">{pc.logoLetter}</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-[var(--font-anton)] text-[12px] md:text-[13px] tracking-[0.05em] group-hover:text-white transition-colors truncate">{pc.name}</p>
+                      <p className="text-[9px] tracking-[0.1em] text-white/25">{pc.ticker}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-[9px] text-white/30">
+                    <span>{pc.sector}</span>
+                    <span>{pc.subsidiaries.length} subs</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+
           {/* STOCKS IN NEWS TODAY (mobile, below movers) */}
           <motion.div
             initial={{ opacity: 0, y: 4 }}
@@ -566,9 +602,9 @@ export default function ExplorePage() {
             </Link>
             <div className="space-y-2">
               {[
-                { day: 15, month: "JUN", title: "MATHSOC ANNUAL MEET", ticker: "MATHSOC", type: "AGM" },
-                { day: 18, month: "JUN", title: "ENIGMA Q2 Results", ticker: "ENIGMA", type: "RESULTS" },
-                { day: 22, month: "JUN", title: "GASMONKEYS Racing", ticker: "GASMONKEYS", type: "EVENT" },
+                { day: 24, month: "APR", title: "MATHSOC ANNUAL MEET", ticker: "MATHSOC", type: "AGM" },
+                { day: 25, month: "APR", title: "ENIGMA Q2 Results", ticker: "ENIGMA", type: "RESULTS" },
+                { day: 26, month: "APR", title: "GASMONKEYS Racing", ticker: "GASMONKEYS", type: "EVENT" },
               ].map((ev, i) => (
                 <Link
                   key={i}

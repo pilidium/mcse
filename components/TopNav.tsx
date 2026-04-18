@@ -133,7 +133,7 @@ export default function TopNav() {
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-2 md:gap-3 md:ml-6">
             {/* Mobile: button opens full-screen SearchModal */}
             <motion.button
               whileTap={{ scale: 0.98 }}
