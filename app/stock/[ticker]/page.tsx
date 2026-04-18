@@ -274,9 +274,20 @@ export default function StockDetailPage({
               )}
             </div>
             <div className="flex justify-between mt-3">
-              {chartData.map((d) => (
-                <span key={d.day} className="text-[9px] text-white/20">{d.day}</span>
-              ))}
+              {(() => {
+                const maxLabels = 7;
+                if (chartData.length <= maxLabels) {
+                  return chartData.map((d) => (
+                    <span key={d.day} className="text-[9px] text-white/20">{d.day}</span>
+                  ));
+                }
+                const step = (chartData.length - 1) / (maxLabels - 1);
+                return Array.from({ length: maxLabels }, (_, i) => {
+                  const idx = Math.round(i * step);
+                  const d = chartData[idx];
+                  return <span key={d.day} className="text-[9px] text-white/20">{d.day}</span>;
+                });
+              })()}
             </div>
           </div>
 
@@ -472,7 +483,13 @@ export default function StockDetailPage({
                   </div>
                 </div>
               )) : (
-                <p className="text-[11px] text-white/25 py-12 text-center tracking-[0.1em]">NO NEWS FOR {stock.ticker}</p>
+                <div className="py-16 text-center">
+                  <div className="w-10 h-10 mx-auto border border-white/8 flex items-center justify-center mb-3">
+                    <Copy size={16} className="text-white/15" />
+                  </div>
+                  <p className="text-[11px] tracking-[0.1em] text-white/25">NO NEWS FOR {stock.ticker}</p>
+                  <p className="text-[9px] text-white/12 mt-1.5">News will appear here during trading</p>
+                </div>
               )}
             </div>
           )}
@@ -501,7 +518,13 @@ export default function StockDetailPage({
                   </div>
                 );
               }) : (
-                <p className="text-[11px] text-white/25 py-12 text-center tracking-[0.1em]">NO UPCOMING EVENTS</p>
+                <div className="py-16 text-center">
+                  <div className="w-10 h-10 mx-auto border border-white/8 flex items-center justify-center mb-3">
+                    <Calendar size={16} className="text-white/15" />
+                  </div>
+                  <p className="text-[11px] tracking-[0.1em] text-white/25">NO UPCOMING EVENTS</p>
+                  <p className="text-[9px] text-white/12 mt-1.5">Events will appear during APR 24–26</p>
+                </div>
               )}
             </div>
           )}
@@ -729,10 +752,10 @@ export default function StockDetailPage({
               </div>
             )}
 
-            {/* Stock News */}
+            {/* Stock News — hidden if empty */}
+            {stockNews.length > 0 && (
             <div>
               <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-3">NEWS</h3>
-              {stockNews.length > 0 ? (
                 <div className="space-y-2">
                   {stockNews.map((news, i) => (
                     <div key={i} className="border border-white/8 p-4 hover:bg-white/[0.02] transition-colors">
@@ -746,18 +769,13 @@ export default function StockDetailPage({
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="border border-white/6 border-dashed p-6 text-center">
-                  <p className="text-[10px] tracking-[0.1em] text-white/20">No news yet for {stock.ticker}</p>
-                  <p className="text-[9px] text-white/10 mt-1">Check back during trading hours</p>
-                </div>
-              )}
             </div>
+            )}
 
-            {/* Stock Events */}
+            {/* Stock Events — hidden if empty */}
+            {stock.events && stock.events.length > 0 && (
             <div>
               <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-3">UPCOMING EVENTS</h3>
-              {stock.events && stock.events.length > 0 ? (
                 <div className="space-y-2">
                   {stock.events.map((event, i) => {
                     const typeColors: Record<string, string> = {
@@ -781,13 +799,8 @@ export default function StockDetailPage({
                     );
                   })}
                 </div>
-              ) : (
-                <div className="border border-white/6 border-dashed p-6 text-center">
-                  <p className="text-[10px] tracking-[0.1em] text-white/20">No upcoming events</p>
-                  <p className="text-[9px] text-white/10 mt-1">APR 24{"\u2013"}26 event calendar</p>
-                </div>
-              )}
             </div>
+            )}
 
             {/* Order History */}
             {tickerOrders.length > 0 && (

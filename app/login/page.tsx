@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function LoginPage() {
@@ -35,10 +36,15 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 mb-10">
-          <div className="w-11 h-11 border-2 border-white flex items-center justify-center">
-            <span className="font-[var(--font-anton)] text-sm tracking-tight">M</span>
-          </div>
-          <span className="font-[var(--font-anton)] text-[13px] tracking-[0.2em] uppercase">MCSE</span>
+          <Image
+            src="/Layer 11.png"
+            alt="MCSE"
+            width={44}
+            height={44}
+            className="w-11 h-11 object-contain"
+            priority
+          />
+          <span className="font-[MonumentExtended] text-[13px] tracking-[0.2em] uppercase">MCSE</span>
         </div>
 
         <h1 className="font-[var(--font-anton)] text-3xl tracking-[0.08em] uppercase mb-2">

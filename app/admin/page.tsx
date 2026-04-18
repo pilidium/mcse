@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -17,6 +18,8 @@ import {
   Eye,
   EyeOff,
   Megaphone,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useAuth, type UserRole } from "@/lib/AuthContext";
 import { useAdmin } from "@/lib/AdminContext";
@@ -43,11 +46,16 @@ const platformStats = {
 };
 
 const recentUsers = [
-  { name: "ARUN KUMAR", email: "arun@mcse.in", role: "user" as UserRole, trades: 34 },
-  { name: "PRIYA SHARMA", email: "priya@mcse.in", role: "user" as UserRole, trades: 21 },
-  { name: "RAHUL VERMA", email: "rahul@mcse.in", role: "companyAdmin" as UserRole, trades: 15 },
-  { name: "MEENA REDDY", email: "meena@mcse.in", role: "user" as UserRole, trades: 42 },
-  { name: "VIKASH PATEL", email: "vikash@mcse.in", role: "user" as UserRole, trades: 8 },
+  { name: "ARUN KUMAR", email: "arun@mcse.in", role: "user" as UserRole, trades: 34, balance: 12_450, joined: "2025-01-15" },
+  { name: "PRIYA SHARMA", email: "priya@mcse.in", role: "user" as UserRole, trades: 21, balance: 8_920, joined: "2025-01-18" },
+  { name: "RAHUL VERMA", email: "rahul@mcse.in", role: "company" as UserRole, trades: 15, balance: 45_300, joined: "2025-01-10" },
+  { name: "MEENA REDDY", email: "meena@mcse.in", role: "user" as UserRole, trades: 42, balance: 23_100, joined: "2025-01-12" },
+  { name: "VIKASH PATEL", email: "vikash@mcse.in", role: "user" as UserRole, trades: 8, balance: 5_200, joined: "2025-01-20" },
+  { name: "ANANYA IYER", email: "ananya@mcse.in", role: "user" as UserRole, trades: 19, balance: 15_780, joined: "2025-01-14" },
+  { name: "KARTHIK NAIR", email: "karthik@mcse.in", role: "admin" as UserRole, trades: 0, balance: 0, joined: "2025-01-01" },
+  { name: "DIVYA JOSHI", email: "divya@mcse.in", role: "user" as UserRole, trades: 27, balance: 18_600, joined: "2025-01-16" },
+  { name: "SURESH MENON", email: "suresh@mcse.in", role: "user" as UserRole, trades: 11, balance: 7_340, joined: "2025-01-19" },
+  { name: "FATIMA KHAN", email: "fatima@mcse.in", role: "company" as UserRole, trades: 6, balance: 31_500, joined: "2025-01-08" },
 ];
 
 const activityFeed = [
@@ -66,7 +74,7 @@ function EnigmaDashboard() {
   const [activeSub, setActiveSub] = useState(co.subsidiaries[0]);
   const sub = stockDirectory[activeSub];
   const fund = sub.fundamentals;
-  const chartData = sub.chartData["1M"];
+  const chartData = sub.chartData["1D"];
   const { companyNews, companyEvents } = useAdmin();
 
   const recentNews = companyNews.slice(0, 3);
@@ -103,7 +111,7 @@ function EnigmaDashboard() {
       </motion.div>
 
       {/* Subsidiary Tabs */}
-      <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hide">
+      <div className="flex items-center gap-6 mb-6 overflow-x-auto scrollbar-hide border-b border-white/10">
         {co.subsidiaries.map((ticker) => {
           const s = stockDirectory[ticker];
           const active = ticker === activeSub;
@@ -111,16 +119,17 @@ function EnigmaDashboard() {
             <button
               key={ticker}
               onClick={() => setActiveSub(ticker)}
-              className={`px-4 py-2.5 text-[10px] tracking-[0.12em] font-medium border whitespace-nowrap transition-colors duration-200 ${
+              className={`pb-3 text-[10px] tracking-[0.12em] font-medium whitespace-nowrap transition-colors duration-200 relative ${
                 active
-                  ? "bg-white text-black border-white"
-                  : "text-white/50 border-white/15 hover:text-white/80 hover:border-white/30"
+                  ? "text-white"
+                  : "text-white/40 hover:text-white/70"
               }`}
             >
               {ticker}
-              <span className={`ml-2 text-[9px] ${active ? "text-black/50" : (s.changePercent >= 0 ? "text-up" : "text-down")}`}>
+              <span className={`ml-2 text-[9px] ${s.changePercent >= 0 ? "text-up" : "text-down"}`}>
                 {s.changePercent >= 0 ? "+" : ""}{s.changePercent.toFixed(2)}%
               </span>
+              {active && <span className="absolute bottom-0 left-0 right-0 h-[1px] bg-white" />}
             </button>
           );
         })}
@@ -131,7 +140,7 @@ function EnigmaDashboard() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.05 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-white/8 mb-8"
+        className="grid grid-cols-2 md:grid-cols-3 gap-[1px] bg-white/8 mb-8"
       >
         <div className="bg-bg p-4 md:p-5">
           <span className="text-[9px] tracking-[0.15em] text-white/25">SHARES IN CIRCULATION</span>
@@ -140,10 +149,6 @@ function EnigmaDashboard() {
         <div className="bg-bg p-4 md:p-5">
           <span className="text-[9px] tracking-[0.15em] text-white/25">MARKET CAP</span>
           <p className="font-[var(--font-anton)] text-lg mt-1">{fund.marketCap}</p>
-        </div>
-        <div className="bg-bg p-4 md:p-5">
-          <span className="text-[9px] tracking-[0.15em] text-white/25">P/E RATIO</span>
-          <p className="font-[var(--font-anton)] text-lg mt-1">{fund.pe}</p>
         </div>
         <div className="bg-bg p-4 md:p-5">
           <span className="text-[9px] tracking-[0.15em] text-white/25">VOLUME</span>
@@ -306,10 +311,10 @@ function EnigmaDashboard() {
             <p className="text-[9px] tracking-[0.15em] text-white/30 mb-3">QUICK STATS</p>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "P/E RATIO", val: fund.pe },
                 { label: "EPS", val: `₹${fund.eps}` },
                 { label: "BOOK VALUE", val: `₹${fund.bookValue.toLocaleString("en-IN")}` },
                 { label: "ROE", val: `${fund.roe}%` },
+                { label: "VOLUME", val: fund.volume },
               ].map((s) => (
                 <div key={s.label}>
                   <p className="text-[9px] tracking-[0.1em] text-white/20">{s.label}</p>
@@ -328,10 +333,13 @@ function EnigmaDashboard() {
    Total Admin Dashboard
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function TotalAdminDashboard() {
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab");
   const { marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, approveNews, rejectNews } = useAdmin();
   const [annTitle, setAnnTitle] = useState("");
   const [annContent, setAnnContent] = useState("");
   const [showAnnForm, setShowAnnForm] = useState(false);
+  const [showAllActivity, setShowAllActivity] = useState(false);
 
   const pendingNews = companyNews.filter((n) => n.status === "PENDING");
 
@@ -342,6 +350,152 @@ function TotalAdminDashboard() {
     setAnnContent("");
     setShowAnnForm(false);
   }
+
+  /* ——— USERS TAB ——— */
+  if (tab === "users") {
+    return (
+      <>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <h2 className="font-[var(--font-anton)] text-lg tracking-[0.08em]">ALL USERS</h2>
+          <p className="text-[10px] text-white/30 mt-0.5">{recentUsers.length} registered · {platformStats.activeToday} active today</p>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="border border-white/10">
+          <div className="hidden md:grid grid-cols-[2fr_2fr_80px_80px_100px_80px] gap-4 px-5 py-3 border-b border-white/8">
+            <span className="text-[9px] tracking-[0.15em] text-white/25">NAME</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">EMAIL</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">ROLE</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">TRADES</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">BALANCE</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">JOINED</span>
+          </div>
+          {recentUsers.map((user, i) => (
+            <div key={user.email} className={`px-5 py-3.5 ${i < recentUsers.length - 1 ? "border-b border-white/6" : ""}`}>
+              <div className="hidden md:grid grid-cols-[2fr_2fr_80px_80px_100px_80px] gap-4 items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 border border-white/20 flex items-center justify-center shrink-0">
+                    <span className="text-[7px] tracking-wider text-white/40">{user.name.split(" ").map(w => w[0]).join("")}</span>
+                  </div>
+                  <span className="text-[11px] text-white/60">{user.name}</span>
+                </div>
+                <span className="text-[10px] text-white/40">{user.email}</span>
+                <span className={`text-[8px] tracking-[0.1em] px-1.5 py-0.5 border w-fit ${
+                  user.role === "admin" ? "text-amber-400 border-amber-400/20" :
+                  user.role === "company" ? "text-blue-400 border-blue-400/20" :
+                  "text-white/30 border-white/15"
+                }`}>{user.role === "company" ? "CO." : user.role === "admin" ? "ADM" : "USER"}</span>
+                <span className="text-[10px] text-white/40">{user.trades}</span>
+                <span className="text-[10px] text-white/40">{"\u20B9"}{user.balance.toLocaleString("en-IN")}</span>
+                <span className="text-[10px] text-white/30">{new Date(user.joined).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</span>
+              </div>
+              <div className="md:hidden flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 border border-white/20 flex items-center justify-center shrink-0">
+                    <span className="text-[7px] tracking-wider text-white/40">{user.name.split(" ").map(w => w[0]).join("")}</span>
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.05em] text-white/60">{user.name}</p>
+                    <p className="text-[8px] text-white/25">{user.email}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[9px] text-white/40">{user.trades} trades · {"\u20B9"}{user.balance.toLocaleString("en-IN")}</p>
+                  <span className={`text-[7px] tracking-[0.1em] px-1 py-0.5 border ${
+                    user.role === "admin" ? "text-amber-400 border-amber-400/20" :
+                    user.role === "company" ? "text-blue-400 border-blue-400/20" :
+                    "text-white/25 border-white/15"
+                  }`}>{user.role === "company" ? "CO." : user.role === "admin" ? "ADM" : "USER"}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </>
+    );
+  }
+
+  /* ——— STOCKS TAB ——— */
+  if (tab === "stocks") {
+    return (
+      <>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="font-[var(--font-anton)] text-lg tracking-[0.08em]">ALL STOCKS</h2>
+            <p className="text-[10px] text-white/30 mt-0.5">{allStocksRaw.length} total · {listedStocks.length} listed</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Power size={14} className={marketOpen ? "text-up" : "text-down"} />
+            <button
+              onClick={toggleMarket}
+              className={`text-[9px] tracking-[0.1em] font-semibold px-3 py-1.5 border transition-all ${
+                marketOpen
+                  ? "bg-up/10 border-up/30 text-up hover:bg-up/20"
+                  : "bg-down/10 border-down/30 text-down hover:bg-down/20"
+              }`}
+            >
+              {marketOpen ? "MARKET OPEN" : "MARKET CLOSED"}
+            </button>
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="border border-white/10">
+          <div className="hidden md:grid grid-cols-[60px_2fr_1fr_1fr_100px_80px] gap-4 px-5 py-3 border-b border-white/8">
+            <span className="text-[9px] tracking-[0.15em] text-white/25">TICKER</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">NAME</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">PRICE</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">CHANGE</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">PARENT</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25 text-right">STATUS</span>
+          </div>
+          {allStocksRaw.map((stock, i) => {
+            const isListed = listedStocks.includes(stock.ticker);
+            return (
+              <div key={stock.ticker} className={`px-5 py-3 ${i < allStocksRaw.length - 1 ? "border-b border-white/6" : ""}`}>
+                <div className="hidden md:grid grid-cols-[60px_2fr_1fr_1fr_100px_80px] gap-4 items-center">
+                  <span className={`text-[11px] tracking-[0.05em] font-medium ${isListed ? "text-white/70" : "text-white/20 line-through"}`}>{stock.ticker}</span>
+                  <span className="text-[10px] text-white/40">{stock.name}</span>
+                  <span className="text-[11px] text-white/60">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  <span className={`text-[10px] ${stock.changePercent >= 0 ? "text-up" : "text-down"}`}>
+                    {stock.changePercent >= 0 ? "+" : ""}{stock.changePercent.toFixed(2)}%
+                  </span>
+                  <span className="text-[9px] text-white/25">{stock.parentCompany || "\u2014"}</span>
+                  <button
+                    onClick={() => toggleListing(stock.ticker)}
+                    className={`flex items-center justify-end gap-1.5 text-[9px] tracking-[0.1em] px-2.5 py-1 border transition-all w-fit ml-auto ${
+                      isListed ? "text-up border-up/20 hover:border-up/50" : "text-down border-down/20 hover:border-down/50"
+                    }`}
+                  >
+                    {isListed ? <Eye size={11} /> : <EyeOff size={11} />}
+                    {isListed ? "LISTED" : "DELISTED"}
+                  </button>
+                </div>
+                <div className="md:hidden flex items-center justify-between">
+                  <div>
+                    <p className={`text-[11px] tracking-[0.05em] ${isListed ? "text-white/60" : "text-white/20 line-through"}`}>{stock.ticker}</p>
+                    <p className="text-[9px] text-white/25">{stock.name}</p>
+                  </div>
+                  <button
+                    onClick={() => toggleListing(stock.ticker)}
+                    className={`flex items-center gap-1.5 text-[9px] tracking-[0.1em] px-2.5 py-1 border transition-all ${
+                      isListed ? "text-up border-up/20 hover:border-up/50" : "text-down border-down/20 hover:border-down/50"
+                    }`}
+                  >
+                    {isListed ? <Eye size={11} /> : <EyeOff size={11} />}
+                    {isListed ? "LISTED" : "DELISTED"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </motion.div>
+      </>
+    );
+  }
+
+  /* ——— DASHBOARD (default) ——— */
+  const displayedUsers = recentUsers.slice(0, 3);
+  const displayedStocks = allStocksRaw.slice(0, 5);
+  const displayedActivity = showAllActivity ? activityFeed : activityFeed.slice(0, 3);
 
   return (
     <>
@@ -403,13 +557,13 @@ function TotalAdminDashboard() {
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
             <p className="text-[9px] tracking-[0.15em] text-white/30">USERS</p>
-            <span className="text-[9px] text-white/20">{platformStats.totalUsers} total</span>
+            <Link href="/admin?tab=users" className="text-[9px] tracking-[0.1em] text-white/30 hover:text-white transition-colors">SEE ALL {"\u2192"}</Link>
           </div>
-          {recentUsers.map((user, i) => (
+          {displayedUsers.map((user, i) => (
             <div
               key={user.email}
               className={`flex items-center justify-between px-5 py-3 ${
-                i < recentUsers.length - 1 ? "border-b border-white/6" : ""
+                i < displayedUsers.length - 1 ? "border-b border-white/6" : ""
               }`}
             >
               <div className="flex items-center gap-3">
@@ -452,22 +606,23 @@ function TotalAdminDashboard() {
               }`}
             >
               <Power size={14} className="inline mr-2 -mt-0.5" />
-              {marketOpen ? "MARKET IS OPEN â€” CLICK TO CLOSE" : "MARKET IS CLOSED â€” CLICK TO OPEN"}
+              {marketOpen ? "MARKET IS OPEN · CLICK TO CLOSE" : "MARKET IS CLOSED · CLICK TO OPEN"}
             </button>
           </div>
 
           {/* Listed Stocks */}
           <div className="border border-white/10">
-            <div className="px-5 py-4 border-b border-white/8">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
               <p className="text-[9px] tracking-[0.15em] text-white/30">LISTED STOCKS</p>
+              <Link href="/admin?tab=stocks" className="text-[9px] tracking-[0.1em] text-white/30 hover:text-white transition-colors">SEE ALL {"\u2192"}</Link>
             </div>
-            {allStocksRaw.map((stock, i) => {
+            {displayedStocks.map((stock, i) => {
               const isListed = listedStocks.includes(stock.ticker);
               return (
                 <div
                   key={stock.ticker}
                   className={`flex items-center justify-between px-5 py-3 ${
-                    i < allStocksRaw.length - 1 ? "border-b border-white/6" : ""
+                    i < displayedStocks.length - 1 ? "border-b border-white/6" : ""
                   }`}
                 >
                   <div>
@@ -500,13 +655,18 @@ function TotalAdminDashboard() {
         >
           {/* Activity Feed */}
           <div className="border border-white/10">
-            <div className="px-5 py-4 border-b border-white/8">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
               <p className="text-[9px] tracking-[0.15em] text-white/30">RECENT ACTIVITY</p>
+              {activityFeed.length > 3 && (
+                <button onClick={() => setShowAllActivity(!showAllActivity)} className="flex items-center gap-1 text-[9px] tracking-[0.1em] text-white/30 hover:text-white transition-colors">
+                  {showAllActivity ? <><ChevronUp size={11} /> LESS</> : <><ChevronDown size={11} /> MORE</>}
+                </button>
+              )}
             </div>
-            {activityFeed.map((item, i) => (
+            {displayedActivity.map((item, i) => (
               <div
                 key={i}
-                className={`px-5 py-3 ${i < activityFeed.length - 1 ? "border-b border-white/6" : ""}`}
+                className={`px-5 py-3 ${i < displayedActivity.length - 1 ? "border-b border-white/6" : ""}`}
               >
                 <span className={`text-[9px] tracking-[0.1em] font-semibold ${item.color}`}>{item.action}</span>
                 <p className="text-[10px] text-white/40 mt-0.5">{item.detail}</p>
@@ -651,7 +811,7 @@ export default function AdminPage() {
         </motion.div>
       )}
 
-      {role === "company" ? <EnigmaDashboard /> : <TotalAdminDashboard />}
+      {role === "company" ? <EnigmaDashboard /> : <Suspense><TotalAdminDashboard /></Suspense>}
     </div>
   );
 }

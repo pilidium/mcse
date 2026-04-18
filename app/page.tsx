@@ -365,7 +365,7 @@ export default function ExplorePage() {
                 )}
                 <div className="flex items-center gap-2 ml-auto">
                   <span className="text-[9px] tracking-[0.1em] text-white/25">
-                    {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[moverMobileValue]}
+                    VALUE
                   </span>
                   <button
                     onClick={() => setMoverMobileValue((d) => {
@@ -502,7 +502,7 @@ export default function ExplorePage() {
             transition={{ duration: 0.3, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
             className="mb-9 md:mb-10"
           >
-            <Link href="/stocks" className="flex items-center justify-between mb-5 group">
+            <Link href="/companies" className="flex items-center justify-between mb-5 group">
               <h2 className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.1em] uppercase">
                 HOLDING COMPANIES
               </h2>
@@ -543,7 +543,7 @@ export default function ExplorePage() {
                 );
               })}
             </div>
-            <Link href="/stocks" className="flex items-center justify-center gap-1 mt-2 py-2.5 text-[9px] tracking-[0.12em] text-white/30 hover:text-white transition-colors border border-white/6">
+            <Link href="/companies" className="flex items-center justify-center gap-1 mt-2 py-2.5 text-[9px] tracking-[0.12em] text-white/30 hover:text-white transition-colors border border-white/6">
               SEE ALL {parentCompanies.length} COMPANIES <ChevronRight size={11} />
             </Link>
           </motion.div>

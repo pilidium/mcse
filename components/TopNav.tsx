@@ -1,10 +1,10 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Bell, BarChart3, Briefcase, LineChart, Eye, Newspaper, TrendingUp, LayoutDashboard, Calendar, ClipboardCheck } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Search, Bell, BarChart3, Briefcase, LineChart, Eye, Newspaper, TrendingUp, LayoutDashboard, Calendar, ClipboardCheck, Users, Package } from "lucide-react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ProfileDropdown from "./ProfileDropdown";
 import NotificationDropdown from "./NotificationDropdown";
@@ -26,14 +26,13 @@ const companyAdminDesktopTabs = [
   { href: "/admin", label: "DASHBOARD", icon: LayoutDashboard },
   { href: "/admin/news", label: "NEWS", icon: Newspaper },
   { href: "/admin/events", label: "EVENTS", icon: Calendar },
-  { href: "/markets", label: "MARKETS", icon: TrendingUp },
 ];
 
 const totalAdminDesktopTabs = [
   { href: "/admin", label: "DASHBOARD", icon: LayoutDashboard },
   { href: "/admin/news", label: "APPROVALS", icon: ClipboardCheck },
-  { href: "/markets", label: "MARKETS", icon: TrendingUp },
-  { href: "/news", label: "NEWS", icon: Newspaper },
+  { href: "/admin?tab=users", label: "USERS", icon: Users },
+  { href: "/admin?tab=stocks", label: "STOCKS", icon: Package },
 ];
 
 /* Mobile bottom tabs by role */
@@ -49,18 +48,26 @@ const companyAdminMobileTabs = [
   { href: "/admin", label: "DASHBOARD", icon: LayoutDashboard },
   { href: "/admin/news", label: "NEWS", icon: Newspaper },
   { href: "/admin/events", label: "EVENTS", icon: Calendar },
-  { href: "/markets", label: "MARKETS", icon: TrendingUp },
 ];
 
 const totalAdminMobileTabs = [
   { href: "/admin", label: "DASHBOARD", icon: LayoutDashboard },
   { href: "/admin/news", label: "APPROVALS", icon: ClipboardCheck },
-  { href: "/markets", label: "MARKETS", icon: TrendingUp },
-  { href: "/news", label: "NEWS", icon: Newspaper },
+  { href: "/admin?tab=users", label: "USERS", icon: Users },
+  { href: "/admin?tab=stocks", label: "STOCKS", icon: Package },
 ];
 
 export default function TopNav() {
+  return (
+    <Suspense>
+      <TopNavInner />
+    </Suspense>
+  );
+}
+
+function TopNavInner() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -88,7 +95,11 @@ export default function TopNav() {
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
-    if (href === "/admin") return pathname === "/admin";
+    if (href.includes("?tab=")) {
+      const [path, query] = href.split("?tab=");
+      return pathname === path && searchParams.get("tab") === query;
+    }
+    if (href === "/admin") return pathname === "/admin" && !searchParams.get("tab");
     return pathname.startsWith(href);
   }
 
@@ -107,7 +118,7 @@ export default function TopNav() {
               className="w-8 h-8 object-contain logo-img"
               priority
             />
-            <span className="font-[var(--font-anton)] text-[13px] tracking-[0.18em] uppercase hidden sm:block">
+            <span className="font-[MonumentExtended] text-[13px] tracking-[0.18em] uppercase hidden sm:block">
               MCSE
             </span>
           </Link>

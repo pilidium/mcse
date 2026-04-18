@@ -589,34 +589,39 @@ export interface StockInfo {
 
 function generateChartData(basePrice: number): Record<string, { day: string; price: number }[]> {
   const rng = (p: number, pct: number) => +(p * (1 + (Math.random() - 0.5) * pct)).toFixed(2);
+
+  // 1H: every minute from 10:00 to 10:59 (60 points)
+  const oneH: { day: string; price: number }[] = [];
+  for (let m = 0; m < 60; m++) {
+    const mm = String(m).padStart(2, "0");
+    const drift = Math.abs(m - 30) / 30; // mean-revert towards end
+    oneH.push({ day: `10:${mm}`, price: rng(basePrice, 0.006 * (1 - drift * 0.3)) });
+  }
+  oneH[oneH.length - 1].price = basePrice;
+
+  // 3H: every 10 minutes from 10:00 to 13:00 (19 points)
+  const threeH: { day: string; price: number }[] = [];
+  for (let h = 10; h <= 13; h++) {
+    const end = h === 13 ? 1 : 6;
+    for (let s = 0; s < end; s++) {
+      const mm = String(s * 10).padStart(2, "0");
+      threeH.push({ day: `${h}:${mm}`, price: rng(basePrice, 0.015) });
+    }
+  }
+  threeH[threeH.length - 1].price = basePrice;
+
+  // 1D: every 30 minutes from 10:00 to 17:30 (16 points)
+  const oneD: { day: string; price: number }[] = [];
+  for (let h = 10; h <= 17; h++) {
+    oneD.push({ day: `${h}:00`, price: rng(basePrice, 0.025) });
+    if (h < 17) oneD.push({ day: `${h}:30`, price: rng(basePrice, 0.025) });
+  }
+  oneD.push({ day: "17:30", price: basePrice });
+
   return {
-    "1H": [
-      { day: "10:00", price: rng(basePrice, 0.005) },
-      { day: "10:10", price: rng(basePrice, 0.006) },
-      { day: "10:20", price: rng(basePrice, 0.007) },
-      { day: "10:30", price: rng(basePrice, 0.006) },
-      { day: "10:40", price: rng(basePrice, 0.005) },
-      { day: "10:50", price: rng(basePrice, 0.004) },
-      { day: "11:00", price: basePrice },
-    ],
-    "3H": [
-      { day: "10:00", price: rng(basePrice, 0.01) },
-      { day: "10:30", price: rng(basePrice, 0.012) },
-      { day: "11:00", price: rng(basePrice, 0.015) },
-      { day: "11:30", price: rng(basePrice, 0.012) },
-      { day: "12:00", price: rng(basePrice, 0.01) },
-      { day: "12:30", price: rng(basePrice, 0.008) },
-      { day: "13:00", price: basePrice },
-    ],
-    "1D": [
-      { day: "10:00", price: rng(basePrice, 0.02) },
-      { day: "11:15", price: rng(basePrice, 0.02) },
-      { day: "12:30", price: rng(basePrice, 0.03) },
-      { day: "13:45", price: rng(basePrice, 0.02) },
-      { day: "15:00", price: rng(basePrice, 0.02) },
-      { day: "16:15", price: rng(basePrice, 0.01) },
-      { day: "17:30", price: basePrice },
-    ],
+    "1H": oneH,
+    "3H": threeH,
+    "1D": oneD,
     "3D": [
       { day: "APR 24", price: rng(basePrice, 0.04) },
       { day: "24 EVE", price: rng(basePrice, 0.035) },

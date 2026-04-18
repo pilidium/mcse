@@ -4,11 +4,11 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronUp, ChevronDown, ArrowLeft, SlidersHorizontal, X, ArrowUpDown } from "lucide-react";
+import { ChevronUp, ChevronDown, ArrowLeft, SlidersHorizontal, X, ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
 import Sparkline from "@/components/Sparkline";
 import { allStocksEnriched } from "@/lib/mockData";
 
-type SortKey = "ticker" | "price" | "change" | "volume" | "pe";
+type SortKey = "ticker" | "price" | "change" | "volume";
 type SortDir = "asc" | "desc";
 
 const sectors = ["ALL", ...Array.from(new Set(allStocksEnriched.map((s) => s.sector)))];
@@ -18,7 +18,6 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "price", label: "PRICE" },
   { key: "change", label: "CHANGE %" },
   { key: "volume", label: "VOLUME" },
-  { key: "pe", label: "P/E RATIO" },
 ];
 
 export default function ScreenerPage() {
@@ -44,7 +43,6 @@ export default function ScreenerPage() {
           case "price": av = a.price; bv = b.price; break;
           case "change": av = a.dayChangePercent; bv = b.dayChangePercent; break;
           case "volume": av = a.volume; bv = b.volume; break;
-          case "pe": av = a.pe; bv = b.pe; break;
           default: av = 0; bv = 0;
         }
         return sortDir === "asc" ? av - bv : bv - av;
@@ -150,12 +148,12 @@ export default function ScreenerPage() {
 
       {/* Desktop table */}
       <div className="hidden md:block">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_60px] gap-2 px-4 py-2 border-b border-white/8 text-[9px] tracking-[0.15em] text-white/30">
+        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-2 px-4 py-2 border-b border-white/8 text-[9px] tracking-[0.15em] text-white/30">
           <button onClick={() => toggleSort("ticker")} className="flex items-center gap-1 text-left hover:text-white transition-colors">TICKER {renderSortIcon("ticker")}</button>
           <button onClick={() => toggleSort("price")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">PRICE {renderSortIcon("price")}</button>
           <button onClick={() => toggleSort("change")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">CHG% {renderSortIcon("change")}</button>
           <button onClick={() => toggleSort("volume")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">VOL {renderSortIcon("volume")}</button>
-          <button onClick={() => toggleSort("pe")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">P/E {renderSortIcon("pe")}</button>
+          <span className="text-right">TREND</span>
           <span />
         </div>
         {filtered.map((s) => (
@@ -163,7 +161,7 @@ export default function ScreenerPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_60px] gap-2 px-4 py-3 border-b border-white/4 hover:bg-white/[0.02] transition-colors items-center"
+              className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-2 px-4 py-3 border-b border-white/4 hover:bg-white/[0.02] transition-colors items-center"
             >
               <div>
                 <span className="font-[var(--font-anton)] text-[12px]">{s.ticker}</span>
@@ -178,7 +176,16 @@ export default function ScreenerPage() {
                 {s.dayChangePercent >= 0 ? "+" : ""}{s.dayChangePercent.toFixed(2)}%
               </span>
               <span className="text-[11px] text-right text-white/40">{(s.volume / 1000).toFixed(0)}K</span>
-              <span className="text-[11px] text-right text-white/40">{s.pe.toFixed(1)}</span>
+              <div className="flex items-center justify-end gap-1">
+                {s.dayChangePercent >= 0 ? (
+                  <TrendingUp size={14} className="text-up" />
+                ) : (
+                  <TrendingDown size={14} className="text-down" />
+                )}
+                <span className={`text-[10px] font-medium ${s.dayChangePercent >= 0 ? "text-up" : "text-down"}`}>
+                  {s.dayChangePercent >= 0 ? "UP" : "DOWN"}
+                </span>
+              </div>
               <Sparkline data={s.sparkline} width={48} height={18} positive={s.dayChangePercent >= 0} />
             </motion.div>
           </Link>

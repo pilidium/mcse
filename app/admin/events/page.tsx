@@ -15,6 +15,9 @@ export default function AdminEventsPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("ENIGMA");
+
+  const companyOptions = ["ENIGMA", "ESOFT", "ECLOUD", "ENAI"];
 
   if (!isLoggedIn || !role || role === "user") {
     return (
@@ -35,7 +38,7 @@ export default function AdminEventsPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !date) return;
-    addEvent(title.trim(), description.trim(), date, "ESOFT");
+    addEvent(title.trim(), description.trim(), date, selectedCompany);
     setTitle("");
     setDescription("");
     setDate("");
@@ -115,6 +118,18 @@ export default function AdminEventsPage() {
           onSubmit={handleSubmit}
           className="border border-white/15 p-5 mb-6 space-y-4"
         >
+          <div>
+            <label className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-2 block">COMPANY</label>
+            <select
+              value={selectedCompany}
+              onChange={(e) => setSelectedCompany(e.target.value)}
+              className="w-full h-10 bg-transparent border border-white/20 px-4 text-[13px] text-white outline-none focus:border-white transition-colors appearance-none cursor-pointer"
+            >
+              {companyOptions.map((c) => (
+                <option key={c} value={c} className="bg-black text-white">{c}</option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-2 block">EVENT TITLE</label>
             <input

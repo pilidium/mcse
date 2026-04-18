@@ -216,7 +216,7 @@ export default function HoldingsPage() {
               </div>
             )}
             <span className="text-[9px] tracking-[0.1em] text-white/25 ml-auto">
-              {{ ticker: "NAME", currentPrice: "PRICE", returnsPercent: "RETURNS", currentValue: "VALUE", dayChangePercent: "1D CHANGE" }[sortKey]}
+              VALUE
             </span>
             <button
               onClick={(e) => {
