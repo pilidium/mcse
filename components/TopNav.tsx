@@ -133,7 +133,7 @@ export default function TopNav() {
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-2 md:gap-3 md:ml-6">
+          <div className="flex items-center gap-2 md:gap-3">
             {/* Mobile: button opens full-screen SearchModal */}
             <motion.button
               whileTap={{ scale: 0.98 }}
@@ -197,7 +197,7 @@ export default function TopNav() {
       </nav>
 
       {/* Mobile bottom tab bar — 4 tabs, 56px tall */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg/95 backdrop-blur-md border-t border-white/10" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg/95 backdrop-blur-md border-t border-white/10 mobile-bottom-bar">
         <div className="flex items-center justify-around h-14 px-2">
           {mobileTabs.map((tab) => {
             const active = isActive(tab.href);

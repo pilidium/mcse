@@ -363,7 +363,10 @@ export default function ExplorePage() {
                     ))}
                   </div>
                 )}
-                <div className="flex items-center gap-0 ml-auto">
+                <div className="flex items-center gap-2 ml-auto">
+                  <span className="text-[9px] tracking-[0.1em] text-white/25">
+                    {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[moverMobileValue]}
+                  </span>
                   <button
                     onClick={() => setMoverMobileValue((d) => {
                       const order: typeof d[] = ["price", "dayChangePercent", "volume"];
@@ -458,12 +461,12 @@ export default function ExplorePage() {
             </div>
           </motion.div>
 
-          {/* MARKET INDICES (desktop, below movers) */}
+          {/* MARKET INDICES */}
           <motion.div
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.08, ease: [0.25, 0.1, 0.25, 1] }}
-            className="hidden md:block mb-10"
+            className="mb-8 md:mb-10"
           >
             <Link href="/markets" className="flex items-center justify-between mb-5 group">
               <h2 className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.1em] uppercase">
@@ -492,18 +495,21 @@ export default function ExplorePage() {
             </div>
           </motion.div>
 
-          {/* PARENT COMPANIES */}
+          {/* HOLDING COMPANIES */}
           <motion.div
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
             className="mb-9 md:mb-10"
           >
-            <h2 className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.1em] uppercase mb-5">
-              HOLDING COMPANIES
-            </h2>
+            <Link href="/stocks" className="flex items-center justify-between mb-5 group">
+              <h2 className="font-[var(--font-anton)] text-base md:text-lg tracking-[0.1em] uppercase">
+                HOLDING COMPANIES
+              </h2>
+              <ChevronRight size={14} className="text-white/20 group-hover:text-white/50 transition-colors" />
+            </Link>
             <div className="space-y-[1px] bg-white/8">
-              {parentCompanies.map((pc) => {
+              {parentCompanies.slice(0, 4).map((pc) => {
                 const subs = pc.subsidiaries.map(t => stockDirectory[t]).filter(Boolean);
                 const avgChange = subs.length > 0 ? subs.reduce((s, sub) => s + sub.changePercent, 0) / subs.length : 0;
                 return (
@@ -537,6 +543,9 @@ export default function ExplorePage() {
                 );
               })}
             </div>
+            <Link href="/stocks" className="flex items-center justify-center gap-1 mt-2 py-2.5 text-[9px] tracking-[0.12em] text-white/30 hover:text-white transition-colors border border-white/6">
+              SEE ALL {parentCompanies.length} COMPANIES <ChevronRight size={11} />
+            </Link>
           </motion.div>
 
           {/* STOCKS IN NEWS TODAY (mobile, below movers) */}

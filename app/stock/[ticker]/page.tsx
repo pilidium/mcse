@@ -12,7 +12,7 @@ import { usePreferences } from "@/lib/PreferencesContext";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
 import Sparkline from "@/components/Sparkline";
 
-const timeRanges = ["1H", "3H", "1D", "3D"] as const;
+const timeRanges = ["1H", "3H", "1D", "3D", "ALL"] as const;
 
 export default function StockDetailPage({
   params,
@@ -35,6 +35,7 @@ export default function StockDetailPage({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [sectionTab, setSectionTab] = useState<"OVERVIEW" | "NEWS" | "EVENTS" | "COMPANY">("OVERVIEW");
   const [tickerCopied, setTickerCopied] = useState(false);
+  const [chartType, setChartType] = useState<"LINE" | "CANDLE">("LINE");
   const { confirmOrders } = usePreferences();
 
   const isHeld = holdings.some((h) => h.ticker === ticker.toUpperCase());
@@ -223,7 +224,54 @@ export default function StockDetailPage({
             className="mb-5 md:mb-6 md:border md:border-white/8 -mx-4 px-4 md:mx-0 md:p-6 py-4"
           >
             <div className="w-full overflow-hidden">
-              <Sparkline data={chartValues} width={960} height={200} strokeWidth={1.5} positive={stock.changePercent >= 0} />
+              {chartType === "LINE" ? (
+                <Sparkline
+                  data={chartValues}
+                  width={960}
+                  height={280}
+                  strokeWidth={1.5}
+                  positive={stock.changePercent >= 0}
+                  interactive
+                  labels={chartData.map((d) => d.day)}
+                  baseline={["1H", "3H", "1D"].includes(range) ? chartValues[0] : undefined}
+                />
+              ) : (
+                <svg viewBox="0 0 960 280" width={960} height={280} className="block overflow-visible" style={{ maxWidth: '100%', height: 'auto' }}>
+                  {(() => {
+                    const n = chartValues.length;
+                    if (n < 2) return null;
+                    const allMin = Math.min(...chartValues);
+                    const allMax = Math.max(...chartValues);
+                    const priceRange = allMax - allMin || 1;
+                    const pad = 2;
+                    const candles = [];
+                    for (let i = 1; i < n; i++) {
+                      const open = chartValues[i - 1];
+                      const close = chartValues[i];
+                      const high = Math.max(open, close) * (1 + Math.random() * 0.003);
+                      const low = Math.min(open, close) * (1 - Math.random() * 0.003);
+                      candles.push({ open, close, high, low });
+                    }
+                    const barW = (960 - pad * 2) / candles.length;
+                    const toY = (v: number) => 280 - pad - ((v - allMin) / priceRange) * (280 - pad * 2);
+                    return candles.map((c, i) => {
+                      const x = pad + i * barW + barW / 2;
+                      const bullish = c.close >= c.open;
+                      const color = bullish ? "var(--color-up)" : "var(--color-down)";
+                      const bodyTop = toY(Math.max(c.open, c.close));
+                      const bodyBot = toY(Math.min(c.open, c.close));
+                      const bodyH = Math.max(bodyBot - bodyTop, 1);
+                      const w = barW * 0.6;
+                      return (
+                        <g key={i}>
+                          <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth={1} />
+                          <rect x={x - w / 2} y={bodyTop} width={w} height={bodyH} fill={bullish ? color : color} stroke={color} strokeWidth={0.5} fillOpacity={bullish ? 0.3 : 0.8} />
+                        </g>
+                      );
+                    });
+                  })()}
+                </svg>
+              )}
             </div>
             <div className="flex justify-between mt-3">
               {chartData.map((d) => (
@@ -249,6 +297,21 @@ export default function StockDetailPage({
                 {r}
               </button>
             ))}
+            <div className="ml-auto flex items-center gap-0 shrink-0">
+              {(["LINE", "CANDLE"] as const).map((ct) => (
+                <button
+                  key={ct}
+                  onClick={() => setChartType(ct)}
+                  className={`px-3 h-11 md:h-9 text-[9px] tracking-[0.12em] border-b-2 transition-all duration-150 ${
+                    chartType === ct
+                      ? "text-white border-white"
+                      : "text-white/25 border-transparent hover:text-white/50"
+                  }`}
+                >
+                  {ct === "LINE" ? "LINE" : "OHLC"}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Section tabs — Groww style */}
@@ -810,9 +873,17 @@ export default function StockDetailPage({
               </div>
 
               {/* Tab content */}
-              <div className="overflow-y-auto flex-1 min-h-[320px]">
+              <div className="overflow-y-auto flex-1 min-h-[400px]">
+                <AnimatePresence mode="wait">
                 {mobileTab === "ORDER" && (
-                  <div className="px-5 py-5 space-y-5">
+                  <motion.div
+                    key="ORDER"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="px-5 py-5 space-y-5"
+                  >
                     {/* Buy/Sell toggle */}
                     <div className="flex gap-0">
                       <button
@@ -900,11 +971,18 @@ export default function StockDetailPage({
                       <span className="font-[var(--font-anton)] text-sm">{"\u20B9"}{Math.round(balance).toLocaleString("en-IN")}</span>
                     </div>
 
-                  </div>
+                  </motion.div>
                 )}
 
                 {mobileTab === "BOOK" && orderBook && (
-                  <div className="px-4 py-4">
+                  <motion.div
+                    key="BOOK"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="px-4 py-4"
+                  >
                     <div className="grid grid-cols-3 gap-0 px-2 py-2 border-b border-white/6">
                       <span className="text-[8px] tracking-[0.1em] text-white/20">BID</span>
                       <span className="text-[8px] tracking-[0.1em] text-white/20 text-center">QTY</span>
@@ -934,11 +1012,18 @@ export default function StockDetailPage({
                         <span className="text-[11px] text-white/30 text-right">{a.orders}</span>
                       </div>
                     ))}
-                  </div>
+                  </motion.div>
                 )}
 
                 {mobileTab === "HISTORY" && (
-                  <div className="px-4 py-4">
+                  <motion.div
+                    key="HISTORY"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="px-4 py-4"
+                  >
                     {tickerOrders.length > 0 ? (
                       <div className="space-y-2">
                         {tickerOrders.map((order) => (
@@ -968,8 +1053,9 @@ export default function StockDetailPage({
                         <p className="text-[11px] tracking-[0.1em] text-white/20">NO ORDERS YET</p>
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </div>
 
               {/* Sticky confirm button at bottom of mobile order panel */}

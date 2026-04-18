@@ -226,7 +226,7 @@ html, body {
 
 /* Mobile content area — tab bar (3.5rem) + safe area home indicator */
 .mobile-content-pad {
-  padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 }
 @media (min-width: 768px) {
   .mobile-content-pad {
@@ -236,12 +236,17 @@ html, body {
 
 /* Stock detail mobile: tab bar (3.5rem) + buy/sell bar (3.5rem) + safe area */
 .mobile-stock-pad {
-  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
 }
 @media (min-width: 768px) {
   .mobile-stock-pad {
     padding-bottom: 0;
   }
+}
+
+/* Mobile bottom tab bar safe area */
+.mobile-bottom-bar {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Ensure fixed elements respect safe areas */

@@ -17,28 +17,20 @@ interface WeekEvent {
 }
 
 const WEEK_DAYS = [
-  { day: 20, weekday: "SUN", label: "20" },
-  { day: 21, weekday: "MON", label: "21" },
-  { day: 22, weekday: "TUE", label: "22" },
-  { day: 23, weekday: "WED", label: "23" },
   { day: 24, weekday: "THU", label: "24" },
   { day: 25, weekday: "FRI", label: "25" },
   { day: 26, weekday: "SAT", label: "26" },
-  { day: 27, weekday: "SUN", label: "27" },
 ];
 
 const events: WeekEvent[] = [
-  { day: 20, weekday: "SUN", title: "MACAD Annual Open Day", type: "EVENT", ticker: "MACAD", time: "10:00 AM", description: "Public lecture series and campus tour" },
-  { day: 20, weekday: "SUN", title: "CELRES Research Showcase", type: "EVENT", ticker: "CELRES", time: "2:00 PM", description: "Telescope demo and night sky workshop" },
-  { day: 21, weekday: "MON", title: "ESOFT Quarterly Results", type: "RESULTS", ticker: "ESOFT", time: "11:00 AM", description: "Q4 revenue expected up 12%" },
-  { day: 22, weekday: "TUE", title: "GMRACE Sprint Championship", type: "EVENT", ticker: "GMRACE", time: "3:00 PM", description: "National-level karting showcase" },
-  { day: 22, weekday: "TUE", title: "ERLEARN Quiz Finals", type: "EVENT", ticker: "ERLEARN", time: "5:00 PM", description: "Inter-college quiz championship" },
-  { day: 23, weekday: "WED", title: "MSSTD Film Premiere", type: "EVENT", ticker: "MSSTD", time: "6:30 PM", description: "Short film festival circuit entry" },
   { day: 24, weekday: "THU", title: "INDATA Annual General Meeting", type: "AGM", ticker: "INDATA", time: "10:00 AM", description: "Board elections and budget approval" },
   { day: 24, weekday: "THU", title: "ENAI Product Launch", type: "EVENT", ticker: "ENAI", time: "4:00 PM", description: "New ML toolkit release demo" },
   { day: 25, weekday: "FRI", title: "MPUB Book Fair", type: "EVENT", ticker: "MPUB", time: "11:00 AM", description: "Academic publications showcase" },
+  { day: 25, weekday: "FRI", title: "ESOFT Quarterly Results", type: "RESULTS", ticker: "ESOFT", time: "2:00 PM", description: "Q4 revenue expected up 12%" },
+  { day: 25, weekday: "FRI", title: "GMRACE Sprint Championship", type: "EVENT", ticker: "GMRACE", time: "4:00 PM", description: "National-level karting showcase" },
   { day: 26, weekday: "SAT", title: "CELBIO Lab Open House", type: "EVENT", ticker: "CELBIO", time: "9:00 AM", description: "Biotech lab demonstrations" },
-  { day: 27, weekday: "SUN", title: "GMAUTO Auto Expo", type: "EVENT", ticker: "GMAUTO", time: "10:00 AM", description: "Custom build showcase and test drives" },
+  { day: 26, weekday: "SAT", title: "ERLEARN Quiz Finals", type: "EVENT", ticker: "ERLEARN", time: "11:00 AM", description: "Inter-college quiz championship" },
+  { day: 26, weekday: "SAT", title: "MSSTD Film Premiere", type: "EVENT", ticker: "MSSTD", time: "6:30 PM", description: "Short film festival circuit entry" },
 ];
 
 const typeAccent: Record<string, string> = {
@@ -76,7 +68,7 @@ export default function EventsPage() {
         </button>
         <div>
           <h1 className="font-[var(--font-anton)] text-xl tracking-[0.1em] uppercase">MCSE EVENTS</h1>
-          <p className="text-[10px] tracking-[0.15em] text-white/30 mt-0.5">APRIL 20 &ndash; 27</p>
+          <p className="text-[10px] tracking-[0.15em] text-white/30 mt-0.5">APRIL 24 &ndash; 26</p>
         </div>
       </div>
 

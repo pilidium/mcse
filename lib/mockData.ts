@@ -626,6 +626,18 @@ function generateChartData(basePrice: number): Record<string, { day: string; pri
       { day: "26 EVE", price: rng(basePrice, 0.01) },
       { day: "CLOSE", price: basePrice },
     ],
+    "ALL": [
+      { day: "APR 24", price: rng(basePrice, 0.06) },
+      { day: "24 AFT", price: rng(basePrice, 0.05) },
+      { day: "24 EVE", price: rng(basePrice, 0.04) },
+      { day: "APR 25", price: rng(basePrice, 0.05) },
+      { day: "25 AFT", price: rng(basePrice, 0.04) },
+      { day: "25 EVE", price: rng(basePrice, 0.03) },
+      { day: "APR 26", price: rng(basePrice, 0.04) },
+      { day: "26 AFT", price: rng(basePrice, 0.02) },
+      { day: "26 EVE", price: rng(basePrice, 0.01) },
+      { day: "CLOSE", price: basePrice },
+    ],
   };
 }
 

@@ -182,7 +182,10 @@ export default function WatchlistPage() {
               ))}
             </div>
           )}
-          <div className="flex items-center gap-0 ml-auto">
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-[9px] tracking-[0.1em] text-white/25">
+              {{ price: "PRICE", dayChangePercent: "CHG%", volume: "VOL" }[mobileValue]}
+            </span>
             <button
               onClick={() => setMobileValue((d) => {
                 const order: typeof d[] = ["price", "dayChangePercent", "volume"];
