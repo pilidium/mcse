@@ -94,7 +94,7 @@ export default function StocksPage() {
       </div>
 
       {/* Mobile card list */}
-      <div className="md:hidden space-y-2">
+      <div className="lg:hidden space-y-2">
         {sorted.map((stock) => (
           <div key={stock.ticker}>
             <Link
@@ -121,7 +121,7 @@ export default function StocksPage() {
       </div>
 
       {/* Desktop table */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="grid grid-cols-[1fr_100px_120px_80px_100px] gap-4 px-4 py-2 border-b border-white/12">
           <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-left hover:text-white transition-colors">
             COMPANY {renderSortIcon("ticker")}

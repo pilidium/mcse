@@ -163,7 +163,7 @@ export default function MarketsPage() {
       </div>
 
       {/* Desktop: full sortable table */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="grid grid-cols-[2fr_80px_110px_80px_70px_70px_70px_100px] gap-3 px-4 py-2 border-b border-white/12">
           <button onClick={() => toggleSort("ticker")} className="text-[8px] tracking-[0.15em] text-white/30 uppercase text-left hover:text-white transition-colors">
             COMPANY {sortIcon("ticker")}
@@ -225,7 +225,7 @@ export default function MarketsPage() {
       </div>
 
       {/* Mobile: card view with sort + tappable value */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <div className="flex items-center justify-between mb-4 relative">
           <button
             onClick={() => setMobileSortOpen(!mobileSortOpen)}

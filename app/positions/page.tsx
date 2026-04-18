@@ -36,7 +36,7 @@ export default function PositionsPage() {
         ))}
       </div>
 
-      <div className="md:grid md:grid-cols-[13fr_7fr] md:gap-8">
+      <div className="lg:grid lg:grid-cols-[13fr_7fr] lg:gap-8">
       <div>
 
       {pageTab === "ORDERS" ? (
@@ -53,7 +53,7 @@ export default function PositionsPage() {
               </h2>
 
               {/* Mobile: card list */}
-              <div className="md:hidden space-y-2">
+              <div className="lg:hidden space-y-2">
                 {orders.map((order) => (
                   <div key={order.id}>
                     <Link
@@ -86,7 +86,7 @@ export default function PositionsPage() {
               </div>
 
               {/* Desktop: table */}
-              <div className="hidden md:block">
+              <div className="hidden lg:block">
                 <div className="grid grid-cols-[60px_1fr_100px_80px_120px_90px] gap-4 px-4 py-2 border-b border-white/12">
                   <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase">TYPE</span>
                   <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase">STOCK</span>
@@ -197,7 +197,7 @@ export default function PositionsPage() {
             </div>
 
             {/* Mobile: card list */}
-            <div className="md:hidden space-y-2">
+            <div className="lg:hidden space-y-2">
               {positions.map((pos) => (
                 <div key={pos.ticker}>
                   <Link
@@ -225,7 +225,7 @@ export default function PositionsPage() {
             </div>
 
             {/* Desktop: table */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <div className="grid grid-cols-[1fr_80px_100px_100px_120px] gap-4 px-4 py-2 border-b border-white/12">
                 <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase">STOCK</span>
                 <span className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-right">QTY</span>
@@ -302,7 +302,7 @@ export default function PositionsPage() {
 
       {/* Right sidebar (desktop): P&L Summary */}
       {isLoggedIn && (
-        <aside className="hidden md:block space-y-6">
+        <aside className="hidden lg:block space-y-6">
           {/* P&L Summary card */}
           <div className="border border-white/10 p-5">
             <p className="text-[9px] tracking-[0.15em] text-white/30 mb-3">INTRADAY SUMMARY</p>

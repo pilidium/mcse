@@ -34,7 +34,7 @@ export default function Sparkline({
   const max = Math.max(...data);
   const range = max - min || 1;
   const padding = 2;
-  const topPad = interactive ? 24 : padding;
+  const topPad = interactive ? 32 : padding;
 
   // Auto-detect trend if not explicitly set
   const isPositive = positive ?? data[data.length - 1] >= data[0];
@@ -172,10 +172,10 @@ export default function Sparkline({
           {/* Price label */}
           <text
             x={hPt.x}
-            y={topPad - 12}
+            y={topPad - 14}
             textAnchor="middle"
             fill="white"
-            fontSize={10}
+            fontSize={14}
             fontWeight={600}
             fontFamily="var(--font-inter), sans-serif"
           >
@@ -185,11 +185,11 @@ export default function Sparkline({
           {hLabel && (
             <text
               x={hPt.x}
-              y={topPad - 2}
+              y={topPad - 3}
               textAnchor="middle"
               fill="white"
               fillOpacity={0.4}
-              fontSize={8}
+              fontSize={10}
               fontFamily="var(--font-inter), sans-serif"
             >
               {hLabel}

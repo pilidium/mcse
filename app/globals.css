@@ -228,7 +228,7 @@ html, body {
 .mobile-content-pad {
   padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .mobile-content-pad {
     padding-bottom: 0;
   }
@@ -238,7 +238,7 @@ html, body {
 .mobile-stock-pad {
   padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
 }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .mobile-stock-pad {
     padding-bottom: 0;
   }

@@ -12,12 +12,10 @@ export function GET() {
           namespace: "android_app",
           package_name: "com.mcse.stockmarket",
           sha256_cert_fingerprints: [
-            // Upload key fingerprint (local keystore)
+            // Play Store app signing key (Google-managed)
             "07:AD:F7:59:3B:AB:E0:9D:DE:3E:1A:BD:3E:E2:59:61:ED:47:FF:85:BB:2B:D2:02:63:BE:3D:D8:AA:AD:48:A4",
-            // Play Store app signing key — find this in Google Play Console:
-            // Release > Setup > App signing > App signing key certificate > SHA-256
-            // Replace the placeholder below with the real fingerprint to fix the browser bar.
-            "07:AD:F7:59:3B:AB:E0:9D:DE:3E:1A:BD:3E:E2:59:61:ED:47:FF:85:BB:2B:D2:02:63:BE:3D:D8:AA:AD:48:A4",
+            // Upload key (local keystore)
+            "CA:CF:F5:C1:07:8B:5D:FF:D8:B9:CA:30:9E:D2:09:B1:74:48:1F:04:ED:81:11:4A:8B:73:38:9A:E2:6C:5B:C1",
           ],
         },
       },

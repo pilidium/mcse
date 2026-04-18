@@ -125,7 +125,7 @@ export default function HoldingsPage() {
 
       {/* Mobile: Portfolio summary — Groww-style */}
       <div
-        className="md:hidden border border-white/10 p-5 mb-6"
+        className="lg:hidden border border-white/10 p-5 mb-6"
       >
         <div className="flex flex-col gap-4">
           <div>
@@ -159,12 +159,12 @@ export default function HoldingsPage() {
       </div>
 
       {/* Desktop 2-column grid */}
-      <div className="md:grid md:grid-cols-[13fr_7fr] md:gap-8">
+      <div className="lg:grid lg:grid-cols-[13fr_7fr] lg:gap-8">
         {/* Left column: Holdings list */}
         <div>
 
         {/* Desktop: Portfolio summary strip (above table) */}
-        <div className="hidden md:flex items-center gap-8 border border-white/10 p-5 mb-6">
+        <div className="hidden lg:flex items-center gap-8 border border-white/10 p-5 mb-6">
           <div className="flex-1">
             <p className="text-[9px] tracking-[0.15em] text-white/30 mb-1">CURRENT VALUE</p>
             <p className="font-[var(--font-anton)] text-2xl tracking-tight">
@@ -193,7 +193,7 @@ export default function HoldingsPage() {
         </div>
 
         {/* Mobile: Card list */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <div className="flex items-center gap-3 mb-3 relative">
             <button
               onClick={() => setSortOpen(!sortOpen)}
@@ -301,7 +301,7 @@ export default function HoldingsPage() {
         </div>
 
         {/* Desktop: Table with sortable headers */}
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <div className="grid grid-cols-[1fr_80px_100px_100px_120px] gap-4 px-4 py-2 border-b border-white/12">
             <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-left hover:text-white transition-colors">
               COMPANY {sortIcon("ticker")}
@@ -361,7 +361,7 @@ export default function HoldingsPage() {
         </div>
 
         {/* Right sidebar (desktop): Order panel + Transactions */}
-        <aside className="hidden md:block space-y-6">
+        <aside className="hidden lg:block space-y-6">
           {/* Order panel — shown when a holding is selected */}
           {selectedStock && (
             <div className="border border-white/10 p-5">

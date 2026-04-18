@@ -156,11 +156,11 @@ export default function WatchlistPage() {
       </div>
 
       {/* Desktop 2-column grid */}
-      <div className="md:grid md:grid-cols-[3fr_2fr] md:gap-8">
+      <div className="lg:grid lg:grid-cols-[3fr_2fr] lg:gap-8">
       <div>
 
       {/* Mobile: sort + card list */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <div className="flex items-center gap-3 mb-3 relative">
           <button
             onClick={() => setSortOpen(!sortOpen)}
@@ -236,7 +236,7 @@ export default function WatchlistPage() {
       </div>
 
       {/* Desktop: Table with sortable headers */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="grid grid-cols-[1fr_80px_100px_90px_80px_120px] gap-4 px-4 py-2 border-b border-white/12">
           <button onClick={() => toggleSort("ticker")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-left hover:text-white transition-colors">
             COMPANY {renderSortIcon("ticker")}
@@ -354,7 +354,7 @@ export default function WatchlistPage() {
       </div>
 
       {/* Right sidebar (desktop): Stock preview panel */}
-      <aside className="hidden md:block" onMouseEnter={() => { if (leaveTimer.current) { clearTimeout(leaveTimer.current); leaveTimer.current = null; } }} onMouseLeave={handleMouseLeave}>
+      <aside className="hidden lg:block" onMouseEnter={() => { if (leaveTimer.current) { clearTimeout(leaveTimer.current); leaveTimer.current = null; } }} onMouseLeave={handleMouseLeave}>
         <AnimatePresence mode="wait">
         {hoveredStock ? (
           <motion.div

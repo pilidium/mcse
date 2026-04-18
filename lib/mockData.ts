@@ -1,22 +1,47 @@
 ﻿// ─── Indian Market Indices ───────────────────────────────
 export interface IndexData {
   name: string;
+  slug: string;
   value: number;
   change: number;
   changePercent: number;
   sparkline: number[];
+  description: string;
+  constituents: string[];
+  chartData: Record<string, { day: string; price: number }[]>;
+}
+
+function generateIndexChart(base: number): Record<string, { day: string; price: number }[]> {
+  const rng = (p: number, pct: number) => +(p * (1 + (Math.random() - 0.5) * pct)).toFixed(2);
+  const oneH: { day: string; price: number }[] = [];
+  for (let m = 0; m < 60; m++) oneH.push({ day: `10:${String(m).padStart(2, "0")}`, price: rng(base, 0.004) });
+  oneH[oneH.length - 1].price = base;
+  const threeH: { day: string; price: number }[] = [];
+  for (let h = 10; h <= 12; h++) for (let m = 0; m < 60; m++) threeH.push({ day: `${h}:${String(m).padStart(2, "0")}`, price: rng(base, 0.008) });
+  threeH[threeH.length - 1].price = base;
+  const oneD: { day: string; price: number }[] = [];
+  for (let h = 10; h <= 17; h++) { oneD.push({ day: `${h}:00`, price: rng(base, 0.012) }); if (h < 17) oneD.push({ day: `${h}:30`, price: rng(base, 0.012) }); }
+  oneD.push({ day: "17:30", price: base });
+  return {
+    "1H": oneH, "3H": threeH, "1D": oneD,
+    "3D": [{ day: "APR 24", price: rng(base, 0.02) }, { day: "24 EVE", price: rng(base, 0.015) }, { day: "APR 25", price: rng(base, 0.012) }, { day: "25 EVE", price: rng(base, 0.01) }, { day: "APR 26", price: rng(base, 0.008) }, { day: "26 EVE", price: rng(base, 0.005) }, { day: "CLOSE", price: base }],
+    "ALL": [{ day: "APR 24", price: rng(base, 0.03) }, { day: "24 AFT", price: rng(base, 0.025) }, { day: "24 EVE", price: rng(base, 0.02) }, { day: "APR 25", price: rng(base, 0.025) }, { day: "25 AFT", price: rng(base, 0.02) }, { day: "25 EVE", price: rng(base, 0.015) }, { day: "APR 26", price: rng(base, 0.015) }, { day: "26 AFT", price: rng(base, 0.01) }, { day: "26 EVE", price: rng(base, 0.005) }, { day: "CLOSE", price: base }],
+  };
 }
 
 export const indices: IndexData[] = [
-  { name: "AEON 50", value: 23519.35, change: 187.45, changePercent: 0.80, sparkline: [23200, 23280, 23350, 23410, 23460, 23500, 23519] },
-  { name: "AEDEX", value: 77478.93, change: 602.75, changePercent: 0.78, sparkline: [76800, 76950, 77100, 77250, 77350, 77420, 77478] },
-  { name: "BANKAEON", value: 50892.15, change: -123.40, changePercent: -0.24, sparkline: [51050, 51010, 50980, 50950, 50920, 50900, 50892] },
-  { name: "MIDCAPEON", value: 11245.60, change: 89.30, changePercent: 0.80, sparkline: [11140, 11160, 11180, 11200, 11220, 11238, 11245] },
-  { name: "FINAEON", value: 23412.80, change: 45.20, changePercent: 0.19, sparkline: [23360, 23370, 23380, 23390, 23400, 23408, 23412] },
-  { name: "ITAEON", value: 38642.10, change: 312.80, changePercent: 0.82, sparkline: [38280, 38350, 38420, 38480, 38550, 38610, 38642] },
-  { name: "AUTOAEON", value: 21834.50, change: -78.60, changePercent: -0.36, sparkline: [21920, 21900, 21880, 21860, 21848, 21840, 21834] },
-  { name: "PHARMAEON", value: 17298.40, change: 142.30, changePercent: 0.83, sparkline: [17120, 17150, 17190, 17220, 17255, 17280, 17298] },
+  { name: "AEON 50", slug: "aeon-50", value: 23519.35, change: 187.45, changePercent: 0.80, sparkline: [23200, 23280, 23350, 23410, 23460, 23500, 23519], description: "The AEON 50 index tracks the 50 largest and most liquid companies listed on the MCSE. It is the benchmark index for the exchange.", constituents: ["ENAI", "ECLOUD", "CELBIO", "MTEK", "CELENR", "ESOFT", "GMAUTO", "MSMEDIA", "MACAD", "MSSTD"], chartData: generateIndexChart(23519.35) },
+  { name: "AEDEX", slug: "aedex", value: 77478.93, change: 602.75, changePercent: 0.78, sparkline: [76800, 76950, 77100, 77250, 77350, 77420, 77478], description: "The AEDEX is a broad-market index covering all listed stocks on the MCSE, weighted by market capitalisation.", constituents: ["ENAI", "ECLOUD", "CELBIO", "MTEK", "CELENR", "ESOFT", "GMAUTO", "MSMEDIA", "MACAD", "CELRES", "ERLAB", "MSSTD", "GMRACE", "ERPRESS", "MSDIGI", "MPUB", "ERLEARN", "GMSERV", "INMKT", "INDATA", "INCON"], chartData: generateIndexChart(77478.93) },
+  { name: "BANKAEON", slug: "bankaeon", value: 50892.15, change: -123.40, changePercent: -0.24, sparkline: [51050, 51010, 50980, 50950, 50920, 50900, 50892], description: "BANKAEON is the financial-sector index tracking companies in banking, financial services, and insurance.", constituents: ["INDATA", "INMKT", "INCON"], chartData: generateIndexChart(50892.15) },
+  { name: "MIDCAPEON", slug: "midcapeon", value: 11245.60, change: 89.30, changePercent: 0.80, sparkline: [11140, 11160, 11180, 11200, 11220, 11238, 11245], description: "MIDCAPEON tracks mid-cap companies on the MCSE — those ranked 11th to 21st by market capitalisation.", constituents: ["CELRES", "ERLAB", "MSSTD", "GMRACE", "ERPRESS", "MSDIGI", "MPUB", "ERLEARN", "GMSERV", "INMKT", "INDATA"], chartData: generateIndexChart(11245.60) },
+  { name: "FINAEON", slug: "finaeon", value: 23412.80, change: 45.20, changePercent: 0.19, sparkline: [23360, 23370, 23380, 23390, 23400, 23408, 23412], description: "FINAEON is the financial analytics index, covering data, consulting, and market research firms on the MCSE.", constituents: ["INDATA", "INMKT", "INCON"], chartData: generateIndexChart(23412.80) },
+  { name: "ITAEON", slug: "itaeon", value: 38642.10, change: 312.80, changePercent: 0.82, sparkline: [38280, 38350, 38420, 38480, 38550, 38610, 38642], description: "ITAEON tracks information technology companies on the MCSE, including software, cloud, and AI firms.", constituents: ["ENAI", "ECLOUD", "ESOFT", "MTEK"], chartData: generateIndexChart(38642.10) },
+  { name: "AUTOAEON", slug: "autoaeon", value: 21834.50, change: -78.60, changePercent: -0.36, sparkline: [21920, 21900, 21880, 21860, 21848, 21840, 21834], description: "AUTOAEON is the automotive-sector index tracking racing, automotive manufacturing, and services companies.", constituents: ["GMAUTO", "GMRACE", "GMSERV"], chartData: generateIndexChart(21834.50) },
+  { name: "PHARMAEON", slug: "pharmaeon", value: 17298.40, change: 142.30, changePercent: 0.83, sparkline: [17120, 17150, 17190, 17220, 17255, 17280, 17298], description: "PHARMAEON covers science, research, and biotech companies on the MCSE.", constituents: ["CELBIO", "CELRES", "CELENR", "ERLAB"], chartData: generateIndexChart(17298.40) },
 ];
+
+export const indexDirectory: Record<string, IndexData> = {};
+for (const idx of indices) indexDirectory[idx.slug] = idx;
 
 // ─── Parent Companies (holding companies, not traded) ───
 export interface ParentCompany {

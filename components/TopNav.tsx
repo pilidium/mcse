@@ -83,7 +83,7 @@ function TopNavInner() {
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         // Desktop handles ⌘K inside DesktopSearch (focuses the inline input);
         // only intercept on mobile where there's no inline input.
-        if (window.matchMedia("(max-width: 767px)").matches) {
+        if (window.matchMedia("(max-width: 1023px)").matches) {
           e.preventDefault();
           setSearchOpen(true);
         }
@@ -107,7 +107,7 @@ function TopNavInner() {
     <>
       {/* Desktop + Mobile Top Nav */}
       <nav className="relative z-10 bg-bg/95 backdrop-blur-md border-b border-white/10" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <div className="flex items-center justify-between h-14 px-4 md:px-12">
+        <div className="flex items-center justify-between h-14 px-4 md:px-6 lg:px-12">
           {/* Left: Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
             <Image
@@ -124,7 +124,7 @@ function TopNavInner() {
           </Link>
 
           {/* Center: Desktop Tabs */}
-          <div className="hidden md:flex items-stretch h-full gap-0 ml-6 md:ml-10">
+          <div className="hidden lg:flex items-stretch h-full gap-0 ml-6 lg:ml-10">
             {desktopTabs.map((tab) => {
               const active = isActive(tab.href);
               return (
@@ -150,13 +150,13 @@ function TopNavInner() {
               whileTap={{ scale: 0.98 }}
               onClick={() => setSearchOpen(true)}
               aria-label="Open search"
-              className="md:hidden flex items-center gap-2 h-11 px-3 border border-white/20 hover:border-white/60 transition-colors duration-300"
+              className="lg:hidden flex items-center gap-2 h-11 px-3 border border-white/20 hover:border-white/60 transition-colors duration-300"
             >
               <Search size={14} strokeWidth={1.5} />
             </motion.button>
 
             {/* Desktop: inline search input with portaled results dropdown */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <DesktopSearch />
             </div>
 
@@ -208,7 +208,7 @@ function TopNavInner() {
       </nav>
 
       {/* Mobile bottom tab bar — 4 tabs, 56px tall */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg/95 backdrop-blur-md border-t border-white/10 mobile-bottom-bar">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg/95 backdrop-blur-md border-t border-white/10 mobile-bottom-bar">
         <div className="flex items-center justify-around h-14 px-2">
           {mobileTabs.map((tab) => {
             const active = isActive(tab.href);

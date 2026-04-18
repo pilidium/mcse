@@ -147,7 +147,7 @@ export default function ScreenerPage() {
       </AnimatePresence>
 
       {/* Desktop table */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="grid grid-cols-[2fr_1fr_1fr_1fr_80px] gap-2 px-4 py-2 border-b border-white/8 text-[9px] tracking-[0.15em] text-white/30">
           <button onClick={() => toggleSort("ticker")} className="flex items-center gap-1 text-left hover:text-white transition-colors">TICKER {renderSortIcon("ticker")}</button>
           <button onClick={() => toggleSort("price")} className="flex items-center gap-1 text-right justify-end hover:text-white transition-colors">PRICE {renderSortIcon("price")}</button>
@@ -184,7 +184,7 @@ export default function ScreenerPage() {
       </div>
 
       {/* Mobile cards */}
-      <div className="md:hidden space-y-2">
+      <div className="lg:hidden space-y-2">
         <div className="flex items-center gap-3 mb-3 relative">
           <button
             onClick={() => setMobileSortOpen(!mobileSortOpen)}

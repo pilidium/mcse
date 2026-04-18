@@ -149,7 +149,7 @@ export default function ExplorePage() {
             </div>
 
             {/* Main grid */}
-            <div className="grid md:grid-cols-[3fr_2fr]">
+            <div className="grid lg:grid-cols-[3fr_2fr]">
               {/* Left: Copy */}
               <div className="px-8 md:px-12 pt-6 pb-8 md:pb-12">
                 <motion.h1
@@ -232,7 +232,7 @@ export default function ExplorePage() {
               </div>
 
               {/* Right: Stats grid (desktop) */}
-              <div className="hidden md:grid grid-cols-2 border-l border-white/6">
+              <div className="hidden lg:grid grid-cols-2 border-l border-white/6">
                 {[
                   { label: "SCHEDULE", value: "3 EVENINGS", sub: "8:30 PM onwards" },
                   { label: "ENTRY FEE", value: "\u20B9100", sub: "Free for MU" },
@@ -252,7 +252,7 @@ export default function ExplorePage() {
             </div>
 
             {/* Mobile stats strip */}
-            <div className="md:hidden grid grid-cols-4 border-t border-white/6">
+            <div className="lg:hidden grid grid-cols-4 border-t border-white/6">
               {[
                 { label: "SCHEDULE", value: "3 EVES" },
                 { label: "ENTRY", value: "\u20B9100" },
@@ -305,7 +305,7 @@ export default function ExplorePage() {
       </motion.div>
 
       {/* Desktop: 2-column grid (60% / 40%) */}
-      <div className="md:grid md:grid-cols-[3fr_2fr] md:gap-8">
+      <div className="lg:grid lg:grid-cols-[3fr_2fr] lg:gap-8">
         {/* LEFT COLUMN */}
         <div className="min-w-0">
           {/* TOP MOVERS TODAY */}
@@ -335,13 +335,13 @@ export default function ExplorePage() {
                   </button>
                 ))}
               </div>
-              <Link href="/markets" className="hidden md:flex items-center gap-1 text-[9px] tracking-[0.12em] text-white/30 hover:text-white transition-colors shrink-0">
+              <Link href="/markets" className="hidden lg:flex items-center gap-1 text-[9px] tracking-[0.12em] text-white/30 hover:text-white transition-colors shrink-0">
                 SEE ALL <ChevronRight size={11} />
               </Link>
             </div>
 
             {/* Mobile: sort + card list */}
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <div className="flex items-center gap-3 mb-3 relative">
                 <button
                   onClick={() => setMoverSortOpen(!moverSortOpen)}
@@ -419,7 +419,7 @@ export default function ExplorePage() {
             </div>
 
             {/* Desktop table with sortable headers */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <div className="grid grid-cols-[1fr_100px_120px_80px] gap-4 px-4 py-2 border-b border-white/12">
                 <button onClick={() => toggleMoverSort("ticker")} className="text-[9px] tracking-[0.2em] text-white/30 uppercase text-left hover:text-white transition-colors">
                   COMPANY {sortIcon("ticker")}
@@ -553,7 +553,7 @@ export default function ExplorePage() {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-            className="md:hidden mt-6 mb-8"
+            className="lg:hidden mt-6 mb-8"
           >
             <Link href="/news" className="flex items-center justify-between mb-5 group">
               <h2 className="font-[var(--font-anton)] text-base tracking-[0.1em] uppercase">
@@ -584,7 +584,7 @@ export default function ExplorePage() {
         </div>
 
         {/* RIGHT COLUMN (desktop only) */}
-        <aside className="hidden md:block border-l border-white/8 pl-8 min-w-0">
+        <aside className="hidden lg:block border-l border-white/8 pl-8 min-w-0">
           {/* Latest News */}
           <motion.div
             initial={{ opacity: 0, y: 4 }}

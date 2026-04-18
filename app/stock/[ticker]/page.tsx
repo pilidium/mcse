@@ -117,7 +117,7 @@ export default function StockDetailPage({
   const chartValues = chartData.map((d: { price: number }) => d.price);
 
   return (
-    <div className="mobile-stock-pad md:pb-0">
+    <div className="mobile-stock-pad lg:pb-0">
       {/* Portaled overlays: toast + mobile buy/sell bar. Escapes any ancestor
           containing block so they anchor to the viewport. */}
       <Portal>
@@ -140,7 +140,7 @@ export default function StockDetailPage({
           )}
         </AnimatePresence>
 
-        <div className="fixed left-0 right-0 z-[55] md:hidden border-t border-white/10 bg-bg/95 backdrop-blur-md" style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}>
+        <div className="fixed left-0 right-0 z-[55] lg:hidden border-t border-white/10 bg-bg/95 backdrop-blur-md" style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}>
           <div className="flex">
             <motion.button
               whileTap={{ scale: 0.97 }}
@@ -218,9 +218,9 @@ export default function StockDetailPage({
       </div>
 
       {/* Desktop: 2-column grid (70% / 30%) */}
-      <div className="md:grid md:grid-cols-[7fr_3fr] md:gap-0 py-6">
+      <div className="lg:grid lg:grid-cols-[7fr_3fr] lg:gap-0 py-6">
         {/* Main content - Col 1: Chart + Price */}
-        <div className="min-w-0 md:pr-6">
+        <div className="min-w-0 lg:pr-6">
           {/* Price */}
           <div
             className="mb-7 md:mb-8"
@@ -608,7 +608,7 @@ export default function StockDetailPage({
         </div>
 
         {/* Right column (desktop): Sticky order panel + order book + news + orders */}
-        <aside className="hidden md:block border-l border-white/8 pl-6">
+        <aside className="hidden lg:block border-l border-white/8 pl-6">
           <div className="space-y-6">
             <div>
             <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-3">PLACE ORDER</p>
@@ -860,14 +860,14 @@ export default function StockDetailPage({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setMobileOrderOpen(false)}
-              className="fixed inset-0 z-[60] bg-black/60 md:hidden"
+              className="fixed inset-0 z-[60] bg-black/60 lg:hidden"
             />
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "tween", duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-              className="fixed bottom-0 left-0 right-0 z-[60] md:hidden bg-bg border-t border-white/10 max-h-[85dvh] overflow-hidden flex flex-col"
+              className="fixed bottom-0 left-0 right-0 z-[60] lg:hidden bg-bg border-t border-white/10 max-h-[85dvh] overflow-hidden flex flex-col"
               style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
             >
               {/* Panel header */}
