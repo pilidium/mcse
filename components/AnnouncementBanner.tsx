@@ -10,7 +10,7 @@ export default function AnnouncementBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dismissed, setDismissed] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval>>();
+  const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   useEffect(() => {
     async function fetchAnnouncements() {
