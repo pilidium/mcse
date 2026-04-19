@@ -44,4 +44,4 @@ cd android-app
 ./build.ps1
 ```
 
-See [`android-app/README.md`](android-app/README.md) for full setup and build instructions.
+See [`android-app/README.md`](android-app/README.md) for full setup.
