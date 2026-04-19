@@ -357,7 +357,9 @@ export async function toggleMarketStatus(open: boolean): Promise<ApiResponse<Mar
   );
 }
 
-export async function getMarketDay(): Promise<ApiResponse<{ dayNumber: number; dayTickCounter: number; ticksPerDay: number }>> {
+export type MarketDay = { dayNumber: number; dayTickCounter: number; ticksPerDay: number };
+
+export async function getMarketDay(): Promise<ApiResponse<MarketDay>> {
   return apiFetch(
     "/admin/market/day",
     {},

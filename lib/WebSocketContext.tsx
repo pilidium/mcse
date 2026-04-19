@@ -119,8 +119,8 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 
   const wsRef = useRef<WebSocket | null>(null);
   const subscriptionsRef = useRef<Set<string>>(new Set());
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const mockIntervalRef = useRef<ReturnType<typeof setInterval>>();
+const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const mockIntervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   // Connect to WebSocket
   const connect = useCallback(() => {

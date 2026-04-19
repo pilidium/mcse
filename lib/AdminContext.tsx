@@ -99,7 +99,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
       if (statusRes.data) {
         setMarketStatus(statusRes.data);
-        setMarketOpen(statusRes.data.marketOpen);
+        setMarketOpen(statusRes.data.isOpen);
       }
       if (dayRes.data) {
         setMarketDay(dayRes.data);
@@ -118,7 +118,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     ]);
     if (statusRes.data) {
       setMarketStatus(statusRes.data);
-      setMarketOpen(statusRes.data.marketOpen);
+      setMarketOpen(statusRes.data.isOpen);
     }
     if (dayRes.data) {
       setMarketDay(dayRes.data);
@@ -136,7 +136,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       setMarketOpen(marketOpen);
     } else if (res.data) {
       setMarketStatus(res.data);
-      setMarketOpen(res.data.marketOpen);
+      setMarketOpen(res.data.isOpen);
     }
   }, [marketOpen]);
 
