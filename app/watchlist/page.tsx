@@ -3,11 +3,12 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, Plus, X, Eye, ArrowUpDown } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, X, Eye, ArrowUpDown, Bell, BellOff, TrendingUp, TrendingDown } from "lucide-react";
 import Sparkline from "@/components/Sparkline";
 import LoginPrompt from "@/components/LoginPrompt";
 import { useAuth } from "@/lib/AuthContext";
 import { watchlist } from "@/lib/mockData";
+import { updatePriceAlerts } from "@/lib/api";
 
 type SortKey = "ticker" | "price" | "dayChangePercent" | "volume";
 type SortDir = "asc" | "desc";
@@ -57,11 +58,46 @@ export default function WatchlistPage() {
   const [hoveredTicker, setHoveredTicker] = useState<string | null>(null);
   const hoveredStock = watchlist.find(s => s.ticker === hoveredTicker);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // Price alerts state
+  const [alertsExpanded, setAlertsExpanded] = useState(false);
+  const [alertAbove, setAlertAbove] = useState<string>("");
+  const [alertBelow, setAlertBelow] = useState<string>("");
+  const [alertSaving, setAlertSaving] = useState(false);
+  const [alerts, setAlerts] = useState<Record<string, { above?: number; below?: number }>>({});
+
+  const handleSaveAlerts = async (ticker: string) => {
+    setAlertSaving(true);
+    const above = alertAbove ? parseFloat(alertAbove) : undefined;
+    const below = alertBelow ? parseFloat(alertBelow) : undefined;
+    await updatePriceAlerts(ticker, above, below);
+    setAlerts((prev) => ({ ...prev, [ticker]: { above, below } }));
+    setAlertSaving(false);
+    setAlertsExpanded(false);
+  };
+
+  const clearAlerts = async (ticker: string) => {
+    setAlertSaving(true);
+    await updatePriceAlerts(ticker, null, null);
+    setAlerts((prev) => {
+      const copy = { ...prev };
+      delete copy[ticker];
+      return copy;
+    });
+    setAlertAbove("");
+    setAlertBelow("");
+    setAlertSaving(false);
+  };
 
   const handleMouseEnter = useCallback((ticker: string) => {
     if (leaveTimer.current) { clearTimeout(leaveTimer.current); leaveTimer.current = null; }
     setHoveredTicker(ticker);
-  }, []);
+    // Pre-fill alerts if they exist
+    const existing = alerts[ticker];
+    setAlertAbove(existing?.above?.toString() ?? "");
+    setAlertBelow(existing?.below?.toString() ?? "");
+    setAlertsExpanded(false);
+  }, [alerts]);
 
   const handleMouseLeave = useCallback(() => {
     leaveTimer.current = setTimeout(() => setHoveredTicker(null), 300);
@@ -407,6 +443,114 @@ export default function WatchlistPage() {
             >
               VIEW DETAILS
             </Link>
+
+            {/* Price Alerts Section */}
+            <div className="mt-4 border-t border-white/8 pt-4">
+              <button
+                onClick={() => setAlertsExpanded(!alertsExpanded)}
+                className="flex items-center justify-between w-full text-left"
+              >
+                <div className="flex items-center gap-2">
+                  {alerts[hoveredStock.ticker] ? (
+                    <Bell size={12} className="text-amber-400" />
+                  ) : (
+                    <BellOff size={12} className="text-white/30" />
+                  )}
+                  <span className="text-[10px] tracking-[0.1em] text-white/50">PRICE ALERTS</span>
+                  {alerts[hoveredStock.ticker] && (
+                    <span className="text-[8px] tracking-[0.1em] bg-amber-400/20 text-amber-400 px-1.5 py-0.5">ACTIVE</span>
+                  )}
+                </div>
+                {alertsExpanded ? <ChevronUp size={12} className="text-white/30" /> : <ChevronDown size={12} className="text-white/30" />}
+              </button>
+              
+              <AnimatePresence>
+                {alertsExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-4 space-y-3">
+                      {/* Alert above */}
+                      <div>
+                        <label className="flex items-center gap-1.5 text-[9px] tracking-[0.1em] text-white/30 mb-1.5">
+                          <TrendingUp size={10} className="text-up" />
+                          ALERT WHEN ABOVE
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white/30 text-[11px]">{"\u20B9"}</span>
+                          <input
+                            type="number"
+                            value={alertAbove}
+                            onChange={(e) => setAlertAbove(e.target.value)}
+                            placeholder={String(Math.round(hoveredStock.price * 1.05))}
+                            className="flex-1 h-9 bg-transparent border border-white/15 px-3 text-[12px] text-white placeholder:text-white/15 outline-none focus:border-white/40 transition-colors"
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Alert below */}
+                      <div>
+                        <label className="flex items-center gap-1.5 text-[9px] tracking-[0.1em] text-white/30 mb-1.5">
+                          <TrendingDown size={10} className="text-down" />
+                          ALERT WHEN BELOW
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white/30 text-[11px]">{"\u20B9"}</span>
+                          <input
+                            type="number"
+                            value={alertBelow}
+                            onChange={(e) => setAlertBelow(e.target.value)}
+                            placeholder={String(Math.round(hoveredStock.price * 0.95))}
+                            className="flex-1 h-9 bg-transparent border border-white/15 px-3 text-[12px] text-white placeholder:text-white/15 outline-none focus:border-white/40 transition-colors"
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Action buttons */}
+                      <div className="flex gap-2 pt-2">
+                        <button
+                          onClick={() => handleSaveAlerts(hoveredStock.ticker)}
+                          disabled={alertSaving || (!alertAbove && !alertBelow)}
+                          className="flex-1 h-9 text-[9px] tracking-[0.12em] bg-white text-black font-medium hover:bg-white/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {alertSaving ? "SAVING..." : "SET ALERTS"}
+                        </button>
+                        {alerts[hoveredStock.ticker] && (
+                          <button
+                            onClick={() => clearAlerts(hoveredStock.ticker)}
+                            disabled={alertSaving}
+                            className="h-9 px-3 text-[9px] tracking-[0.1em] border border-red-400/30 text-red-400 hover:bg-red-400/10 disabled:opacity-30 transition-colors"
+                          >
+                            CLEAR
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* Current alerts display */}
+                      {alerts[hoveredStock.ticker] && (
+                        <div className="pt-2 border-t border-white/8 space-y-1.5">
+                          <p className="text-[8px] tracking-[0.15em] text-white/20">CURRENT ALERTS</p>
+                          {alerts[hoveredStock.ticker].above && (
+                            <p className="text-[10px] text-white/40">
+                              <span className="text-up">{"\u25B2"}</span> Above {"\u20B9"}{alerts[hoveredStock.ticker].above?.toLocaleString("en-IN")}
+                            </p>
+                          )}
+                          {alerts[hoveredStock.ticker].below && (
+                            <p className="text-[10px] text-white/40">
+                              <span className="text-down">{"\u25BC"}</span> Below {"\u20B9"}{alerts[hoveredStock.ticker].below?.toLocaleString("en-IN")}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
         ) : (
           <motion.div

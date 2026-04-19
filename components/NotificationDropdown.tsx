@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { TrendingUp, TrendingDown, Info, Activity, CheckCheck, ArrowLeft } from "lucide-react";
+import { TrendingUp, TrendingDown, Info, Activity, CheckCheck, ArrowLeft, Bell, ShoppingCart, Calendar } from "lucide-react";
 import Portal from "@/components/Portal";
+import { getNotifications, markNotificationRead, markAllNotificationsRead, Notification as ApiNotification } from "@/lib/api";
 
-type NotifCategory = "PRICE ALERT" | "VOLUME" | "INFO";
+type NotifCategory = "PRICE ALERT" | "VOLUME" | "INFO" | "ORDER" | "EVENT" | "MARKET" | "SYSTEM";
 
-interface Notification {
-  type: "gain" | "loss" | "info";
+interface DisplayNotification {
+  id: string;
+  type: "gain" | "loss" | "info" | "order" | "event";
   category: NotifCategory;
   ticker: string;
   text: string;
@@ -18,18 +20,77 @@ interface Notification {
   read: boolean;
 }
 
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  { type: "gain", category: "PRICE ALERT", ticker: "CELESTE", text: "CELESTE is up +1.79% today", time: "2m ago", group: "TODAY", read: false },
-  { type: "loss", category: "PRICE ALERT", ticker: "ERUDITE", text: "ERUDITE dropped -0.78%", time: "5m ago", group: "TODAY", read: false },
-  { type: "info", category: "INFO", ticker: "MATHSOC", text: "MATHSOC crossed \u20B92,890 resistance", time: "8m ago", group: "TODAY", read: true },
-  { type: "gain", category: "VOLUME", ticker: "GASMONKEYS", text: "GASMONKEYS volume spike detected", time: "12m ago", group: "TODAY", read: false },
-  { type: "info", category: "INFO", ticker: "", text: "Market hours: 9:15 AM \u2013 3:30 PM", time: "1h ago", group: "EARLIER", read: true },
-  { type: "loss", category: "PRICE ALERT", ticker: "ERUDITE", text: "ERUDITE hit 52-week low at \u20B9472", time: "Yesterday", group: "EARLIER", read: true },
-];
+function formatTimeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 1) return "now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays === 1) return "Yesterday";
+  return `${diffDays}d ago`;
+}
+
+function mapApiToDisplay(n: ApiNotification): DisplayNotification {
+  const time = formatTimeAgo(n.createdAt);
+  const diffMs = new Date().getTime() - new Date(n.createdAt).getTime();
+  const isToday = diffMs < 86400000;
+  
+  let type: DisplayNotification["type"] = "info";
+  let category: NotifCategory = "INFO";
+  
+  if (n.kind === "ORDER_FILLED" || n.kind === "ORDER_PARTIAL" || n.kind === "ORDER_CANCELLED") {
+    type = "order";
+    category = "ORDER";
+  } else if (n.kind === "PRICE_ALERT") {
+    type = n.body.toLowerCase().includes("up") || n.body.toLowerCase().includes("crossed") ? "gain" : "loss";
+    category = "PRICE ALERT";
+  } else if (n.kind === "CORPORATE_EVENT" || n.kind === "NEWS_ALERT") {
+    type = "event";
+    category = "EVENT";
+  } else if (n.kind === "MARKET_EVENT" || n.kind === "DAY_START" || n.kind === "DAY_END" || n.kind === "CIRCUIT_BREAKER") {
+    type = "info";
+    category = "MARKET";
+  } else if (n.kind === "IPO_ALLOTMENT" || n.kind === "IPO_REFUND") {
+    type = "order";
+    category = "ORDER";
+  } else {
+    type = "info";
+    category = "SYSTEM";
+  }
+  
+  return {
+    id: n.notificationId,
+    type,
+    category,
+    ticker: n.relatedTicker || "",
+    text: n.body,
+    time,
+    group: isToday ? "TODAY" : "EARLIER",
+    read: n.isRead,
+  };
+}
 
 export default function NotificationDropdown({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<DisplayNotification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchNotifications = useCallback(async () => {
+    const res = await getNotifications();
+    if (res.data) {
+      setNotifications(res.data.map(mapApiToDisplay));
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -45,17 +106,28 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
   const todayNotifs = notifications.filter((n) => n.group === "TODAY");
   const earlierNotifs = notifications.filter((n) => n.group === "EARLIER");
 
-  const markAllRead = () => {
+  const markAllRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    await markAllNotificationsRead();
+  };
+
+  const markRead = async (id: string) => {
+    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+    await markNotificationRead(id);
   };
 
   const iconFor = (type: string) => {
     if (type === "gain") return <TrendingUp size={13} className="text-up" />;
     if (type === "loss") return <TrendingDown size={13} className="text-down" />;
+    if (type === "order") return <ShoppingCart size={13} className="text-blue-400" />;
+    if (type === "event") return <Calendar size={13} className="text-amber-400" />;
     return <Info size={13} className="text-white/30" />;
   };
 
-  const renderNotification = (n: Notification, i: number) => {
+  const renderNotification = (n: DisplayNotification, i: number) => {
+    const handleClick = () => {
+      if (!n.read) markRead(n.id);
+    };
     const inner = (
       <motion.div
         initial={{ opacity: 0, y: 4 }}
@@ -84,11 +156,11 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
     );
 
     return n.ticker ? (
-      <Link key={i} href={`/stock/${n.ticker}`} onClick={onClose}>
+      <Link key={n.id} href={`/stock/${n.ticker}`} onClick={() => { handleClick(); onClose(); }}>
         {inner}
       </Link>
     ) : (
-      <div key={i}>{inner}</div>
+      <div key={n.id} onClick={handleClick}>{inner}</div>
     );
   };
 
@@ -100,20 +172,34 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
 
   const listContent = (
     <>
-      {todayNotifs.length > 0 && (
+      {loading ? (
+        <div className="p-8 text-center">
+          <Bell size={20} className="mx-auto text-white/10 mb-3 animate-pulse" />
+          <p className="text-[10px] tracking-[0.1em] text-white/20">Loading notifications...</p>
+        </div>
+      ) : notifications.length === 0 ? (
+        <div className="p-8 text-center">
+          <Bell size={20} className="mx-auto text-white/10 mb-3" />
+          <p className="text-[10px] tracking-[0.1em] text-white/20">No notifications</p>
+        </div>
+      ) : (
         <>
-          {sectionHeader("TODAY")}
-          <div className="divide-y divide-white/6">
-            {todayNotifs.map((n, i) => renderNotification(n, i))}
-          </div>
-        </>
-      )}
-      {earlierNotifs.length > 0 && (
-        <>
-          {sectionHeader("EARLIER")}
-          <div className="divide-y divide-white/6">
-            {earlierNotifs.map((n, i) => renderNotification(n, i + todayNotifs.length))}
-          </div>
+          {todayNotifs.length > 0 && (
+            <>
+              {sectionHeader("TODAY")}
+              <div className="divide-y divide-white/6">
+                {todayNotifs.map((n, i) => renderNotification(n, i))}
+              </div>
+            </>
+          )}
+          {earlierNotifs.length > 0 && (
+            <>
+              {sectionHeader("EARLIER")}
+              <div className="divide-y divide-white/6">
+                {earlierNotifs.map((n, i) => renderNotification(n, i + todayNotifs.length))}
+              </div>
+            </>
+          )}
         </>
       )}
     </>

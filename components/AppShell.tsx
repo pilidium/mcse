@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import LoadingScreen from "./LoadingScreen";
 import TopNav from "./TopNav";
 import TickerTape from "./TickerTape";
+import AnnouncementBanner from "./AnnouncementBanner";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(() => {
@@ -60,6 +61,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="shrink-0 z-50">
           <TopNav />
           <TickerTape />
+          <AnnouncementBanner />
         </div>
         <main className="flex-1 overflow-y-auto relative z-10" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
           <div className="max-w-[1280px] mx-auto w-full px-4 md:px-6 lg:px-12 mobile-content-pad">

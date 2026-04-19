@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -20,9 +20,15 @@ import {
   Megaphone,
   ChevronDown,
   ChevronUp,
+  Settings,
+  Zap,
+  Timer,
+  AlertCircle,
 } from "lucide-react";
 import { useAuth, type UserRole } from "@/lib/AuthContext";
 import { useAdmin } from "@/lib/AdminContext";
+import { useDayTick } from "@/lib/WebSocketContext";
+import { injectEvent, getPlatformMetrics, PlatformMetrics, getLedger, LedgerEntry, getInvestors, Investor } from "@/lib/api";
 import {
   enigmaCompanyData,
   stockDirectory,
@@ -65,7 +71,359 @@ const activityFeed = [
   { action: "BUY ORDER", detail: "CELBIO × 20 @ ₹2,148", time: "23 min ago", color: "text-up" },
   { action: "SELL ORDER", detail: "INDATA × 15 @ ₹282", time: "45 min ago", color: "text-down" },
 ];
+/* ═══════════════════════════════════════════════════
+   Day/Tick Counter Component
+   ═══════════════════════════════════════════════════ */
+function DayTickCounter() {
+  const dayTick = useDayTick();
 
+  if (!dayTick) {
+    return (
+      <div className="border border-white/10 p-5">
+        <p className="text-[9px] tracking-[0.15em] text-white/30 mb-3">DAY / TICK COUNTER</p>
+        <div className="flex items-center gap-2 text-white/20">
+          <Timer size={14} />
+          <span className="text-[10px]">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const tickProgress = (dayTick.dayTickCounter / dayTick.ticksPerDay) * 100;
+
+  return (
+    <div className="border border-white/10 p-5">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[9px] tracking-[0.15em] text-white/30">DAY / TICK COUNTER</p>
+        <Link
+          href="/admin/config"
+          className="flex items-center gap-1 text-[9px] tracking-[0.1em] text-white/30 hover:text-white transition-colors"
+        >
+          <Settings size={11} />
+          CONFIG
+        </Link>
+      </div>
+
+      <div className="flex items-center gap-6 mb-4">
+        <div>
+          <p className="text-[8px] tracking-[0.15em] text-white/20 mb-1">DAY</p>
+          <p className="font-[var(--font-anton)] text-3xl">{dayTick.dayNumber}</p>
+        </div>
+        <div className="h-12 w-px bg-white/10" />
+        <div>
+          <p className="text-[8px] tracking-[0.15em] text-white/20 mb-1">TICK</p>
+          <p className="font-[var(--font-anton)] text-3xl">
+            {dayTick.dayTickCounter}
+            <span className="text-sm text-white/30">/{dayTick.ticksPerDay}</span>
+          </p>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1.5 bg-white/5 overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${tickProgress}%` }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className={`h-full ${dayTick.marketOpen ? "bg-up" : "bg-white/30"}`}
+        />
+      </div>
+      <p className="text-[8px] text-white/20 mt-2">
+        {dayTick.marketOpen ? "Market open" : "Market closed"} · {Math.round(tickProgress)}% of day complete
+      </p>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   Event Injection Form Component
+   ═══════════════════════════════════════════════════ */
+const EVENT_TYPES = [
+  { id: "EARNINGS_BEAT", label: "Earnings Beat", impact: "+5% to +15%", color: "text-up" },
+  { id: "EARNINGS_MISS", label: "Earnings Miss", impact: "-5% to -15%", color: "text-down" },
+  { id: "DIVIDEND_ANNOUNCE", label: "Dividend Announced", impact: "+2% to +8%", color: "text-up" },
+  { id: "SCANDAL", label: "Scandal/Controversy", impact: "-10% to -25%", color: "text-down" },
+  { id: "ACQUISITION", label: "Acquisition News", impact: "±5% to ±20%", color: "text-amber-400" },
+  { id: "REGULATORY_FINE", label: "Regulatory Fine", impact: "-3% to -12%", color: "text-down" },
+  { id: "PRODUCT_LAUNCH", label: "Product Launch", impact: "+3% to +10%", color: "text-up" },
+  { id: "LEADERSHIP_CHANGE", label: "Leadership Change", impact: "±2% to ±8%", color: "text-amber-400" },
+] as const;
+
+function EventInjectionForm() {
+  const [selectedTicker, setSelectedTicker] = useState<string>("");
+  const [selectedEvent, setSelectedEvent] = useState<string>("");
+  const [customMessage, setCustomMessage] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { listedStocks } = useAdmin();
+
+  async function handleInject() {
+    if (!selectedTicker || !selectedEvent) return;
+
+    setIsSubmitting(true);
+    setFeedback(null);
+
+    const res = await injectEvent({
+      ticker: selectedTicker,
+      eventType: selectedEvent,
+      message: customMessage || undefined,
+    });
+
+    if (res.error) {
+      setFeedback({ ok: false, text: `Failed: ${res.error}` });
+    } else {
+      setFeedback({ ok: true, text: `Event injected for ${selectedTicker}` });
+      setSelectedEvent("");
+      setCustomMessage("");
+    }
+    setIsSubmitting(false);
+    setTimeout(() => setFeedback(null), 3000);
+  }
+
+  return (
+    <div className="border border-white/10">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-white/[0.02] transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Zap size={13} className="text-amber-400/60" />
+          <p className="text-[9px] tracking-[0.15em] text-amber-400/60">INJECT MARKET EVENT</p>
+        </div>
+        {isExpanded ? <ChevronUp size={14} className="text-white/30" /> : <ChevronDown size={14} className="text-white/30" />}
+      </button>
+
+      {isExpanded && (
+        <div className="px-5 py-4 space-y-4">
+          {/* Ticker Select */}
+          <div>
+            <label className="text-[9px] tracking-[0.1em] text-white/30 block mb-2">TARGET STOCK</label>
+            <select
+              value={selectedTicker}
+              onChange={(e) => setSelectedTicker(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 px-3 py-2 text-xs text-white outline-none appearance-none cursor-pointer"
+            >
+              <option value="">Select a stock...</option>
+              {listedStocks.map((ticker) => (
+                <option key={ticker} value={ticker} className="bg-[#111]">
+                  {ticker}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Event Type */}
+          <div>
+            <label className="text-[9px] tracking-[0.1em] text-white/30 block mb-2">EVENT TYPE</label>
+            <div className="grid grid-cols-2 gap-2">
+              {EVENT_TYPES.map((evt) => (
+                <button
+                  key={evt.id}
+                  onClick={() => setSelectedEvent(evt.id)}
+                  className={`text-left px-3 py-2 border transition-all ${
+                    selectedEvent === evt.id
+                      ? "border-white/40 bg-white/5"
+                      : "border-white/10 hover:border-white/20"
+                  }`}
+                >
+                  <p className="text-[10px] text-white/60">{evt.label}</p>
+                  <p className={`text-[8px] ${evt.color}`}>{evt.impact}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Message */}
+          <div>
+            <label className="text-[9px] tracking-[0.1em] text-white/30 block mb-2">CUSTOM MESSAGE (OPTIONAL)</label>
+            <textarea
+              value={customMessage}
+              onChange={(e) => setCustomMessage(e.target.value)}
+              placeholder="e.g., Company announces strategic partnership..."
+              rows={2}
+              className="w-full bg-white/5 border border-white/10 px-3 py-2 text-xs text-white outline-none placeholder:text-white/20 resize-none"
+            />
+          </div>
+
+          {/* Feedback */}
+          {feedback && (
+            <div
+              className={`flex items-center gap-2 px-3 py-2 border text-[10px] ${
+                feedback.ok
+                  ? "bg-up/10 border-up/30 text-up"
+                  : "bg-down/10 border-down/30 text-down"
+              }`}
+            >
+              <AlertCircle size={12} />
+              {feedback.text}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            onClick={handleInject}
+            disabled={!selectedTicker || !selectedEvent || isSubmitting}
+            className={`w-full py-2.5 text-[10px] tracking-[0.15em] font-semibold transition-all ${
+              selectedTicker && selectedEvent && !isSubmitting
+                ? "bg-amber-400 text-black hover:bg-amber-300"
+                : "bg-white/10 text-white/30 cursor-not-allowed"
+            }`}
+          >
+            {isSubmitting ? "INJECTING..." : "INJECT EVENT"}
+          </button>
+
+          {/* Warning */}
+          <p className="text-[9px] text-white/20 flex items-start gap-2">
+            <AlertTriangle size={12} className="shrink-0 mt-0.5" />
+            Events affect stock prices immediately. Use with caution during live trading.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   Scandal Trigger Component
+   ═══════════════════════════════════════════════════ */
+function ScandalTrigger() {
+  const [selectedTicker, setSelectedTicker] = useState<string>("");
+  const [magnitude, setMagnitude] = useState<number>(50);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { listedStocks } = useAdmin();
+
+  const magnitudeLabel = magnitude <= 25 ? "Minor" : magnitude <= 50 ? "Moderate" : magnitude <= 75 ? "Severe" : "Critical";
+  const magnitudeColor = magnitude <= 25 ? "text-yellow-400" : magnitude <= 50 ? "text-orange-400" : magnitude <= 75 ? "text-red-400" : "text-red-600";
+
+  async function handleTrigger() {
+    if (!selectedTicker) return;
+
+    setIsSubmitting(true);
+    setFeedback(null);
+
+    try {
+      const { triggerScandal } = await import("@/lib/api");
+      const res = await triggerScandal(selectedTicker, magnitude);
+
+      if (res.error) {
+        setFeedback({ ok: false, text: `Failed: ${res.error}` });
+      } else {
+        setFeedback({ ok: true, text: `Scandal triggered for ${selectedTicker}` });
+        setSelectedTicker("");
+        setMagnitude(50);
+      }
+    } catch {
+      setFeedback({ ok: false, text: "Failed to trigger scandal" });
+    }
+    setIsSubmitting(false);
+    setTimeout(() => setFeedback(null), 3000);
+  }
+
+  return (
+    <div className="border border-red-500/20">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-center justify-between px-5 py-4 border-b border-red-500/10 hover:bg-red-500/5 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <AlertTriangle size={13} className="text-red-400/60" />
+          <p className="text-[9px] tracking-[0.15em] text-red-400/60">SCANDAL TRIGGER</p>
+        </div>
+        {isExpanded ? <ChevronUp size={14} className="text-white/30" /> : <ChevronDown size={14} className="text-white/30" />}
+      </button>
+
+      {isExpanded && (
+        <div className="px-5 py-4 space-y-4">
+          <p className="text-[10px] text-white/40 leading-relaxed">
+            Trigger a scandal event that will negatively impact the selected company&apos;s stock price and credibility score.
+          </p>
+
+          <div>
+            <label className="text-[9px] tracking-[0.1em] text-white/30 block mb-2">TARGET COMPANY</label>
+            <select
+              value={selectedTicker}
+              onChange={(e) => setSelectedTicker(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 px-3 py-2 text-xs text-white outline-none appearance-none cursor-pointer"
+            >
+              <option value="">Select a company...</option>
+              {listedStocks.map((ticker) => (
+                <option key={ticker} value={ticker} className="bg-[#111]">
+                  {ticker}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[9px] tracking-[0.1em] text-white/30">SCANDAL MAGNITUDE</label>
+              <span className={`text-[10px] font-medium ${magnitudeColor}`}>{magnitudeLabel} ({magnitude}%)</span>
+            </div>
+            <input
+              type="range"
+              min={10}
+              max={100}
+              value={magnitude}
+              onChange={(e) => setMagnitude(Number(e.target.value))}
+              className="w-full h-1.5 bg-white/10 appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-red-400"
+            />
+            <div className="flex justify-between text-[8px] text-white/20 mt-1">
+              <span>Minor</span>
+              <span>Moderate</span>
+              <span>Severe</span>
+              <span>Critical</span>
+            </div>
+          </div>
+
+          <div className="bg-red-500/5 border border-red-500/20 p-3">
+            <p className="text-[9px] text-red-400/60 mb-2">ESTIMATED IMPACT</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-[8px] text-white/30">Price Impact</p>
+                <p className="text-[11px] text-down font-medium">-{(magnitude * 0.25).toFixed(1)}% to -{(magnitude * 0.4).toFixed(1)}%</p>
+              </div>
+              <div>
+                <p className="text-[8px] text-white/30">Credibility Hit</p>
+                <p className="text-[11px] text-down font-medium">-{Math.round(magnitude * 0.2)} to -{Math.round(magnitude * 0.35)} pts</p>
+              </div>
+            </div>
+          </div>
+
+          {feedback && (
+            <div
+              className={`flex items-center gap-2 px-3 py-2 border text-[10px] ${
+                feedback.ok ? "bg-up/10 border-up/30 text-up" : "bg-down/10 border-down/30 text-down"
+              }`}
+            >
+              <AlertCircle size={12} />
+              {feedback.text}
+            </div>
+          )}
+
+          <button
+            onClick={handleTrigger}
+            disabled={!selectedTicker || isSubmitting}
+            className={`w-full py-2.5 text-[10px] tracking-[0.15em] font-semibold transition-all ${
+              selectedTicker && !isSubmitting
+                ? "bg-red-500 text-white hover:bg-red-400"
+                : "bg-white/10 text-white/30 cursor-not-allowed"
+            }`}
+          >
+            {isSubmitting ? "TRIGGERING..." : "TRIGGER SCANDAL"}
+          </button>
+
+          <p className="text-[9px] text-red-400/40 flex items-start gap-2">
+            <AlertTriangle size={12} className="shrink-0 mt-0.5" />
+            This action cannot be undone and will immediately affect the company.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    Enigma Company Admin Dashboard
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
@@ -340,8 +698,65 @@ function TotalAdminDashboard() {
   const [annContent, setAnnContent] = useState("");
   const [showAnnForm, setShowAnnForm] = useState(false);
   const [showAllActivity, setShowAllActivity] = useState(false);
+  
+  // Platform metrics from API
+  const [metrics, setMetrics] = useState<PlatformMetrics | null>(null);
+  
+  // Ledger state
+  const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>([]);
+  const [ledgerLoading, setLedgerLoading] = useState(false);
+  const [ledgerFilter, setLedgerFilter] = useState<{ ticker: string; type: string }>({ ticker: "", type: "" });
+  
+  // Investors state
+  const [investors, setInvestors] = useState<Investor[]>([]);
+  const [investorsLoading, setInvestorsLoading] = useState(false);
+  const [investorSearch, setInvestorSearch] = useState("");
+  
+  useEffect(() => {
+    (async () => {
+      const res = await getPlatformMetrics();
+      if (res.data) setMetrics(res.data);
+    })();
+  }, []);
+  
+  // Fetch ledger when on ledger tab
+  useEffect(() => {
+    if (tab === "ledger") {
+      setLedgerLoading(true);
+      (async () => {
+        const res = await getLedger({ 
+          ticker: ledgerFilter.ticker || undefined, 
+          type: ledgerFilter.type || undefined 
+        });
+        if (res.data) setLedgerEntries(res.data.entries);
+        setLedgerLoading(false);
+      })();
+    }
+  }, [tab, ledgerFilter]);
+  
+  // Fetch investors when on investors tab
+  useEffect(() => {
+    if (tab === "investors") {
+      setInvestorsLoading(true);
+      (async () => {
+        const res = await getInvestors({ search: investorSearch || undefined });
+        if (res.data) setInvestors(res.data.investors);
+        setInvestorsLoading(false);
+      })();
+    }
+  }, [tab, investorSearch]);
 
   const pendingNews = companyNews.filter((n) => n.status === "PENDING");
+
+  // Use API metrics or fallback to mock
+  const stats = metrics || {
+    totalInvestors: platformStats.totalUsers,
+    totalCompanies: platformStats.listedStocks,
+    totalTrades: platformStats.totalTrades,
+    totalVolume: platformStats.totalVolume,
+    marketCap: 0,
+    activeToday: platformStats.activeToday,
+  };
 
   function publishAnnouncement() {
     if (!annTitle.trim()) return;
@@ -357,7 +772,7 @@ function TotalAdminDashboard() {
       <>
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <h2 className="font-[var(--font-anton)] text-lg tracking-[0.08em]">ALL USERS</h2>
-          <p className="text-[10px] text-white/30 mt-0.5">{recentUsers.length} registered · {platformStats.activeToday} active today</p>
+          <p className="text-[10px] text-white/30 mt-0.5">{recentUsers.length} registered · {stats.activeToday} active today</p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="border border-white/10">
@@ -492,6 +907,199 @@ function TotalAdminDashboard() {
     );
   }
 
+  /* ——— LEDGER TAB ——— */
+  if (tab === "ledger") {
+    const typeColors: Record<string, string> = {
+      BUY: "text-up border-up/20",
+      SELL: "text-down border-down/20",
+      IPO_ALLOT: "text-blue-400 border-blue-400/20",
+      IPO_REFUND: "text-amber-400 border-amber-400/20",
+      BALANCE_ADJUST: "text-purple-400 border-purple-400/20",
+      INTRADAY_SQUAREOFF: "text-orange-400 border-orange-400/20",
+    };
+    return (
+      <>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <h2 className="font-[var(--font-anton)] text-lg tracking-[0.08em]">TRANSACTION LEDGER</h2>
+          <p className="text-[10px] text-white/30 mt-0.5">All platform transactions</p>
+        </motion.div>
+        
+        {/* Filters */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          <select
+            value={ledgerFilter.ticker}
+            onChange={(e) => setLedgerFilter(f => ({ ...f, ticker: e.target.value }))}
+            className="bg-white/5 border border-white/10 px-3 py-2 text-xs text-white outline-none appearance-none cursor-pointer min-w-[120px]"
+          >
+            <option value="">All tickers</option>
+            {listedStocks.map(t => <option key={t} value={t} className="bg-[#111]">{t}</option>)}
+          </select>
+          <select
+            value={ledgerFilter.type}
+            onChange={(e) => setLedgerFilter(f => ({ ...f, type: e.target.value }))}
+            className="bg-white/5 border border-white/10 px-3 py-2 text-xs text-white outline-none appearance-none cursor-pointer min-w-[120px]"
+          >
+            <option value="">All types</option>
+            <option value="BUY" className="bg-[#111]">BUY</option>
+            <option value="SELL" className="bg-[#111]">SELL</option>
+            <option value="IPO_ALLOT" className="bg-[#111]">IPO ALLOT</option>
+            <option value="IPO_REFUND" className="bg-[#111]">IPO REFUND</option>
+            <option value="BALANCE_ADJUST" className="bg-[#111]">BALANCE ADJUST</option>
+            <option value="INTRADAY_SQUAREOFF" className="bg-[#111]">INTRADAY SQUAREOFF</option>
+          </select>
+        </div>
+        
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="border border-white/10">
+          <div className="hidden md:grid grid-cols-[100px_70px_80px_70px_90px_1fr_1fr] gap-4 px-5 py-3 border-b border-white/8">
+            <span className="text-[9px] tracking-[0.15em] text-white/25">TIME</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">TYPE</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">TICKER</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">QTY</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">PRICE</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">BUYER</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">SELLER</span>
+          </div>
+          {ledgerLoading ? (
+            <div className="px-5 py-8 text-center">
+              <Activity size={16} className="mx-auto text-white/20 animate-pulse mb-2" />
+              <p className="text-[10px] text-white/20">Loading ledger...</p>
+            </div>
+          ) : ledgerEntries.length === 0 ? (
+            <div className="px-5 py-8 text-center">
+              <p className="text-[10px] text-white/20">No transactions found</p>
+            </div>
+          ) : (
+            ledgerEntries.map((entry, i) => (
+              <div key={entry.id} className={`px-5 py-3.5 ${i < ledgerEntries.length - 1 ? "border-b border-white/6" : ""}`}>
+                <div className="hidden md:grid grid-cols-[100px_70px_80px_70px_90px_1fr_1fr] gap-4 items-center">
+                  <span className="text-[10px] text-white/40">
+                    {new Date(entry.timestamp).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                  <span className={`text-[8px] tracking-[0.1em] px-1.5 py-0.5 border w-fit ${typeColors[entry.type] || "text-white/30 border-white/15"}`}>
+                    {entry.type.replace("_", " ")}
+                  </span>
+                  <span className="text-[11px] font-[var(--font-anton)]">{entry.ticker}</span>
+                  <span className="text-[10px] text-white/50">{entry.qty}</span>
+                  <span className="text-[10px] text-white/50">{"\u20B9"}{entry.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  <span className="text-[10px] text-white/40">{entry.buyerName || "-"}</span>
+                  <span className="text-[10px] text-white/40">{entry.sellerName || "-"}</span>
+                </div>
+                <div className="md:hidden space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className={`text-[8px] tracking-[0.1em] px-1.5 py-0.5 border ${typeColors[entry.type] || "text-white/30 border-white/15"}`}>
+                      {entry.type.replace("_", " ")}
+                    </span>
+                    <span className="text-[9px] text-white/30">
+                      {new Date(entry.timestamp).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-[var(--font-anton)] text-[11px]">{entry.ticker} × {entry.qty}</span>
+                    <span className="text-[10px] text-white/50">{"\u20B9"}{entry.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <p className="text-[9px] text-white/30">{entry.buyerName || "—"} → {entry.sellerName || "—"}</p>
+                </div>
+              </div>
+            ))
+          )}
+        </motion.div>
+      </>
+    );
+  }
+
+  /* ——— INVESTORS TAB ——— */
+  if (tab === "investors") {
+    return (
+      <>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <h2 className="font-[var(--font-anton)] text-lg tracking-[0.08em]">INVESTORS</h2>
+          <p className="text-[10px] text-white/30 mt-0.5">{investors.length} registered investors</p>
+        </motion.div>
+        
+        {/* Search */}
+        <input
+          type="text"
+          value={investorSearch}
+          onChange={(e) => setInvestorSearch(e.target.value)}
+          placeholder="Search by name or email..."
+          className="w-full max-w-md bg-white/5 border border-white/10 px-4 py-2.5 text-xs text-white outline-none placeholder:text-white/20 mb-6"
+        />
+        
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="border border-white/10">
+          <div className="hidden md:grid grid-cols-[2fr_2fr_100px_80px_100px_80px] gap-4 px-5 py-3 border-b border-white/8">
+            <span className="text-[9px] tracking-[0.15em] text-white/25">NAME</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">EMAIL</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">BALANCE</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">KYC</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">PORTFOLIO</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">TRADES</span>
+          </div>
+          {investorsLoading ? (
+            <div className="px-5 py-8 text-center">
+              <Users size={16} className="mx-auto text-white/20 animate-pulse mb-2" />
+              <p className="text-[10px] text-white/20">Loading investors...</p>
+            </div>
+          ) : investors.length === 0 ? (
+            <div className="px-5 py-8 text-center">
+              <p className="text-[10px] text-white/20">No investors found</p>
+            </div>
+          ) : (
+            investors.map((investor, i) => (
+              <div key={investor.investorId} className={`px-5 py-3.5 ${i < investors.length - 1 ? "border-b border-white/6" : ""} ${investor.isSuspended ? "opacity-50" : ""}`}>
+                <div className="hidden md:grid grid-cols-[2fr_2fr_100px_80px_100px_80px] gap-4 items-center">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 border border-white/20 flex items-center justify-center shrink-0">
+                      <span className="text-[7px] tracking-wider text-white/40">
+                        {investor.name.split(" ").map(w => w[0]).join("")}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-white/60">{investor.name}</span>
+                      {investor.isSuspended && (
+                        <span className="ml-2 text-[7px] tracking-[0.1em] text-red-400 border border-red-400/20 px-1">SUSPENDED</span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-white/40">{investor.email}</span>
+                  <span className="text-[10px] text-white/50">{"\u20B9"}{investor.balance.toLocaleString("en-IN")}</span>
+                  <span className={`text-[8px] tracking-[0.1em] px-1.5 py-0.5 border w-fit ${
+                    investor.kycStatus === "VERIFIED" ? "text-up border-up/20" :
+                    investor.kycStatus === "PENDING" ? "text-amber-400 border-amber-400/20" :
+                    "text-red-400 border-red-400/20"
+                  }`}>{investor.kycStatus}</span>
+                  <span className="text-[10px] text-white/50">{"\u20B9"}{investor.portfolioValue.toLocaleString("en-IN")}</span>
+                  <span className="text-[10px] text-white/40">{investor.totalTrades}</span>
+                </div>
+                <div className="md:hidden space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 border border-white/20 flex items-center justify-center shrink-0">
+                        <span className="text-[6px] tracking-wider text-white/40">
+                          {investor.name.split(" ").map(w => w[0]).join("")}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-white/60">{investor.name}</span>
+                    </div>
+                    <span className={`text-[7px] tracking-[0.1em] px-1 py-0.5 border ${
+                      investor.kycStatus === "VERIFIED" ? "text-up border-up/20" :
+                      investor.kycStatus === "PENDING" ? "text-amber-400 border-amber-400/20" :
+                      "text-red-400 border-red-400/20"
+                    }`}>{investor.kycStatus}</span>
+                  </div>
+                  <p className="text-[9px] text-white/30">{investor.email}</p>
+                  <div className="flex items-center justify-between text-[9px]">
+                    <span className="text-white/40">Balance: {"\u20B9"}{investor.balance.toLocaleString("en-IN")}</span>
+                    <span className="text-white/30">{investor.totalTrades} trades</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </motion.div>
+      </>
+    );
+  }
+
   /* ——— DASHBOARD (default) ——— */
   const displayedUsers = recentUsers.slice(0, 3);
   const displayedStocks = allStocksRaw.slice(0, 5);
@@ -511,22 +1119,22 @@ function TotalAdminDashboard() {
             <Users size={13} className="text-white/30" />
             <span className="text-[9px] tracking-[0.15em] text-white/25">TOTAL USERS</span>
           </div>
-          <p className="font-[var(--font-anton)] text-xl">{platformStats.totalUsers}</p>
-          <p className="text-[10px] text-up mt-0.5">{platformStats.activeToday} active</p>
+          <p className="font-[var(--font-anton)] text-xl">{stats.totalInvestors}</p>
+          <p className="text-[10px] text-up mt-0.5">{stats.activeToday} active</p>
         </div>
         <div className="bg-bg p-4 md:p-5">
           <div className="flex items-center gap-2 mb-1">
             <Activity size={13} className="text-white/30" />
             <span className="text-[9px] tracking-[0.15em] text-white/25">TRADES</span>
           </div>
-          <p className="font-[var(--font-anton)] text-xl">{platformStats.totalTrades.toLocaleString("en-IN")}</p>
+          <p className="font-[var(--font-anton)] text-xl">{stats.totalTrades.toLocaleString("en-IN")}</p>
         </div>
         <div className="bg-bg p-4 md:p-5">
           <div className="flex items-center gap-2 mb-1">
             <DollarSign size={13} className="text-white/30" />
             <span className="text-[9px] tracking-[0.15em] text-white/25">VOLUME</span>
           </div>
-          <p className="font-[var(--font-anton)] text-xl">{"\u20B9"}{platformStats.totalVolume.toLocaleString("en-IN")}</p>
+          <p className="font-[var(--font-anton)] text-xl">{"\u20B9"}{stats.totalVolume.toLocaleString("en-IN")}</p>
         </div>
         <div className="bg-bg p-4 md:p-5">
           <div className="flex items-center gap-2 mb-1">
@@ -545,6 +1153,31 @@ function TotalAdminDashboard() {
           </p>
         </div>
       </motion.div>
+
+      {/* Admin navigation tabs */}
+      <div className="flex items-center gap-6 mb-6 overflow-x-auto scrollbar-hide border-b border-white/10 pb-0">
+        {[
+          { key: "", label: "DASHBOARD" },
+          { key: "users", label: "USERS" },
+          { key: "stocks", label: "STOCKS" },
+          { key: "ledger", label: "LEDGER" },
+          { key: "investors", label: "INVESTORS" },
+        ].map(({ key, label }) => {
+          const isActive = (tab || "") === key;
+          return (
+            <Link
+              key={key}
+              href={key ? `/admin?tab=${key}` : "/admin"}
+              className={`pb-3 text-[10px] tracking-[0.12em] font-medium whitespace-nowrap transition-colors duration-200 relative ${
+                isActive ? "text-white" : "text-white/40 hover:text-white/70"
+              }`}
+            >
+              {label}
+              {isActive && <span className="absolute bottom-0 left-0 right-0 h-[1px] bg-white" />}
+            </Link>
+          );
+        })}
+      </div>
 
       {/* Three-column layout */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -594,6 +1227,9 @@ function TotalAdminDashboard() {
           transition={{ duration: 0.4, delay: 0.15 }}
           className="space-y-6"
         >
+          {/* Day/Tick Counter */}
+          <DayTickCounter />
+
           {/* Market Status Toggle */}
           <div className="border border-white/10 p-5">
             <p className="text-[9px] tracking-[0.15em] text-white/30 mb-3">MARKET STATUS</p>
@@ -644,6 +1280,12 @@ function TotalAdminDashboard() {
               );
             })}
           </div>
+
+          {/* Event Injection */}
+          <EventInjectionForm />
+          
+          {/* Scandal Trigger */}
+          <ScandalTrigger />
         </motion.div>
 
         {/* Col 3: Activity Feed + Announcements */}

@@ -1,15 +1,17 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import LoginPrompt from "@/components/LoginPrompt";
 import { useAuth } from "@/lib/AuthContext";
 import {
   investments,
   holdings,
-  portfolioAnalysis,
+  portfolioAnalysis as mockAnalysis,
 } from "@/lib/mockData";
+import { getPortfolioAnalysis, PortfolioAnalysis } from "@/lib/api";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -26,6 +28,17 @@ import {
 export default function AnalysePage() {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
+  const [analysis, setAnalysis] = useState<PortfolioAnalysis | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      getPortfolioAnalysis().then(res => {
+        if (res.data) setAnalysis(res.data);
+        setLoading(false);
+      });
+    }
+  }, [isLoggedIn]);
 
   if (!isLoggedIn) {
     return (
@@ -34,6 +47,23 @@ export default function AnalysePage() {
       </div>
     );
   }
+
+  // Use API data if available, fall back to mock
+  const portfolioAnalysis = {
+    ...mockAnalysis,
+    ...(analysis && {
+      xirr: analysis.xirr,
+      benchmarkReturn: analysis.benchmarkReturn,
+      outperformance: analysis.alpha,
+      sectorAllocation: analysis.sectorAllocation.map(s => ({
+        sector: s.sector,
+        value: s.percentage,
+      })),
+      riskScore: analysis.riskScore,
+      topGainers: analysis.topGainers,
+      topLosers: analysis.topLosers,
+    })
+  };
 
   return (
     <div className="py-6 md:py-8">
@@ -183,6 +213,86 @@ export default function AnalysePage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Top Gainers & Losers */}
+      {analysis && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.25 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-7"
+        >
+          {/* Top Gainers */}
+          <div className="border border-white/10 p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp size={14} className="text-up" />
+              <h3 className="text-[10px] tracking-[0.15em] text-white/40">TOP GAINERS</h3>
+            </div>
+            <div className="space-y-2">
+              {analysis.topGainers.map((stock) => (
+                <div key={stock.ticker} className="flex items-center justify-between">
+                  <span className="text-[11px] text-white/60">{stock.ticker}</span>
+                  <span className="text-[11px] font-medium text-up">+{stock.returnPct.toFixed(2)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Top Losers */}
+          <div className="border border-white/10 p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingDown size={14} className="text-down" />
+              <h3 className="text-[10px] tracking-[0.15em] text-white/40">TOP LOSERS</h3>
+            </div>
+            <div className="space-y-2">
+              {analysis.topLosers.map((stock) => (
+                <div key={stock.ticker} className="flex items-center justify-between">
+                  <span className="text-[11px] text-white/60">{stock.ticker}</span>
+                  <span className="text-[11px] font-medium text-down">{stock.returnPct.toFixed(2)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Risk Score */}
+      {analysis && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="mb-7"
+        >
+          <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">PORTFOLIO RISK</h3>
+          <div className="border border-white/10 p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={14} className="text-white/40" />
+                <span className="text-[10px] tracking-[0.1em] text-white/40">RISK SCORE</span>
+              </div>
+              <span className={`font-[var(--font-anton)] text-xl ${
+                analysis.riskScore <= 30 ? "text-up" : analysis.riskScore <= 60 ? "text-yellow-400" : "text-down"
+              }`}>
+                {analysis.riskScore}
+              </span>
+            </div>
+            <div className="h-2 bg-white/8 rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full ${
+                  analysis.riskScore <= 30 ? "bg-up" : analysis.riskScore <= 60 ? "bg-yellow-400" : "bg-down"
+                }`} 
+                style={{ width: `${analysis.riskScore}%` }} 
+              />
+            </div>
+            <div className="flex justify-between text-[8px] text-white/30 mt-2">
+              <span>Low Risk</span>
+              <span>Moderate</span>
+              <span>High Risk</span>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Market Cap Allocation */}
       <motion.div

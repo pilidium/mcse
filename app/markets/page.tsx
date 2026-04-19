@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ChevronDown, ChevronUp, Activity, ArrowUpDown } from "lucide-react";
@@ -8,8 +8,9 @@ import Sparkline from "@/components/Sparkline";
 import {
   indices,
   allStocksEnriched,
-  marketBreadth,
+  marketBreadth as mockMarketBreadth,
 } from "@/lib/mockData";
+import { getMarketBreadth, MarketBreadth } from "@/lib/api";
 
 const sectors = ["ALL", ...Array.from(new Set(allStocksEnriched.map((s) => s.sector)))];
 
@@ -31,6 +32,13 @@ export default function MarketsPage() {
   const [mobileSort, setMobileSort] = useState<SortKey>("dayChangePercent");
   const [mobileSortOpen, setMobileSortOpen] = useState(false);
   const [mobileValue, setMobileValue] = useState<MobileValueKey>("dayChangePercent");
+  const [marketBreadth, setMarketBreadth] = useState<MarketBreadth>(mockMarketBreadth);
+
+  useEffect(() => {
+    getMarketBreadth().then(res => {
+      if (res.data) setMarketBreadth(res.data);
+    });
+  }, []);
 
   const totalBreadth = marketBreadth.advances + marketBreadth.declines + marketBreadth.unchanged;
   const advPct = ((marketBreadth.advances / totalBreadth) * 100).toFixed(1);

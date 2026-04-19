@@ -1,13 +1,23 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
 import { allStocksRaw } from "@/lib/mockData";
+import {
+  getMarketStatus,
+  toggleMarketStatus,
+  getAnnouncements,
+  createAnnouncement,
+  getMarketDay,
+  type MarketStatus,
+  type MarketDay,
+} from "@/lib/api";
 
 interface Announcement {
   id: string;
   title: string;
   content: string;
   timestamp: number;
+  priority?: "LOW" | "NORMAL" | "HIGH";
 }
 
 export interface CompanyNews {
@@ -31,10 +41,13 @@ export interface CompanyEvent {
 interface AdminState {
   marketOpen: boolean;
   toggleMarket: () => void;
+  marketStatus: MarketStatus | null;
+  marketDay: MarketDay | null;
+  refreshMarketStatus: () => Promise<void>;
   listedStocks: string[];
   toggleListing: (ticker: string) => void;
   announcements: Announcement[];
-  addAnnouncement: (title: string, content: string) => void;
+  addAnnouncement: (title: string, content: string, priority?: "LOW" | "NORMAL" | "HIGH") => Promise<void>;
   companyNews: CompanyNews[];
   submitNews: (title: string, content: string, company: string) => void;
   approveNews: (id: string) => void;
@@ -47,10 +60,13 @@ interface AdminState {
 const AdminContext = createContext<AdminState>({
   marketOpen: true,
   toggleMarket: () => {},
+  marketStatus: null,
+  marketDay: null,
+  refreshMarketStatus: async () => {},
   listedStocks: [],
   toggleListing: () => {},
   announcements: [],
-  addAnnouncement: () => {},
+  addAnnouncement: async () => {},
   companyNews: [],
   submitNews: () => {},
   approveNews: () => {},
@@ -62,15 +78,67 @@ const AdminContext = createContext<AdminState>({
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [marketOpen, setMarketOpen] = useState(true);
+  const [marketStatus, setMarketStatus] = useState<MarketStatus | null>(null);
+  const [marketDay, setMarketDay] = useState<MarketDay | null>(null);
   const [listedStocks, setListedStocks] = useState<string[]>(
     allStocksRaw.map((s) => s.ticker)
   );
   const [announcements, setAnnouncements] = useState<Announcement[]>([
-    { id: "ANN-1", title: "Welcome to MCSE Exchange", content: "The mock stock exchange is now live for all members.", timestamp: Date.now() - 86400000 * 3 },
-    { id: "ANN-2", title: "Trading hours updated", content: "Market is now open 9 AM - 3:30 PM on weekdays.", timestamp: Date.now() - 86400000 },
+    { id: "ANN-1", title: "Welcome to MCSE Exchange", content: "The mock stock exchange is now live for all members.", timestamp: Date.now() - 86400000 * 3, priority: "NORMAL" },
+    { id: "ANN-2", title: "Trading hours updated", content: "Market is now open 9 AM - 3:30 PM on weekdays.", timestamp: Date.now() - 86400000, priority: "HIGH" },
   ]);
 
-  const toggleMarket = useCallback(() => setMarketOpen((p) => !p), []);
+  // Fetch initial market status and day info
+  useEffect(() => {
+    async function init() {
+      const [statusRes, dayRes, announcementsRes] = await Promise.all([
+        getMarketStatus(),
+        getMarketDay(),
+        getAnnouncements(),
+      ]);
+
+      if (statusRes.data) {
+        setMarketStatus(statusRes.data);
+        setMarketOpen(statusRes.data.marketOpen);
+      }
+      if (dayRes.data) {
+        setMarketDay(dayRes.data);
+      }
+      if (announcementsRes.data) {
+        setAnnouncements(announcementsRes.data);
+      }
+    }
+    init();
+  }, []);
+
+  const refreshMarketStatus = useCallback(async () => {
+    const [statusRes, dayRes] = await Promise.all([
+      getMarketStatus(),
+      getMarketDay(),
+    ]);
+    if (statusRes.data) {
+      setMarketStatus(statusRes.data);
+      setMarketOpen(statusRes.data.marketOpen);
+    }
+    if (dayRes.data) {
+      setMarketDay(dayRes.data);
+    }
+  }, []);
+
+  const toggleMarket = useCallback(async () => {
+    // Optimistic update
+    setMarketOpen((p) => !p);
+
+    const newState = !marketOpen;
+    const res = await toggleMarketStatus(newState);
+    if (res.error) {
+      // Revert on error
+      setMarketOpen(marketOpen);
+    } else if (res.data) {
+      setMarketStatus(res.data);
+      setMarketOpen(res.data.marketOpen);
+    }
+  }, [marketOpen]);
 
   const toggleListing = useCallback((ticker: string) => {
     setListedStocks((prev) =>
@@ -78,11 +146,19 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const addAnnouncement = useCallback((title: string, content: string) => {
-    setAnnouncements((prev) => [
-      { id: `ANN-${Date.now()}`, title, content, timestamp: Date.now() },
-      ...prev,
-    ]);
+  const addAnnouncement = useCallback(async (title: string, content: string, priority: "LOW" | "NORMAL" | "HIGH" = "NORMAL") => {
+    // Optimistic add
+    const tempId = `ANN-${Date.now()}`;
+    const newAnn: Announcement = { id: tempId, title, content, timestamp: Date.now(), priority };
+    setAnnouncements((prev) => [newAnn, ...prev]);
+
+    const res = await createAnnouncement({ title, content, priority });
+    if (res.data) {
+      // Replace temp with real announcement
+      setAnnouncements((prev) =>
+        prev.map((a) => (a.id === tempId ? res.data! : a))
+      );
+    }
   }, []);
 
   const [companyNews, setCompanyNews] = useState<CompanyNews[]>([
@@ -126,8 +202,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(() => ({
-    marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent
-  }), [marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent]);
+    marketOpen, toggleMarket, marketStatus, marketDay, refreshMarketStatus, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent
+  }), [marketOpen, toggleMarket, marketStatus, marketDay, refreshMarketStatus, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent]);
 
   return (
     <AdminContext.Provider

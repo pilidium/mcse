@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Eye, EyeOff, ChevronDown, ChevronUp, BarChart3, ArrowUpDown, Minus, Plus } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Eye, EyeOff, ChevronDown, ChevronUp, BarChart3, ArrowUpDown, Minus, Plus, Clock, TrendingUp, TrendingDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sparkline from "@/components/Sparkline";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useTrading } from "@/lib/TradingContext";
 import { usePreferences } from "@/lib/PreferencesContext";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
+import { getIntradayPositions, type IntradayPosition } from "@/lib/api";
 import {
   holdings,
   investments,
@@ -37,6 +38,22 @@ export default function HoldingsPage() {
   const [limitPrice, setLimitPrice] = useState<string>("");
   const [orderMsg, setOrderMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [intradayPositions, setIntradayPositions] = useState<IntradayPosition[]>([]);
+  const [loadingIntraday, setLoadingIntraday] = useState(true);
+
+  // Fetch intraday positions
+  useEffect(() => {
+    async function fetchIntraday() {
+      const res = await getIntradayPositions();
+      if (res.data) {
+        setIntradayPositions(res.data);
+      }
+      setLoadingIntraday(false);
+    }
+    if (isLoggedIn) {
+      fetchIntraday();
+    }
+  }, [isLoggedIn]);
 
   const sorted = useMemo(() => {
     const arr = [...holdings];
@@ -525,6 +542,65 @@ export default function HoldingsPage() {
               <p className="text-[10px] tracking-[0.1em] text-white/20 text-center">SELECT A HOLDING<br />TO TRADE</p>
             </div>
           )}
+
+          {/* Intraday Positions */}
+          <div className="border border-white/10">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
+              <div className="flex items-center gap-2">
+                <Clock size={13} className="text-amber-400/60" />
+                <p className="text-[9px] tracking-[0.15em] text-white/30">INTRADAY POSITIONS</p>
+              </div>
+              {intradayPositions.length > 0 && (
+                <span className="text-[8px] tracking-[0.1em] text-amber-400/60 border border-amber-400/20 px-1.5 py-0.5 bg-amber-400/5">
+                  {intradayPositions.length} OPEN
+                </span>
+              )}
+            </div>
+            {loadingIntraday ? (
+              <div className="px-5 py-6 text-center">
+                <p className="text-[10px] text-white/20 animate-pulse">Loading...</p>
+              </div>
+            ) : intradayPositions.length > 0 ? (
+              <div className="divide-y divide-white/6">
+                {intradayPositions.map((pos, idx) => {
+                  const isProfit = pos.unrealizedPnl >= 0;
+                  return (
+                    <div key={pos.ticker + idx} className="px-5 py-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[8px] tracking-[0.1em] font-semibold px-1.5 py-0.5 border text-blue-400 border-blue-400/30 bg-blue-400/5">
+                            INTRADAY
+                          </span>
+                          <span className="text-[11px] font-medium text-white/70">{pos.ticker}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {isProfit ? (
+                            <TrendingUp size={11} className="text-up" />
+                          ) : (
+                            <TrendingDown size={11} className="text-down" />
+                          )}
+                          <span className={`text-[11px] font-[var(--font-anton)] ${isProfit ? "text-up" : "text-down"}`}>
+                            {isProfit ? "+" : ""}{showValues ? `₹${pos.unrealizedPnl.toFixed(0)}` : "•••"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-[9px] text-white/30">
+                        <span>{pos.qty} × ₹{pos.entryPrice.toFixed(2)}</span>
+                        <span className={isProfit ? "text-up/60" : "text-down/60"}>
+                          {isProfit ? "+" : ""}{pos.unrealizedPnlPercent.toFixed(2)}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="px-5 py-6 text-center">
+                <p className="text-[10px] text-white/20">No open intraday positions</p>
+                <p className="text-[9px] text-white/15 mt-1">Positions auto-close at market end</p>
+              </div>
+            )}
+          </div>
 
           {/* Recent transactions */}
           {recentTxns.length > 0 && (

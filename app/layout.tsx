@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/AuthContext";
 import { TradingProvider } from "@/lib/TradingContext";
 import { AdminProvider } from "@/lib/AdminContext";
 import { PreferencesProvider } from "@/lib/PreferencesContext";
+import { WebSocketProvider } from "@/lib/WebSocketContext";
 
 const anton = Anton({
   variable: "--font-anton",
@@ -61,11 +62,13 @@ export default function RootLayout({
       <body className="bg-bg text-white overflow-hidden h-dvh" style={{ overflowX: 'clip' }}>
         <PreferencesProvider>
           <AuthProvider>
-            <TradingProvider>
-              <AdminProvider>
-                <AppShell>{children}</AppShell>
-              </AdminProvider>
-            </TradingProvider>
+            <WebSocketProvider>
+              <TradingProvider>
+                <AdminProvider>
+                  <AppShell>{children}</AppShell>
+                </AdminProvider>
+              </TradingProvider>
+            </WebSocketProvider>
           </AuthProvider>
         </PreferencesProvider>
       </body>

@@ -1,12 +1,161 @@
 "use client";
 
-import { use } from "react";
-import { ArrowLeft, Users, Calendar, Building2, ExternalLink } from "lucide-react";
+import { use, useEffect, useState } from "react";
+import { ArrowLeft, Users, Calendar, Building2, ExternalLink, TrendingUp, DollarSign, Target, Activity, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { parentDirectory, stockDirectory, newsItems, formatRelativeTime } from "@/lib/mockData";
 import Sparkline from "@/components/Sparkline";
+import { getCompanyGameState, getCredibility, CompanyGameState, CredibilityData } from "@/lib/api";
+
+// Metrics Panel component
+function MetricsPanel({ gameState, ticker }: { gameState: CompanyGameState | null; ticker: string }) {
+  if (!gameState || gameState.subsidiaries.length === 0) {
+    return (
+      <div className="border border-white/6 p-5">
+        <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-4">BUSINESS METRICS</p>
+        <div className="h-24 flex items-center justify-center">
+          <p className="text-[11px] text-white/20">No metrics available</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate aggregate metrics
+  const totalRevenue = gameState.subsidiaries.reduce((s, sub) => s + sub.revenue, 0);
+  const totalProfit = gameState.subsidiaries.reduce((s, sub) => s + sub.profit, 0);
+  const totalCash = gameState.subsidiaries.reduce((s, sub) => s + sub.cash, 0);
+  const totalDebt = gameState.subsidiaries.reduce((s, sub) => s + sub.debt, 0);
+  const avgQuality = Math.round(gameState.subsidiaries.reduce((s, sub) => s + sub.productQuality, 0) / gameState.subsidiaries.length);
+  const avgSatisfaction = Math.round(gameState.subsidiaries.reduce((s, sub) => s + sub.customerSatisfaction, 0) / gameState.subsidiaries.length);
+
+  const formatCurrency = (value: number) => {
+    if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
+    if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+    return `₹${value.toLocaleString("en-IN")}`;
+  };
+
+  return (
+    <div className="border border-white/6 p-5">
+      <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-4">BUSINESS METRICS</p>
+      
+      {/* Financial summary */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="bg-white/[0.02] p-3 rounded-sm">
+          <div className="flex items-center gap-1.5 mb-1">
+            <DollarSign size={10} className="text-white/30" />
+            <span className="text-[9px] text-white/30">Revenue</span>
+          </div>
+          <p className="font-[var(--font-anton)] text-[14px] text-white/80">{formatCurrency(totalRevenue)}</p>
+        </div>
+        <div className="bg-white/[0.02] p-3 rounded-sm">
+          <div className="flex items-center gap-1.5 mb-1">
+            <TrendingUp size={10} className="text-white/30" />
+            <span className="text-[9px] text-white/30">Profit</span>
+          </div>
+          <p className={`font-[var(--font-anton)] text-[14px] ${totalProfit >= 0 ? "text-up" : "text-down"}`}>
+            {formatCurrency(totalProfit)}
+          </p>
+        </div>
+      </div>
+
+      {/* Cash & Debt */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="flex justify-between items-center">
+          <span className="text-[10px] text-white/30">Cash</span>
+          <span className="text-[11px] text-white/60">{formatCurrency(totalCash)}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-[10px] text-white/30">Debt</span>
+          <span className="text-[11px] text-white/60">{formatCurrency(totalDebt)}</span>
+        </div>
+      </div>
+
+      <div className="h-px bg-white/6 mb-4" />
+
+      {/* Operational metrics */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Target size={10} className="text-white/25" />
+            <span className="text-[10px] text-white/40">Product Quality</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-up rounded-full" style={{ width: `${avgQuality}%` }} />
+            </div>
+            <span className="text-[11px] font-medium text-white/60">{avgQuality}%</span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Activity size={10} className="text-white/25" />
+            <span className="text-[10px] text-white/40">Customer Satisfaction</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-blue-500 rounded-full" style={{ width: `${avgSatisfaction}%` }} />
+            </div>
+            <span className="text-[11px] font-medium text-white/60">{avgSatisfaction}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Credibility Panel component
+function CredibilityPanel({ credibility }: { credibility: CredibilityData | null }) {
+  if (!credibility) {
+    return (
+      <div className="border border-white/6 p-5">
+        <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-4">CREDIBILITY</p>
+        <div className="h-24 flex items-center justify-center">
+          <p className="text-[11px] text-white/20">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const score = credibility.currentScore;
+  const scoreColor = score >= 70 ? "text-up" : score >= 40 ? "text-yellow-400" : "text-down";
+
+  return (
+    <div className="border border-white/6 p-5">
+      <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-4">CREDIBILITY SCORE</p>
+      
+      {/* Score display */}
+      <div className="text-center mb-4">
+        <p className={`font-[var(--font-anton)] text-[32px] ${scoreColor}`}>{score.toFixed(1)}</p>
+        <p className="text-[9px] text-white/30">OUT OF 100</p>
+      </div>
+
+      {/* Score bar */}
+      <div className="relative h-2 bg-white/10 rounded-full overflow-hidden mb-4">
+        <div
+          className={`absolute left-0 top-0 h-full rounded-full ${score >= 70 ? "bg-up" : score >= 40 ? "bg-yellow-400" : "bg-down"}`}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+
+      {/* Recent events */}
+      {credibility.recentEvents.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-[9px] text-white/25">Recent impacts</p>
+          {credibility.recentEvents.slice(0, 3).map((event, i) => (
+            <div key={i} className="flex items-center justify-between">
+              <span className="text-[10px] text-white/40 truncate flex-1">{event.type.replace(/_/g, " ")}</span>
+              <span className={`text-[10px] font-medium ${event.impact >= 0 ? "text-up" : "text-down"}`}>
+                {event.impact >= 0 ? "+" : ""}{event.impact.toFixed(1)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function CompanyDetailPage({
   params,
@@ -16,6 +165,26 @@ export default function CompanyDetailPage({
   const { ticker } = use(params);
   const router = useRouter();
   const company = parentDirectory[ticker.toUpperCase()];
+
+  const [gameState, setGameState] = useState<CompanyGameState | null>(null);
+  const [credibility, setCredibility] = useState<CredibilityData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      const [gameRes, credRes] = await Promise.all([
+        getCompanyGameState(),
+        getCredibility(ticker.toUpperCase()),
+      ]);
+      if (gameRes.data) setGameState(gameRes.data);
+      if (credRes.data) setCredibility(credRes.data);
+      setLoading(false);
+    }
+    if (company) {
+      fetchData();
+    }
+  }, [ticker, company]);
 
   if (!company) {
     return (
@@ -166,6 +335,12 @@ export default function CompanyDetailPage({
 
           {/* Right column */}
           <div className="space-y-6">
+            {/* Credibility Panel */}
+            <CredibilityPanel credibility={credibility} />
+            
+            {/* Business Metrics Panel */}
+            <MetricsPanel gameState={gameState} ticker={ticker} />
+            
             {/* Key Facts */}
             <div className="border border-white/6 p-5">
               <p className="text-[9px] tracking-[0.2em] text-white/30 uppercase mb-4">KEY FACTS</p>

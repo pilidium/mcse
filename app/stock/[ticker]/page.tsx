@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, use, useCallback, useMemo } from "react";
-import { ArrowLeft, Star, Bookmark, X, Copy, Check, ExternalLink, Users, Calendar } from "lucide-react";
+import { useState, use, useCallback, useMemo, useEffect } from "react";
+import { ArrowLeft, Star, Bookmark, X, Copy, Check, ExternalLink, Users, Calendar, Building2, User, Briefcase } from "lucide-react";
 import Portal from "@/components/Portal";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { stockDirectory, holdings, newsItems, formatRelativeTime, generateOrderBook, parentCompanies } from "@/lib/mockData";
 import { useTrading } from "@/lib/TradingContext";
 import { usePreferences } from "@/lib/PreferencesContext";
+import { getShareholders, Shareholder } from "@/lib/api";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
 import Sparkline from "@/components/Sparkline";
 
@@ -33,10 +34,20 @@ export default function StockDetailPage({
   const [mobileOrderOpen, setMobileOrderOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<"ORDER" | "BOOK" | "HISTORY">("ORDER");
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [sectionTab, setSectionTab] = useState<"OVERVIEW" | "NEWS" | "EVENTS" | "COMPANY">("OVERVIEW");
+  const [sectionTab, setSectionTab] = useState<"OVERVIEW" | "NEWS" | "EVENTS" | "COMPANY" | "SHAREHOLDERS">("OVERVIEW");
+  const [shareholders, setShareholders] = useState<Shareholder[]>([]);
   const [tickerCopied, setTickerCopied] = useState(false);
   const [chartType, setChartType] = useState<"LINE" | "CANDLE">("LINE");
   const { confirmOrders } = usePreferences();
+
+  // Fetch shareholders when tab is selected
+  useEffect(() => {
+    if (sectionTab === "SHAREHOLDERS" && shareholders.length === 0) {
+      getShareholders(ticker.toUpperCase()).then(res => {
+        if (res.data) setShareholders(res.data);
+      });
+    }
+  }, [sectionTab, ticker, shareholders.length]);
 
   const isHeld = holdings.some((h) => h.ticker === ticker.toUpperCase());
   const watched = checkWatched(ticker.toUpperCase());
@@ -339,7 +350,7 @@ export default function StockDetailPage({
 
           {/* Section tabs — Groww style */}
           <div className="flex items-center gap-0 mb-6 md:mb-8 border-b border-white/8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto scrollbar-hide">
-            {(["OVERVIEW", "NEWS", "EVENTS", "COMPANY"] as const).map((tab) => (
+            {(["OVERVIEW", "NEWS", "EVENTS", "COMPANY", "SHAREHOLDERS"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setSectionTab(tab)}
@@ -605,6 +616,182 @@ export default function StockDetailPage({
               </div>
             );
           })()}
+
+          {/* Shareholders */}
+          {sectionTab === "SHAREHOLDERS" && (
+            <div>
+              <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">SHAREHOLDERS</h3>
+              {shareholders.length === 0 ? (
+                <div className="border border-white/6 border-dashed p-8 text-center">
+                  <Users size={20} className="mx-auto text-white/10 mb-3" />
+                  <p className="text-[11px] tracking-[0.1em] text-white/20">Loading shareholders...</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Summary stats */}
+                  <div className="grid grid-cols-3 gap-[1px] bg-white/8 mb-4">
+                    <div className="bg-bg p-4">
+                      <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">TOTAL</p>
+                      <p className="font-[var(--font-anton)] text-lg">{shareholders.length}</p>
+                    </div>
+                    <div className="bg-bg p-4">
+                      <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">INSTITUTIONAL</p>
+                      <p className="font-[var(--font-anton)] text-lg">
+                        {shareholders.filter(s => s.archetypeKind === "INSTITUTIONAL").reduce((sum, s) => sum + s.percentage, 0).toFixed(1)}%
+                      </p>
+                    </div>
+                    <div className="bg-bg p-4">
+                      <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">RETAIL</p>
+                      <p className="font-[var(--font-anton)] text-lg">
+                        {shareholders.filter(s => s.archetypeKind === "RETAIL_AGGREGATE" || s.archetypeKind === "HUMAN").reduce((sum, s) => sum + s.percentage, 0).toFixed(1)}%
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Shareholders list */}
+                  <div className="border border-white/10">
+                    <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_80px] gap-4 px-5 py-3 border-b border-white/8">
+                      <span className="text-[9px] tracking-[0.15em] text-white/25">HOLDER</span>
+                      <span className="text-[9px] tracking-[0.15em] text-white/25">TYPE</span>
+                      <span className="text-[9px] tracking-[0.15em] text-white/25 text-right">SHARES</span>
+                      <span className="text-[9px] tracking-[0.15em] text-white/25 text-right">%</span>
+                    </div>
+                    {shareholders.map((holder, i) => {
+                      const TypeIcon = holder.archetypeKind === "INSTITUTIONAL" ? Building2 :
+                                       holder.archetypeKind === "INSIDER" ? Briefcase :
+                                       holder.archetypeKind === "HUMAN" ? User : Users;
+                      const typeLabel = holder.archetypeKind === "RETAIL_AGGREGATE" ? "RETAIL" :
+                                        holder.archetypeKind === "POOL_PROXY" ? "POOL" :
+                                        holder.archetypeKind;
+                      return (
+                        <div key={i} className={`px-5 py-3.5 ${i < shareholders.length - 1 ? "border-b border-white/6" : ""}`}>
+                          <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_80px] gap-4 items-center">
+                            <div className="flex items-center gap-2.5">
+                              <TypeIcon size={14} className="text-white/30 shrink-0" />
+                              <span className="text-[11px] text-white/60">{holder.name}</span>
+                            </div>
+                            <span className={`text-[8px] tracking-[0.1em] px-1.5 py-0.5 border w-fit ${
+                              holder.archetypeKind === "INSTITUTIONAL" ? "text-blue-400 border-blue-400/20" :
+                              holder.archetypeKind === "INSIDER" ? "text-amber-400 border-amber-400/20" :
+                              "text-white/30 border-white/15"
+                            }`}>{typeLabel}</span>
+                            <span className="text-[10px] text-white/40 text-right">{holder.shareCount.toLocaleString("en-IN")}</span>
+                            <span className="text-[11px] font-[var(--font-anton)] text-right">{holder.percentage.toFixed(2)}%</span>
+                          </div>
+                          {/* Mobile view */}
+                          <div className="md:hidden flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <TypeIcon size={14} className="text-white/30" />
+                              <div>
+                                <p className="text-[10px] text-white/60">{holder.name}</p>
+                                <span className={`text-[7px] tracking-[0.1em] px-1 py-0.5 border ${
+                                  holder.archetypeKind === "INSTITUTIONAL" ? "text-blue-400 border-blue-400/20" :
+                                  holder.archetypeKind === "INSIDER" ? "text-amber-400 border-amber-400/20" :
+                                  "text-white/25 border-white/15"
+                                }`}>{typeLabel}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-[var(--font-anton)] text-[12px]">{holder.percentage.toFixed(2)}%</p>
+                              <p className="text-[9px] text-white/30">{holder.shareCount.toLocaleString("en-IN")}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Shareholders */}
+          {sectionTab === "SHAREHOLDERS" && (
+            <div>
+              <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">SHAREHOLDERS</h3>
+              {shareholders.length === 0 ? (
+                <div className="border border-white/6 border-dashed p-8 text-center">
+                  <Users size={20} className="mx-auto text-white/10 mb-3" />
+                  <p className="text-[11px] tracking-[0.1em] text-white/20">Loading shareholders...</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Summary stats */}
+                  <div className="grid grid-cols-3 gap-[1px] bg-white/8 mb-4">
+                    <div className="bg-bg p-4">
+                      <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">TOTAL</p>
+                      <p className="font-[var(--font-anton)] text-lg">{shareholders.length}</p>
+                    </div>
+                    <div className="bg-bg p-4">
+                      <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">INSTITUTIONAL</p>
+                      <p className="font-[var(--font-anton)] text-lg">
+                        {shareholders.filter(s => s.archetypeKind === "INSTITUTIONAL").reduce((sum, s) => sum + s.percentage, 0).toFixed(1)}%
+                      </p>
+                    </div>
+                    <div className="bg-bg p-4">
+                      <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">RETAIL</p>
+                      <p className="font-[var(--font-anton)] text-lg">
+                        {shareholders.filter(s => s.archetypeKind === "RETAIL_AGGREGATE" || s.archetypeKind === "HUMAN").reduce((sum, s) => sum + s.percentage, 0).toFixed(1)}%
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Shareholders list */}
+                  <div className="border border-white/10">
+                    <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_80px] gap-4 px-5 py-3 border-b border-white/8">
+                      <span className="text-[9px] tracking-[0.15em] text-white/25">HOLDER</span>
+                      <span className="text-[9px] tracking-[0.15em] text-white/25">TYPE</span>
+                      <span className="text-[9px] tracking-[0.15em] text-white/25 text-right">SHARES</span>
+                      <span className="text-[9px] tracking-[0.15em] text-white/25 text-right">%</span>
+                    </div>
+                    {shareholders.map((holder, i) => {
+                      const TypeIcon = holder.archetypeKind === "INSTITUTIONAL" ? Building2 :
+                                       holder.archetypeKind === "INSIDER" ? Briefcase :
+                                       holder.archetypeKind === "HUMAN" ? User : Users;
+                      const typeLabel = holder.archetypeKind === "RETAIL_AGGREGATE" ? "RETAIL" :
+                                        holder.archetypeKind === "POOL_PROXY" ? "POOL" :
+                                        holder.archetypeKind;
+                      return (
+                        <div key={i} className={`px-5 py-3.5 ${i < shareholders.length - 1 ? "border-b border-white/6" : ""}`}>
+                          <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_80px] gap-4 items-center">
+                            <div className="flex items-center gap-2.5">
+                              <TypeIcon size={14} className="text-white/30 shrink-0" />
+                              <span className="text-[11px] text-white/60">{holder.name}</span>
+                            </div>
+                            <span className={`text-[8px] tracking-[0.1em] px-1.5 py-0.5 border w-fit ${
+                              holder.archetypeKind === "INSTITUTIONAL" ? "text-blue-400 border-blue-400/20" :
+                              holder.archetypeKind === "INSIDER" ? "text-amber-400 border-amber-400/20" :
+                              "text-white/30 border-white/15"
+                            }`}>{typeLabel}</span>
+                            <span className="text-[10px] text-white/40 text-right">{holder.shareCount.toLocaleString("en-IN")}</span>
+                            <span className="text-[11px] font-[var(--font-anton)] text-right">{holder.percentage.toFixed(2)}%</span>
+                          </div>
+                          {/* Mobile view */}
+                          <div className="md:hidden flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <TypeIcon size={14} className="text-white/30" />
+                              <div>
+                                <p className="text-[10px] text-white/60">{holder.name}</p>
+                                <span className={`text-[7px] tracking-[0.1em] px-1 py-0.5 border ${
+                                  holder.archetypeKind === "INSTITUTIONAL" ? "text-blue-400 border-blue-400/20" :
+                                  holder.archetypeKind === "INSIDER" ? "text-amber-400 border-amber-400/20" :
+                                  "text-white/25 border-white/15"
+                                }`}>{typeLabel}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-[var(--font-anton)] text-[12px]">{holder.percentage.toFixed(2)}%</p>
+                              <p className="text-[9px] text-white/30">{holder.shareCount.toLocaleString("en-IN")}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right column (desktop): Sticky order panel + order book + news + orders */}
