@@ -110,12 +110,12 @@ export default function MarketsPage() {
       <section className="mb-8">
         <div className="grid gap-[1px] bg-white/8 grid-cols-2 md:grid-cols-4">
           {indices.map((idx, i) => (
+            <Link key={idx.name} href={`/index/${idx.slug}`}>
             <motion.div
-              key={idx.name}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className="bg-bg p-4 hover:bg-white/[0.02] transition-colors"
+              className="bg-bg p-4 hover:bg-white/[0.02] transition-colors cursor-pointer"
             >
               <div className="flex items-center justify-between mb-1.5">
                 <p className="text-[8px] tracking-[0.15em] text-white/30 uppercase">{idx.name}</p>
@@ -128,6 +128,7 @@ export default function MarketsPage() {
                 {idx.change >= 0 ? "+" : ""}{idx.change.toFixed(2)} ({idx.changePercent >= 0 ? "+" : ""}{idx.changePercent.toFixed(2)}%)
               </p>
             </motion.div>
+            </Link>
           ))}
         </div>
       </section>

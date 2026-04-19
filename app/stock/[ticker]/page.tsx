@@ -39,7 +39,7 @@ export default function StockDetailPage({
   const [tickerCopied, setTickerCopied] = useState(false);
   const [chartType, setChartType] = useState<"LINE" | "CANDLE">("LINE");
   const { confirmOrders } = usePreferences();
-  const [expandedNewsIndex, setExpandedNewsIndex] = useState<number | null>(null);
+  // expandedNewsIndex removed — news now navigates to /news/[id] page
 
   // Fetch shareholders when tab is selected
   useEffect(() => {
@@ -55,6 +55,7 @@ export default function StockDetailPage({
   const tickerOrders = getOrdersForTicker(ticker.toUpperCase());
   const position = positions.find((p) => p.ticker === ticker.toUpperCase());
   const stockNews = newsItems.filter((n) => n.ticker === ticker.toUpperCase());
+  const stockNewsWithIds = stockNews.map((n) => ({ news: n, id: newsItems.indexOf(n) }));
   const orderBook = useMemo(() => stock ? generateOrderBook(stock.price) : null, [stock]);
 
   const effectivePrice = pricingType === "LIMIT" && limitPrice ? parseFloat(limitPrice) : (stock?.price ?? 0);
@@ -502,8 +503,8 @@ export default function StockDetailPage({
           {/* News tab content */}
           {sectionTab === "NEWS" && (
             <div className="space-y-3">
-              {stockNews.length > 0 ? stockNews.map((news, i) => (
-                <button key={i} onClick={() => setExpandedNewsIndex(i)} className="block w-full text-left border border-white/8 p-4 hover:bg-white/[0.02] transition-colors cursor-pointer">
+              {stockNewsWithIds.length > 0 ? stockNewsWithIds.map(({ news, id }) => (
+                <Link key={id} href={`/news/${id}`} className="block border border-white/8 p-4 hover:bg-white/[0.02] transition-colors">
                   <p className="text-[12px] text-white/60 leading-relaxed mb-2">{news.headline}</p>
                   <div className="flex items-center gap-3">
                     <span className="text-[9px] tracking-[0.1em] text-white/25">{formatRelativeTime(news.timestamp)}</span>
@@ -511,7 +512,7 @@ export default function StockDetailPage({
                       {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
                     </span>
                   </div>
-                </button>
+                </Link>
               )) : (
                 <div className="py-16 text-center">
                   <div className="w-10 h-10 mx-auto border border-white/8 flex items-center justify-center mb-3">
@@ -875,8 +876,8 @@ export default function StockDetailPage({
             <div>
               <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-3">NEWS</h3>
                 <div className="space-y-2">
-                  {stockNews.map((news, i) => (
-                    <button key={i} onClick={() => setExpandedNewsIndex(i)} className="block w-full text-left border border-white/8 p-4 hover:bg-white/[0.02] transition-colors cursor-pointer">
+                  {stockNewsWithIds.map(({ news, id }) => (
+                    <Link key={id} href={`/news/${id}`} className="block border border-white/8 p-4 hover:bg-white/[0.02] transition-colors">
                       <p className="text-[11px] text-white/60 leading-relaxed mb-2">{news.headline}</p>
                       <div className="flex items-center gap-3">
                         <span className="text-[9px] tracking-[0.1em] text-white/25">{formatRelativeTime(news.timestamp)}</span>
@@ -884,7 +885,7 @@ export default function StockDetailPage({
                           {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
                         </span>
                       </div>
-                    </button>
+                    </Link>
                   ))}
                 </div>
             </div>
@@ -1190,9 +1191,8 @@ export default function StockDetailPage({
                 </AnimatePresence>
               </div>
 
-              {/* Sticky confirm button at bottom of mobile order panel */}
-              {mobileTab === "ORDER" && (
-                <div className="shrink-0 px-5 py-4 border-t border-white/8 bg-bg">
+              {/* Sticky confirm button — always rendered to keep panel height constant */}
+              <div className={`shrink-0 px-5 py-4 border-t border-white/8 bg-bg ${mobileTab !== "ORDER" ? "invisible pointer-events-none" : ""}`}>
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={handleOrder}
@@ -1205,7 +1205,6 @@ export default function StockDetailPage({
                     {pricingType === "LIMIT" ? `${buySellTab} LIMIT` : buySellTab} {stock.ticker}
                   </motion.button>
                 </div>
-              )}
             </motion.div>
           </>
         )}
@@ -1225,61 +1224,6 @@ export default function StockDetailPage({
         pricingType={pricingType}
         total={effectivePrice * qty}
       />
-      </Portal>
-
-      {/* News article overlay */}
-      <Portal>
-      <AnimatePresence>
-        {expandedNewsIndex !== null && stockNews[expandedNewsIndex] && (() => {
-          const news = stockNews[expandedNewsIndex];
-          return (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                onClick={() => setExpandedNewsIndex(null)}
-                className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm"
-              />
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-                className="fixed inset-4 md:inset-x-auto md:inset-y-8 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-2xl z-[71] bg-bg border border-white/10 overflow-y-auto"
-              >
-                <div className="sticky top-0 z-10 bg-bg/95 backdrop-blur-md border-b border-white/8 px-6 py-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="font-[var(--font-anton)] text-[11px] tracking-[0.1em] text-white/50">{news.ticker}</span>
-                    <span className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
-                      {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setExpandedNewsIndex(null)}
-                    className="w-9 h-9 border border-white/15 flex items-center justify-center hover:border-white/40 transition-colors"
-                  >
-                    <X size={14} className="text-white/50" />
-                  </button>
-                </div>
-
-                <div className="px-6 py-6">
-                  <h2 className="font-[var(--font-anton)] text-lg md:text-xl tracking-[0.03em] leading-snug mb-4">{news.headline}</h2>
-
-                  <div className="flex items-center gap-4 mb-6 pb-4 border-b border-white/8">
-                    <span className="text-[10px] text-white/40">{news.name}</span>
-                    <span className="text-[9px] text-white/20">{formatRelativeTime(news.timestamp)}</span>
-                    <span className="text-[10px] text-white/30 ml-auto">{"\u20B9"}{news.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                  </div>
-
-                  <div className="text-[13px] text-white/55 leading-[1.9] whitespace-pre-line">{news.body}</div>
-                </div>
-              </motion.div>
-            </>
-          );
-        })()}
-      </AnimatePresence>
       </Portal>
     </div>
   );
