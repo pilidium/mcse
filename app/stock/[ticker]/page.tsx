@@ -570,7 +570,6 @@ export default function StockDetailPage({
                       </Link>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-[9px] tracking-[0.15em] text-white/30">{parent.ticker}</span>
-                        <span className="text-[8px] tracking-[0.1em] text-white/20 px-1.5 py-0.5 border border-white/8">{parent.sector}</span>
                       </div>
                     </div>
                   </div>

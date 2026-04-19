@@ -52,7 +52,6 @@ export interface ParentCompany {
   totalEmployees: number;
   logoLetter: string;
   founded: string;
-  sector: string;
 }
 
 export const parentCompanies: ParentCompany[] = [
@@ -64,7 +63,6 @@ export const parentCompanies: ParentCompany[] = [
     totalEmployees: 240,
     logoLetter: "M",
     founded: "2018",
-    sector: "Education",
   },
   {
     ticker: "ENIGMA",
@@ -74,7 +72,6 @@ export const parentCompanies: ParentCompany[] = [
     totalEmployees: 310,
     logoLetter: "E",
     founded: "2017",
-    sector: "Technology",
   },
   {
     ticker: "GASMONKEYS",
@@ -84,7 +81,6 @@ export const parentCompanies: ParentCompany[] = [
     totalEmployees: 180,
     logoLetter: "G",
     founded: "2019",
-    sector: "Automotive",
   },
   {
     ticker: "MASTERSHOT",
@@ -94,7 +90,6 @@ export const parentCompanies: ParentCompany[] = [
     totalEmployees: 220,
     logoLetter: "S",
     founded: "2018",
-    sector: "Media & Entertainment",
   },
   {
     ticker: "ERUDITE",
@@ -104,7 +99,6 @@ export const parentCompanies: ParentCompany[] = [
     totalEmployees: 195,
     logoLetter: "R",
     founded: "2017",
-    sector: "Education",
   },
   {
     ticker: "INSIGHT",
@@ -114,7 +108,6 @@ export const parentCompanies: ParentCompany[] = [
     totalEmployees: 165,
     logoLetter: "I",
     founded: "2020",
-    sector: "Analytics",
   },
   {
     ticker: "CELESTE",
@@ -124,7 +117,6 @@ export const parentCompanies: ParentCompany[] = [
     totalEmployees: 275,
     logoLetter: "C",
     founded: "2019",
-    sector: "Science & Research",
   },
 ];
 

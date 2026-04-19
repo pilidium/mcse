@@ -228,7 +228,6 @@ export default function CompanyDetailPage({
             <h1 className="font-[var(--font-anton)] text-lg md:text-xl tracking-[0.05em]">{company.name}</h1>
             <div className="flex items-center gap-3 mt-1">
               <span className="text-[10px] tracking-[0.15em] text-white/30">{company.ticker}</span>
-              <span className="text-[8px] tracking-[0.1em] text-white/20 px-1.5 py-0.5 border border-white/8">{company.sector}</span>
               <span className="text-[8px] tracking-[0.1em] text-white/20 px-1.5 py-0.5 border border-white/8">HOLDING CO.</span>
             </div>
           </div>

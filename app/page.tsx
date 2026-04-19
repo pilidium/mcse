@@ -524,7 +524,6 @@ export default function ExplorePage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="font-[var(--font-anton)] text-[13px] tracking-[0.05em] group-hover:text-white transition-colors">{pc.name}</p>
-                        <span className="text-[8px] tracking-[0.1em] text-white/15 px-1.5 py-0.5 border border-white/8 hidden md:inline">{pc.sector}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-1">
                         {subs.map(sub => (

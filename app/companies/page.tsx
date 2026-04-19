@@ -61,9 +61,6 @@ export default function CompaniesPage() {
                     <p className="font-[var(--font-anton)] text-[14px] tracking-[0.05em] group-hover:text-white transition-colors">
                       {pc.name}
                     </p>
-                    <span className="text-[8px] tracking-[0.1em] text-white/15 px-1.5 py-0.5 border border-white/8 hidden md:inline">
-                      {pc.sector}
-                    </span>
                   </div>
                   <div className="flex items-center gap-3 mt-1.5">
                     <span className="text-[9px] tracking-[0.1em] text-white/25">

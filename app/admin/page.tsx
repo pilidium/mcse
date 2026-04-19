@@ -24,6 +24,10 @@ import {
   Zap,
   Timer,
   AlertCircle,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Trash2,
 } from "lucide-react";
 import { useAuth, type UserRole } from "@/lib/AuthContext";
 import { useAdmin } from "@/lib/AdminContext";
@@ -579,7 +583,7 @@ function EnigmaDashboard() {
                   <span className="text-[7px] tracking-[0.1em] bg-amber-400/10 text-amber-400 border border-amber-400/20 px-1.5 py-0.5">{pendingCount} PENDING</span>
                 )}
               </div>
-              <Link href="/admin/news" className="text-[9px] tracking-[0.1em] text-white/40 hover:text-white transition-colors">
+              <Link href="/admin?tab=news" className="text-[9px] tracking-[0.1em] text-white/40 hover:text-white transition-colors">
                 VIEW ALL {"\u2192"}
               </Link>
             </div>
@@ -641,7 +645,7 @@ function EnigmaDashboard() {
                 <Calendar size={13} className="text-white/30" />
                 <p className="text-[9px] tracking-[0.15em] text-white/30">UPCOMING EVENTS</p>
               </div>
-              <Link href="/admin/events" className="text-[9px] tracking-[0.1em] text-white/40 hover:text-white transition-colors">
+              <Link href="/admin?tab=events" className="text-[9px] tracking-[0.1em] text-white/40 hover:text-white transition-colors">
                 VIEW ALL {"\u2192"}
               </Link>
             </div>
@@ -689,11 +693,11 @@ function EnigmaDashboard() {
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    Total Admin Dashboard
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent•â•â•â•â•â• */
 function TotalAdminDashboard() {
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab");
-  const { marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, approveNews, rejectNews } = useAdmin();
+  const { marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent } = useAdmin();
   const [annTitle, setAnnTitle] = useState("");
   const [annContent, setAnnContent] = useState("");
   const [showAnnForm, setShowAnnForm] = useState(false);
@@ -1100,6 +1104,173 @@ function TotalAdminDashboard() {
     );
   }
 
+  /* ——— NEWS TAB ——— */
+  if (tab === "news") {
+    const publishedNews = companyNews.filter((n) => n.status === "PUBLISHED");
+    const rejectedNews = companyNews.filter((n) => n.status === "REJECTED");
+
+    const statusBadge = (status: "PENDING" | "PUBLISHED" | "REJECTED") => {
+      if (status === "PENDING") return <span className="text-[8px] tracking-[0.15em] text-amber-400 border border-amber-400/30 bg-amber-400/5 px-1.5 py-0.5 inline-flex items-center gap-1"><Clock size={8} />PENDING</span>;
+      if (status === "PUBLISHED") return <span className="text-[8px] tracking-[0.15em] text-up border border-up/30 bg-up/5 px-1.5 py-0.5 inline-flex items-center gap-1"><CheckCircle size={8} />PUBLISHED</span>;
+      return <span className="text-[8px] tracking-[0.15em] text-down border border-down/30 bg-down/5 px-1.5 py-0.5 inline-flex items-center gap-1"><XCircle size={8} />REJECTED</span>;
+    };
+
+    return (
+      <>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <h2 className="font-[var(--font-anton)] text-lg tracking-[0.08em]">COMPANY NEWS</h2>
+          <p className="text-[10px] text-white/30 mt-0.5">{pendingNews.length} pending · {publishedNews.length} published · {rejectedNews.length} rejected</p>
+        </motion.div>
+
+        {/* Pending News */}
+        {pendingNews.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="border border-amber-400/20 mb-6">
+            <div className="px-5 py-4 border-b border-amber-400/10 bg-amber-400/5">
+              <p className="text-[9px] tracking-[0.15em] text-amber-400/80">PENDING APPROVAL ({pendingNews.length})</p>
+            </div>
+            {pendingNews.map((n, i) => (
+              <div key={n.id} className={`px-5 py-4 ${i < pendingNews.length - 1 ? "border-b border-white/6" : ""}`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      {statusBadge(n.status)}
+                      <span className="text-[8px] tracking-[0.1em] text-white/20">{n.company}</span>
+                    </div>
+                    <h3 className="text-[13px] text-white/80 font-medium mb-1">{n.title}</h3>
+                    <p className="text-[11px] text-white/40 leading-relaxed">{n.content}</p>
+                    <p className="text-[9px] text-white/20 mt-2">{new Date(n.timestamp).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => approveNews(n.id)}
+                      className="h-8 px-3 text-[9px] tracking-[0.1em] bg-up text-black font-semibold hover:bg-up/80 transition-colors"
+                    >
+                      APPROVE
+                    </button>
+                    <button
+                      onClick={() => rejectNews(n.id)}
+                      className="h-8 px-3 text-[9px] tracking-[0.1em] border border-down/40 text-down hover:bg-down/10 transition-colors"
+                    >
+                      REJECT
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* All News */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="border border-white/10">
+          <div className="px-5 py-4 border-b border-white/8">
+            <p className="text-[9px] tracking-[0.15em] text-white/30">ALL NEWS ({companyNews.length})</p>
+          </div>
+          {companyNews.length === 0 ? (
+            <div className="px-5 py-12 text-center">
+              <Newspaper size={24} className="mx-auto text-white/10 mb-3" />
+              <p className="text-[11px] text-white/25">No news articles yet</p>
+            </div>
+          ) : (
+            companyNews.map((n, i) => (
+              <div key={n.id} className={`px-5 py-4 ${i < companyNews.length - 1 ? "border-b border-white/6" : ""}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {statusBadge(n.status)}
+                  <span className="text-[8px] tracking-[0.1em] text-white/20">{n.company}</span>
+                </div>
+                <h3 className="text-[13px] text-white/80 font-medium mb-1">{n.title}</h3>
+                <p className="text-[11px] text-white/40 leading-relaxed">{n.content}</p>
+                <p className="text-[9px] text-white/20 mt-2">{new Date(n.timestamp).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</p>
+              </div>
+            ))
+          )}
+        </motion.div>
+      </>
+    );
+  }
+
+  /* ——— EVENTS TAB ——— */
+  if (tab === "events") {
+    const sortedEvents = [...companyEvents].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const upcoming = sortedEvents.filter((e) => new Date(e.date) >= new Date());
+    const past = sortedEvents.filter((e) => new Date(e.date) < new Date());
+
+    return (
+      <>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <h2 className="font-[var(--font-anton)] text-lg tracking-[0.08em]">COMPANY EVENTS</h2>
+          <p className="text-[10px] text-white/30 mt-0.5">{upcoming.length} upcoming · {past.length} past</p>
+        </motion.div>
+
+        {/* Upcoming Events */}
+        {upcoming.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="border border-white/10 mb-6">
+            <div className="px-5 py-4 border-b border-white/8">
+              <p className="text-[9px] tracking-[0.15em] text-white/30">UPCOMING ({upcoming.length})</p>
+            </div>
+            {upcoming.map((evt, i) => (
+              <div key={evt.id} className={`flex items-start gap-5 px-5 py-4 ${i < upcoming.length - 1 ? "border-b border-white/6" : ""}`}>
+                <div className="shrink-0 w-14 text-center border border-white/10 py-2">
+                  <p className="font-[var(--font-anton)] text-lg leading-none">{new Date(evt.date).getDate()}</p>
+                  <p className="text-[8px] tracking-[0.15em] text-white/30 mt-1">{new Date(evt.date).toLocaleDateString("en-IN", { month: "short" }).toUpperCase()}</p>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar size={10} className="text-white/25" />
+                    <span className="text-[8px] tracking-[0.1em] text-white/20">{evt.company}</span>
+                  </div>
+                  <h3 className="text-[13px] text-white/80 font-medium mb-1">{evt.title}</h3>
+                  {evt.description && <p className="text-[11px] text-white/40 leading-relaxed">{evt.description}</p>}
+                  <p className="text-[9px] text-white/20 mt-2">{new Date(evt.date).toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
+                </div>
+                <button
+                  onClick={() => removeEvent(evt.id)}
+                  className="shrink-0 p-2 text-white/20 hover:text-down transition-colors"
+                  title="Remove event"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Past Events */}
+        {past.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="border border-white/10">
+            <div className="px-5 py-4 border-b border-white/8">
+              <p className="text-[9px] tracking-[0.15em] text-white/30">PAST ({past.length})</p>
+            </div>
+            {past.map((evt, i) => (
+              <div key={evt.id} className={`flex items-start gap-5 px-5 py-4 opacity-50 ${i < past.length - 1 ? "border-b border-white/6" : ""}`}>
+                <div className="shrink-0 w-14 text-center border border-white/10 py-2">
+                  <p className="font-[var(--font-anton)] text-lg leading-none">{new Date(evt.date).getDate()}</p>
+                  <p className="text-[8px] tracking-[0.15em] text-white/30 mt-1">{new Date(evt.date).toLocaleDateString("en-IN", { month: "short" }).toUpperCase()}</p>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar size={10} className="text-white/25" />
+                    <span className="text-[8px] tracking-[0.1em] text-white/20">{evt.company}</span>
+                  </div>
+                  <h3 className="text-[13px] text-white/80 font-medium mb-1">{evt.title}</h3>
+                  {evt.description && <p className="text-[11px] text-white/40 leading-relaxed">{evt.description}</p>}
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {companyEvents.length === 0 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="border border-white/10">
+            <div className="px-5 py-12 text-center">
+              <Calendar size={24} className="mx-auto text-white/10 mb-3" />
+              <p className="text-[11px] text-white/25">No events scheduled</p>
+            </div>
+          </motion.div>
+        )}
+      </>
+    );
+  }
+
   /* ——— DASHBOARD (default) ——— */
   const displayedUsers = recentUsers.slice(0, 3);
   const displayedStocks = allStocksRaw.slice(0, 5);
@@ -1162,6 +1333,8 @@ function TotalAdminDashboard() {
           { key: "stocks", label: "STOCKS" },
           { key: "ledger", label: "LEDGER" },
           { key: "investors", label: "INVESTORS" },
+          { key: "news", label: "NEWS" },
+          { key: "events", label: "EVENTS" },
         ].map(({ key, label }) => {
           const isActive = (tab || "") === key;
           return (
@@ -1378,7 +1551,7 @@ function TotalAdminDashboard() {
               <Newspaper size={13} className="text-amber-400/50" />
               <p className="text-[9px] tracking-[0.15em] text-amber-400/60">PENDING NEWS APPROVAL ({pendingNews.length})</p>
             </div>
-            <Link href="/admin/news" className="text-[9px] tracking-[0.1em] text-white/40 hover:text-white transition-colors">
+            <Link href="/admin?tab=news" className="text-[9px] tracking-[0.1em] text-white/40 hover:text-white transition-colors">
               VIEW ALL {"\u2192"}
             </Link>
           </div>
