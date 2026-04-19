@@ -257,11 +257,11 @@ export default function RegistrationsPage() {
                       </div>
                       <div>
                         <p className="text-[9px] tracking-[0.1em] text-white/20 mb-1">INITIAL SHARES</p>
-                        <p className="text-[11px] text-white/50">{reg.initialShares.toLocaleString("en-IN")}</p>
+                        <p className="text-[11px] text-white/50">{(reg.initialShares ?? 0).toLocaleString("en-IN")}</p>
                       </div>
                       <div>
                         <p className="text-[9px] tracking-[0.1em] text-white/20 mb-1">IPO PRICE</p>
-                        <p className="text-[11px] text-white/50">₹{reg.ipoPrice.toFixed(2)}</p>
+                        <p className="text-[11px] text-white/50">₹{(reg.ipoPrice ?? 0).toFixed(2)}</p>
                       </div>
                       <div>
                         <p className="text-[9px] tracking-[0.1em] text-white/20 mb-1">CONTACT EMAIL</p>
