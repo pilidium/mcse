@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Sparkline from "@/components/Sparkline";

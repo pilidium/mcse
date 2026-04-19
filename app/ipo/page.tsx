@@ -5,14 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
   Clock,
-  TrendingUp,
-  Users,
   CheckCircle,
   ArrowLeft,
   ExternalLink,
   FileText,
-  CalendarDays,
-  IndianRupee,
   BarChart3,
   Minus,
   Plus,
@@ -116,7 +112,7 @@ export default function IPOPage() {
           </div>
 
           <div className="space-y-0">
-            {ipoList.map((ipo, idx) => {
+            {ipoList.map((ipo) => {
               const isActive = ipo.ticker === selectedTicker;
               const daysLeft = ipo.status === "UPCOMING" ? daysUntil(ipo.dateStart) : 0;
               const applied = appliedSet.has(ipo.ticker);

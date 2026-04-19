@@ -131,6 +131,7 @@ function TopNavInner() {
                 <Link
                   key={tab.label}
                   href={tab.href}
+                  aria-current={active ? "page" : undefined}
                   className={`flex items-center text-[11px] tracking-[0.15em] font-medium px-5 border-b-2 transition-all duration-300 ${
                     active
                       ? "text-white border-white"
@@ -217,6 +218,7 @@ function TopNavInner() {
               <Link
                 key={tab.label}
                 href={tab.href}
+                aria-current={active ? "page" : undefined}
                 className={`relative flex flex-col items-center gap-0.5 py-1.5 px-1.5 transition-all duration-200 ${
                   active ? "text-white" : "text-white/35"
                 }`}

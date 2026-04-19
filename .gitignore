@@ -38,6 +38,10 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# android build artifacts
+android-app/build/
+android-app/app/build/
 next-env.d.ts
 
 # android-app build artifacts & secrets

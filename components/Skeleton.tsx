@@ -10,6 +10,7 @@ interface SkeletonProps {
 export function Skeleton({ className, style }: SkeletonProps) {
   return (
     <div
+      aria-hidden="true"
       className={cn(
         "animate-pulse bg-white/[0.06]",
         className
@@ -89,15 +90,16 @@ export function SkeletonStats({ count = 4, className }: SkeletonProps & { count?
 }
 
 export function SkeletonChart({ className }: SkeletonProps) {
+  const barHeights = [58, 42, 71, 35, 83, 49, 67, 38, 76, 53, 62, 44, 79, 36, 69, 47, 85, 41, 73, 55];
   return (
     <div className={cn("border border-white/10 p-5", className)}>
       <Skeleton className="h-3 w-24 mb-4" />
       <div className="h-48 md:h-56 flex items-end gap-1">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {barHeights.map((h, i) => (
           <Skeleton
             key={i}
             className="flex-1"
-            style={{ height: `${30 + Math.random() * 60}%` }}
+            style={{ height: `${h}%` }}
           />
         ))}
       </div>

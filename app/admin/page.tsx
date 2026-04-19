@@ -697,7 +697,7 @@ function EnigmaDashboard() {
 function TotalAdminDashboard() {
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab");
-  const { marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, submitNews, approveNews, rejectNews, companyEvents, addEvent, removeEvent } = useAdmin();
+  const { marketOpen, toggleMarket, listedStocks, toggleListing, announcements, addAnnouncement, companyNews, approveNews, rejectNews, companyEvents, removeEvent } = useAdmin();
   const [annTitle, setAnnTitle] = useState("");
   const [annContent, setAnnContent] = useState("");
   const [showAnnForm, setShowAnnForm] = useState(false);
@@ -722,32 +722,47 @@ function TotalAdminDashboard() {
       if (res.data) setMetrics(res.data);
     })();
   }, []);
+
+  // Track previous deps for render-time loading toggles
+  const [prevLedgerKey, setPrevLedgerKey] = useState<string | null>(null);
+  const ledgerKey = tab === "ledger" ? `${ledgerFilter.ticker}|${ledgerFilter.type}` : null;
+  if (ledgerKey !== prevLedgerKey) {
+    setPrevLedgerKey(ledgerKey);
+    if (ledgerKey !== null) setLedgerLoading(true);
+  }
+
+  const [prevInvestorKey, setPrevInvestorKey] = useState<string | null>(null);
+  const investorKey = tab === "investors" ? (investorSearch || "") : null;
+  if (investorKey !== prevInvestorKey) {
+    setPrevInvestorKey(investorKey);
+    if (investorKey !== null) setInvestorsLoading(true);
+  }
   
   // Fetch ledger when on ledger tab
   useEffect(() => {
-    if (tab === "ledger") {
-      setLedgerLoading(true);
-      (async () => {
-        const res = await getLedger({ 
-          ticker: ledgerFilter.ticker || undefined, 
-          type: ledgerFilter.type || undefined 
-        });
-        if (res.data) setLedgerEntries(res.data.entries);
-        setLedgerLoading(false);
-      })();
-    }
+    if (tab !== "ledger") return;
+    let cancelled = false;
+    getLedger({ 
+      ticker: ledgerFilter.ticker || undefined, 
+      type: ledgerFilter.type || undefined 
+    }).then(res => {
+      if (cancelled) return;
+      if (res.data) setLedgerEntries(res.data.entries);
+      setLedgerLoading(false);
+    });
+    return () => { cancelled = true; };
   }, [tab, ledgerFilter]);
   
   // Fetch investors when on investors tab
   useEffect(() => {
-    if (tab === "investors") {
-      setInvestorsLoading(true);
-      (async () => {
-        const res = await getInvestors({ search: investorSearch || undefined });
-        if (res.data) setInvestors(res.data.investors);
-        setInvestorsLoading(false);
-      })();
-    }
+    if (tab !== "investors") return;
+    let cancelled = false;
+    getInvestors({ search: investorSearch || undefined }).then(res => {
+      if (cancelled) return;
+      if (res.data) setInvestors(res.data.investors);
+      setInvestorsLoading(false);
+    });
+    return () => { cancelled = true; };
   }, [tab, investorSearch]);
 
   const pendingNews = companyNews.filter((n) => n.status === "PENDING");

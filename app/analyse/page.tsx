@@ -29,13 +29,11 @@ export default function AnalysePage() {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
   const [analysis, setAnalysis] = useState<PortfolioAnalysis | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (isLoggedIn) {
       getPortfolioAnalysis().then(res => {
         if (res.data) setAnalysis(res.data);
-        setLoading(false);
       });
     }
   }, [isLoggedIn]);

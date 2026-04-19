@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { TrendingUp, TrendingDown, Info, Activity, CheckCheck, ArrowLeft, Bell, ShoppingCart, Calendar } from "lucide-react";
@@ -80,17 +80,15 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
   const [notifications, setNotifications] = useState<DisplayNotification[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchNotifications = useCallback(async () => {
-    const res = await getNotifications();
-    if (res.data) {
-      setNotifications(res.data.map(mapApiToDisplay));
-    }
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    let cancelled = false;
+    getNotifications().then(res => {
+      if (cancelled) return;
+      if (res.data) setNotifications(res.data.map(mapApiToDisplay));
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {

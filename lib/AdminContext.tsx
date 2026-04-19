@@ -83,7 +83,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [listedStocks, setListedStocks] = useState<string[]>(
     allStocksRaw.map((s) => s.ticker)
   );
-  const [announcements, setAnnouncements] = useState<Announcement[]>([
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() => [
     { id: "ANN-1", title: "Welcome to MCSE Exchange", content: "The mock stock exchange is now live for all members.", timestamp: Date.now() - 86400000 * 3, priority: "NORMAL" },
     { id: "ANN-2", title: "Trading hours updated", content: "Market is now open 9 AM - 3:30 PM on weekdays.", timestamp: Date.now() - 86400000, priority: "HIGH" },
   ]);
@@ -161,7 +161,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const [companyNews, setCompanyNews] = useState<CompanyNews[]>([
+  const [companyNews, setCompanyNews] = useState<CompanyNews[]>(() => [
     { id: "NEWS-1", company: "ENIGMA", title: "Enigma Q3 results beat estimates", content: "Revenue up 23% YoY with strong club membership growth.", timestamp: Date.now() - 86400000 * 2, status: "PUBLISHED" },
     { id: "NEWS-2", company: "ENIGMA", title: "New campus expansion planned", content: "Enigma announces expansion to three new buildings by next semester.", timestamp: Date.now() - 86400000, status: "PENDING" },
   ]);
@@ -185,7 +185,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const [companyEvents, setCompanyEvents] = useState<CompanyEvent[]>([
+  const [companyEvents, setCompanyEvents] = useState<CompanyEvent[]>(() => [
     { id: "EVT-1", company: "ENIGMA", title: "Annual General Meeting", description: "Yearly shareholder meeting for Enigma club.", date: "2025-08-15", timestamp: Date.now() - 86400000 },
     { id: "EVT-2", company: "ENIGMA", title: "Hackathon 2025", description: "48-hour coding marathon open to all members.", date: "2025-09-01", timestamp: Date.now() },
   ]);

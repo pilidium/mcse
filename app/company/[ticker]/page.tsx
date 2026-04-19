@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { ArrowLeft, Users, Calendar, Building2, ExternalLink, TrendingUp, DollarSign, Target, Activity, BarChart3 } from "lucide-react";
+import { ArrowLeft, Users, Calendar, Building2, ExternalLink, TrendingUp, DollarSign, Target, Activity } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -10,7 +10,7 @@ import Sparkline from "@/components/Sparkline";
 import { getCompanyGameState, getCredibility, CompanyGameState, CredibilityData } from "@/lib/api";
 
 // Metrics Panel component
-function MetricsPanel({ gameState, ticker }: { gameState: CompanyGameState | null; ticker: string }) {
+function MetricsPanel({ gameState }: { gameState: CompanyGameState | null; ticker: string }) {
   if (!gameState || gameState.subsidiaries.length === 0) {
     return (
       <div className="border border-white/6 p-5">
@@ -168,18 +168,15 @@ export default function CompanyDetailPage({
 
   const [gameState, setGameState] = useState<CompanyGameState | null>(null);
   const [credibility, setCredibility] = useState<CredibilityData | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
-      setLoading(true);
       const [gameRes, credRes] = await Promise.all([
         getCompanyGameState(),
         getCredibility(ticker.toUpperCase()),
       ]);
       if (gameRes.data) setGameState(gameRes.data);
       if (credRes.data) setCredibility(credRes.data);
-      setLoading(false);
     }
     if (company) {
       fetchData();

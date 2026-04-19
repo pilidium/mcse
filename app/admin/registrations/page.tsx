@@ -8,13 +8,8 @@ import {
   Building,
   Check,
   X,
-  Clock,
   AlertTriangle,
   ChevronDown,
-  Eye,
-  FileText,
-  Users,
-  DollarSign,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { getRegistrationQueue, approveRegistration, rejectRegistration, type CompanyRegistration } from "@/lib/api";

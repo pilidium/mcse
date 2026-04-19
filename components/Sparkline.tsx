@@ -28,6 +28,32 @@ export default function Sparkline({
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
+  // Interactive hover handler
+  const getIndexFromEvent = useCallback(
+    (clientX: number) => {
+      const svg = svgRef.current;
+      if (!svg) return null;
+      const rect = svg.getBoundingClientRect();
+      const relX = (clientX - rect.left) / rect.width;
+      const idx = Math.round(relX * (data.length - 1));
+      return Math.max(0, Math.min(data.length - 1, idx));
+    },
+    [data.length]
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      if (!interactive) return;
+      const idx = getIndexFromEvent(e.clientX);
+      setHoverIndex(idx);
+    },
+    [interactive, getIndexFromEvent]
+  );
+
+  const handlePointerLeave = useCallback(() => {
+    setHoverIndex(null);
+  }, []);
+
   if (!data || data.length < 2) return null;
 
   const min = Math.min(...data);
@@ -64,32 +90,6 @@ export default function Sparkline({
     ? height - padding - ((baseline - min) / range) * (height - topPad - padding)
     : null;
 
-  // Interactive hover handler
-  const getIndexFromEvent = useCallback(
-    (clientX: number) => {
-      const svg = svgRef.current;
-      if (!svg) return null;
-      const rect = svg.getBoundingClientRect();
-      const relX = (clientX - rect.left) / rect.width;
-      const idx = Math.round(relX * (data.length - 1));
-      return Math.max(0, Math.min(data.length - 1, idx));
-    },
-    [data.length]
-  );
-
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
-      if (!interactive) return;
-      const idx = getIndexFromEvent(e.clientX);
-      setHoverIndex(idx);
-    },
-    [interactive, getIndexFromEvent]
-  );
-
-  const handlePointerLeave = useCallback(() => {
-    setHoverIndex(null);
-  }, []);
-
   const hPt = hoverIndex != null ? pts[hoverIndex] : null;
   const hVal = hoverIndex != null ? data[hoverIndex] : null;
   const hLabel = hoverIndex != null && labels ? labels[hoverIndex] : null;
@@ -100,6 +100,8 @@ export default function Sparkline({
       viewBox={`0 0 ${width} ${height}`}
       width={width}
       height={height}
+      role="img"
+      aria-label={`Sparkline chart: ${isPositive ? "trending up" : "trending down"}`}
       className="block overflow-visible"
       style={{ maxWidth: '100%', height: 'auto', touchAction: interactive ? 'none' : undefined }}
       onPointerMove={interactive ? handlePointerMove : undefined}

@@ -121,6 +121,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const subscriptionsRef = useRef<Set<string>>(new Set());
 const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const mockIntervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
+  const connectRef = useRef<() => void>(undefined);
 
   // Connect to WebSocket
   const connect = useCallback(() => {
@@ -215,9 +216,13 @@ const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
       wsRef.current = null;
 
       // Attempt reconnect after 5 seconds
-      reconnectTimeoutRef.current = setTimeout(connect, 5000);
+      reconnectTimeoutRef.current = setTimeout(() => connectRef.current?.(), 5000);
     };
   }, []);
+
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   // Disconnect
   const disconnect = useCallback(() => {
@@ -265,8 +270,12 @@ const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Auto-connect on mount
   useEffect(() => {
-    connect();
-    return disconnect;
+    // Defer to avoid synchronous setState in effect body
+    const id = requestAnimationFrame(() => connect());
+    return () => {
+      cancelAnimationFrame(id);
+      disconnect();
+    };
   }, [connect, disconnect]);
 
   return (

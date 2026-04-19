@@ -72,10 +72,14 @@ export default function DesktopSearch() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Close on route change
-  useEffect(() => {
-    reset();
-  }, [pathname]);
+  // Reset on route change (render-time adjustment)
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    setQuery("");
+    setFilter("ALL");
+    setFocused(false);
+  }
 
   return (
     <div ref={wrapperRef} className="relative">
