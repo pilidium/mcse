@@ -492,6 +492,7 @@ export interface NewsItem {
   ticker: string;
   name: string;
   headline: string;
+  body: string;
   timestamp: number;
   price: number;
   dayChange: number;
@@ -503,6 +504,7 @@ export const newsItems: NewsItem[] = [
     ticker: "MACAD",
     name: "MathSoc Academy",
     headline: "MathSoc Academy announces annual inter-college competition with record participation expected from 45+ colleges. Prize pool increased to \u20B950,000.",
+    body: "MathSoc Academy has officially opened registrations for the 2026 edition of its flagship inter-college mathematics competition, MathBattle. This year's event is expected to draw participants from over 45 colleges across the region — a 50% increase from last year's turnout.\n\nThe prize pool has been raised to \u20B950,000, with the top three teams receiving cash awards and internship opportunities with partnered EdTech firms. The competition will feature four rounds: a qualifying online test, a speed-math round, a team-based problem-solving relay, and a final face-off.\n\n\"We've restructured the format to make it more inclusive for first-year students,\" said Rohan Mehra, President of MathSoc Academy. \"We want to identify talent early and give them a platform to shine.\"\n\nRegistrations close on April 22, with the main event scheduled across April 24–26 during the MCSE trading window.",
     timestamp: Date.now() - 6 * 60 * 1000,
     price: 1198.50,
     dayChange: 14.30,
@@ -512,6 +514,7 @@ export const newsItems: NewsItem[] = [
     ticker: "ECLOUD",
     name: "Enigma Cloud",
     headline: "Enigma Cloud completes migration of campus services to its own infrastructure, reducing latency by 40% across all applications.",
+    body: "Enigma Cloud has successfully completed the migration of all major campus applications to its self-managed cloud infrastructure, marking a significant milestone in the club's technical roadmap.\n\nThe migration, which took three months, covered the college's event management platform, attendance tracking system, and collaborative development environments. Early benchmarks show a 40% reduction in average response times and 99.8% uptime since the switch.\n\n\"We were running on shared hosting with unpredictable performance,\" explained Ananya Krishnan, Enigma Cloud's lead architect. \"Now we have full control over scaling, monitoring, and security. It's a fundamentally different experience for end users.\"\n\nThe infrastructure is built on containerised microservices with automated failover. Enigma Cloud plans to open its platform to other college clubs as a managed hosting service by the end of the semester.",
     timestamp: Date.now() - 23 * 60 * 1000,
     price: 3215.40,
     dayChange: -18.60,
@@ -521,6 +524,7 @@ export const newsItems: NewsItem[] = [
     ticker: "GMAUTO",
     name: "GM Automotive",
     headline: "GM Automotive secures sponsorship deal with leading automotive brand for their flagship racing event this April.",
+    body: "GM Automotive has announced a headline sponsorship agreement with a nationally recognised automotive parts manufacturer for the upcoming Grand Prix event scheduled during the MCSE trading days.\n\nThe sponsorship, valued at an undisclosed sum, will cover event logistics, safety equipment upgrades, and a live-streamed broadcast of the race. In return, the sponsor will have branding rights across the event venue and all promotional materials.\n\n\"This is the biggest sponsorship deal Gas Monkeys has ever secured,\" said Vikram Joshi, head of GM Automotive. \"It validates the quality of our engineering and the professionalism of our events.\"\n\nThe Grand Prix will feature both petrol and electric vehicle categories, with teams from eight colleges confirmed to participate. GM Racing, a sibling subsidiary, will field two cars in the competition.",
     timestamp: Date.now() - 2 * 3600 * 1000,
     price: 1456.20,
     dayChange: 17.40,
@@ -530,6 +534,7 @@ export const newsItems: NewsItem[] = [
     ticker: "CELBIO",
     name: "Celeste Bio",
     headline: "Celeste Bio publishes breakthrough findings on algae-based biofuels in a top-tier research journal. Patent filing expected soon.",
+    body: "Celeste BioSystems has published a peer-reviewed paper in the Journal of Sustainable Biotechnology detailing a novel method for extracting biofuel from freshwater algae with 30% higher yield than existing techniques.\n\nThe research, led by Dr. Meera Subramaniam and a team of six undergraduate researchers, uses a proprietary enzymatic process that reduces extraction time from 72 hours to under 18 hours. The team has filed a provisional patent application.\n\n\"This could fundamentally change how campus-scale biofuel production works,\" said Dr. Subramaniam. \"We're already in discussions with two clean-energy incubators about pilot programmes.\"\n\nCeleste Bio's stock has seen increased interest following the announcement, with trading volume up 35% over the past week. The company's parent, Celeste Group, has allocated additional lab space and funding for Phase 2 trials.",
     timestamp: Date.now() - 5 * 3600 * 1000,
     price: 2148.60,
     dayChange: 38.20,
@@ -539,6 +544,7 @@ export const newsItems: NewsItem[] = [
     ticker: "ENAI",
     name: "Enigma AI",
     headline: "Enigma AI lab unveils a new open-source language model trained on college curriculum data, attracting interest from EdTech startups.",
+    body: "Enigma AI's research lab has released CampusLM, an open-source language model fine-tuned on structured curriculum data from over 200 college courses. The model is designed to assist students with concept explanations, problem generation, and study planning.\n\nCampusLM was trained using a custom pipeline built on top of open foundation models, with reinforcement learning from human feedback provided by 50+ student volunteers across three departments.\n\n\"Existing LLMs are great for general knowledge, but they hallucinate on domain-specific academic content,\" said Arjun Reddy, Enigma AI's project lead. \"CampusLM is grounded in verified syllabi and textbook content.\"\n\nThe model has already attracted interest from two EdTech startups looking to integrate it into their platforms. Enigma AI plans to offer a hosted API for campus applications and is exploring a partnership with MathSoc Tech for a mathematics-specific variant.",
     timestamp: Date.now() - 8 * 3600 * 1000,
     price: 4512.60,
     dayChange: 62.80,
@@ -548,6 +554,7 @@ export const newsItems: NewsItem[] = [
     ticker: "ERPRESS",
     name: "Erudite Press",
     headline: "Erudite Press quarterly magazine reaches 10,000 subscribers milestone. Digital edition now available on campus app.",
+    body: "Erudite Press has crossed the 10,000-subscriber mark for its flagship quarterly publication, 'The Erudite Review', making it the most widely read student-run magazine on campus.\n\nThe milestone was reached following the launch of a digital edition accessible through the campus mobile app, which added 3,200 subscribers in the past quarter alone. The digital version features interactive essays, embedded audio readings, and a community discussion section.\n\n\"Print will always be our identity, but digital is how we grow,\" said Kavya Iyer, Editor-in-Chief of Erudite Press. \"The new format lets us include multimedia features that print simply can't support.\"\n\nThe next issue, themed 'Futures', will coincide with the MCSE trading event and will include profiles of all seven parent companies listed on the exchange. Erudite Press is also piloting a writer-in-residence fellowship that will be funded partly through magazine revenue.",
     timestamp: Date.now() - 12 * 3600 * 1000,
     price: 342.10,
     dayChange: 4.90,

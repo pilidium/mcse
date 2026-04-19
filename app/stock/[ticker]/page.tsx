@@ -39,6 +39,7 @@ export default function StockDetailPage({
   const [tickerCopied, setTickerCopied] = useState(false);
   const [chartType, setChartType] = useState<"LINE" | "CANDLE">("LINE");
   const { confirmOrders } = usePreferences();
+  const [expandedNewsIndex, setExpandedNewsIndex] = useState<number | null>(null);
 
   // Fetch shareholders when tab is selected
   useEffect(() => {
@@ -350,7 +351,13 @@ export default function StockDetailPage({
 
           {/* Section tabs — Groww style */}
           <div className="flex items-center gap-0 mb-6 md:mb-8 border-b border-white/8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto scrollbar-hide">
-            {(["OVERVIEW", "NEWS", "EVENTS", "COMPANY", "SHAREHOLDERS"] as const).map((tab) => (
+            {(["OVERVIEW", "NEWS", "EVENTS", "COMPANY", "SHAREHOLDERS"] as const)
+              .filter((tab) => {
+                if (tab === "NEWS") return stockNews.length > 0;
+                if (tab === "EVENTS") return stock.events && stock.events.length > 0;
+                return true;
+              })
+              .map((tab) => (
               <button
                 key={tab}
                 onClick={() => setSectionTab(tab)}
@@ -496,7 +503,7 @@ export default function StockDetailPage({
           {sectionTab === "NEWS" && (
             <div className="space-y-3">
               {stockNews.length > 0 ? stockNews.map((news, i) => (
-                <div key={i} className="border border-white/8 p-4">
+                <button key={i} onClick={() => setExpandedNewsIndex(i)} className="block w-full text-left border border-white/8 p-4 hover:bg-white/[0.02] transition-colors cursor-pointer">
                   <p className="text-[12px] text-white/60 leading-relaxed mb-2">{news.headline}</p>
                   <div className="flex items-center gap-3">
                     <span className="text-[9px] tracking-[0.1em] text-white/25">{formatRelativeTime(news.timestamp)}</span>
@@ -504,7 +511,7 @@ export default function StockDetailPage({
                       {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
                     </span>
                   </div>
-                </div>
+                </button>
               )) : (
                 <div className="py-16 text-center">
                   <div className="w-10 h-10 mx-auto border border-white/8 flex items-center justify-center mb-3">
@@ -704,93 +711,6 @@ export default function StockDetailPage({
             </div>
           )}
 
-          {/* Shareholders */}
-          {sectionTab === "SHAREHOLDERS" && (
-            <div>
-              <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">SHAREHOLDERS</h3>
-              {shareholders.length === 0 ? (
-                <div className="border border-white/6 border-dashed p-8 text-center">
-                  <Users size={20} className="mx-auto text-white/10 mb-3" />
-                  <p className="text-[11px] tracking-[0.1em] text-white/20">Loading shareholders...</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Summary stats */}
-                  <div className="grid grid-cols-3 gap-[1px] bg-white/8 mb-4">
-                    <div className="bg-bg p-4">
-                      <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">TOTAL</p>
-                      <p className="font-[var(--font-anton)] text-lg">{shareholders.length}</p>
-                    </div>
-                    <div className="bg-bg p-4">
-                      <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">INSTITUTIONAL</p>
-                      <p className="font-[var(--font-anton)] text-lg">
-                        {shareholders.filter(s => s.archetypeKind === "INSTITUTIONAL").reduce((sum, s) => sum + s.percentage, 0).toFixed(1)}%
-                      </p>
-                    </div>
-                    <div className="bg-bg p-4">
-                      <p className="text-[9px] tracking-[0.15em] text-white/25 mb-1">RETAIL</p>
-                      <p className="font-[var(--font-anton)] text-lg">
-                        {shareholders.filter(s => s.archetypeKind === "RETAIL_AGGREGATE" || s.archetypeKind === "HUMAN").reduce((sum, s) => sum + s.percentage, 0).toFixed(1)}%
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Shareholders list */}
-                  <div className="border border-white/10">
-                    <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_80px] gap-4 px-5 py-3 border-b border-white/8">
-                      <span className="text-[9px] tracking-[0.15em] text-white/25">HOLDER</span>
-                      <span className="text-[9px] tracking-[0.15em] text-white/25">TYPE</span>
-                      <span className="text-[9px] tracking-[0.15em] text-white/25 text-right">SHARES</span>
-                      <span className="text-[9px] tracking-[0.15em] text-white/25 text-right">%</span>
-                    </div>
-                    {shareholders.map((holder, i) => {
-                      const TypeIcon = holder.archetypeKind === "INSTITUTIONAL" ? Building2 :
-                                       holder.archetypeKind === "INSIDER" ? Briefcase :
-                                       holder.archetypeKind === "HUMAN" ? User : Users;
-                      const typeLabel = holder.archetypeKind === "RETAIL_AGGREGATE" ? "RETAIL" :
-                                        holder.archetypeKind === "POOL_PROXY" ? "POOL" :
-                                        holder.archetypeKind;
-                      return (
-                        <div key={i} className={`px-5 py-3.5 ${i < shareholders.length - 1 ? "border-b border-white/6" : ""}`}>
-                          <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_80px] gap-4 items-center">
-                            <div className="flex items-center gap-2.5">
-                              <TypeIcon size={14} className="text-white/30 shrink-0" />
-                              <span className="text-[11px] text-white/60">{holder.name}</span>
-                            </div>
-                            <span className={`text-[8px] tracking-[0.1em] px-1.5 py-0.5 border w-fit ${
-                              holder.archetypeKind === "INSTITUTIONAL" ? "text-blue-400 border-blue-400/20" :
-                              holder.archetypeKind === "INSIDER" ? "text-amber-400 border-amber-400/20" :
-                              "text-white/30 border-white/15"
-                            }`}>{typeLabel}</span>
-                            <span className="text-[10px] text-white/40 text-right">{holder.shareCount.toLocaleString("en-IN")}</span>
-                            <span className="text-[11px] font-[var(--font-anton)] text-right">{holder.percentage.toFixed(2)}%</span>
-                          </div>
-                          {/* Mobile view */}
-                          <div className="md:hidden flex items-center justify-between">
-                            <div className="flex items-center gap-2.5">
-                              <TypeIcon size={14} className="text-white/30" />
-                              <div>
-                                <p className="text-[10px] text-white/60">{holder.name}</p>
-                                <span className={`text-[7px] tracking-[0.1em] px-1 py-0.5 border ${
-                                  holder.archetypeKind === "INSTITUTIONAL" ? "text-blue-400 border-blue-400/20" :
-                                  holder.archetypeKind === "INSIDER" ? "text-amber-400 border-amber-400/20" :
-                                  "text-white/25 border-white/15"
-                                }`}>{typeLabel}</span>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-[var(--font-anton)] text-[12px]">{holder.percentage.toFixed(2)}%</p>
-                              <p className="text-[9px] text-white/30">{holder.shareCount.toLocaleString("en-IN")}</p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Right column (desktop): Sticky order panel + order book + news + orders */}
@@ -956,7 +876,7 @@ export default function StockDetailPage({
               <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-3">NEWS</h3>
                 <div className="space-y-2">
                   {stockNews.map((news, i) => (
-                    <div key={i} className="border border-white/8 p-4 hover:bg-white/[0.02] transition-colors">
+                    <button key={i} onClick={() => setExpandedNewsIndex(i)} className="block w-full text-left border border-white/8 p-4 hover:bg-white/[0.02] transition-colors cursor-pointer">
                       <p className="text-[11px] text-white/60 leading-relaxed mb-2">{news.headline}</p>
                       <div className="flex items-center gap-3">
                         <span className="text-[9px] tracking-[0.1em] text-white/25">{formatRelativeTime(news.timestamp)}</span>
@@ -964,7 +884,7 @@ export default function StockDetailPage({
                           {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
                         </span>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
             </div>
@@ -1073,7 +993,7 @@ export default function StockDetailPage({
                   <button
                     key={tab}
                     onClick={() => setMobileTab(tab)}
-                    className={`flex-1 py-2.5 text-[9px] tracking-[0.15em] font-semibold border-b-2 transition-all duration-200 ${
+                    className={`flex-1 py-2.5 text-[11px] tracking-[0.15em] border-b-2 transition-all duration-300 ${
                       mobileTab === tab
                         ? "text-white border-white"
                         : "text-white/40 border-transparent hover:text-white/60"
@@ -1305,6 +1225,61 @@ export default function StockDetailPage({
         pricingType={pricingType}
         total={effectivePrice * qty}
       />
+      </Portal>
+
+      {/* News article overlay */}
+      <Portal>
+      <AnimatePresence>
+        {expandedNewsIndex !== null && stockNews[expandedNewsIndex] && (() => {
+          const news = stockNews[expandedNewsIndex];
+          return (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setExpandedNewsIndex(null)}
+                className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+                className="fixed inset-4 md:inset-x-auto md:inset-y-8 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-2xl z-[71] bg-bg border border-white/10 overflow-y-auto"
+              >
+                <div className="sticky top-0 z-10 bg-bg/95 backdrop-blur-md border-b border-white/8 px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="font-[var(--font-anton)] text-[11px] tracking-[0.1em] text-white/50">{news.ticker}</span>
+                    <span className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
+                      {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setExpandedNewsIndex(null)}
+                    className="w-9 h-9 border border-white/15 flex items-center justify-center hover:border-white/40 transition-colors"
+                  >
+                    <X size={14} className="text-white/50" />
+                  </button>
+                </div>
+
+                <div className="px-6 py-6">
+                  <h2 className="font-[var(--font-anton)] text-lg md:text-xl tracking-[0.03em] leading-snug mb-4">{news.headline}</h2>
+
+                  <div className="flex items-center gap-4 mb-6 pb-4 border-b border-white/8">
+                    <span className="text-[10px] text-white/40">{news.name}</span>
+                    <span className="text-[9px] text-white/20">{formatRelativeTime(news.timestamp)}</span>
+                    <span className="text-[10px] text-white/30 ml-auto">{"\u20B9"}{news.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  </div>
+
+                  <div className="text-[13px] text-white/55 leading-[1.9] whitespace-pre-line">{news.body}</div>
+                </div>
+              </motion.div>
+            </>
+          );
+        })()}
+      </AnimatePresence>
       </Portal>
     </div>
   );
