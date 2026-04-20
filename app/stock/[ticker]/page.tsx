@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { stockDirectory, holdings, newsItems, formatRelativeTime, generateOrderBook, parentCompanies } from "@/lib/mockData";
 import { useTrading } from "@/lib/TradingContext";
 import { usePreferences } from "@/lib/PreferencesContext";
+import { useMarketTick } from "@/lib/WebSocketContext";
 import { getShareholders, Shareholder } from "@/lib/api";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
 import Sparkline from "@/components/Sparkline";
@@ -23,6 +24,9 @@ export default function StockDetailPage({
   const { ticker } = use(params);
   const router = useRouter();
   const stock = stockDirectory[ticker.toUpperCase()];
+  const liveTick = useMarketTick(ticker.toUpperCase());
+  const displayPrice = liveTick?.price ?? stock?.price ?? 0;
+  const isLive = liveTick != null;
   const { placeOrder, getOrdersForTicker, positions, balance, isWatched: checkWatched, toggleWatchlist } = useTrading();
   const [range, setRange] = useState<string>("1D");
   const [qty, setQty] = useState(1);
@@ -56,9 +60,17 @@ export default function StockDetailPage({
   const position = positions.find((p) => p.ticker === ticker.toUpperCase());
   const stockNews = newsItems.filter((n) => n.ticker === ticker.toUpperCase());
   const stockNewsWithIds = stockNews.map((n) => ({ news: n, id: newsItems.indexOf(n) }));
-  const orderBook = useMemo(() => stock ? generateOrderBook(stock.price) : null, [stock]);
+  const orderBook = useMemo(() => {
+    if (liveTick?.book) {
+      return {
+        bids: liveTick.book.bids.map(([price, qty]) => ({ price, qty, orders: Math.ceil(qty / 100) })),
+        asks: liveTick.book.asks.map(([price, qty]) => ({ price, qty, orders: Math.ceil(qty / 100) })),
+      };
+    }
+    return stock ? generateOrderBook(stock.price) : null;
+  }, [liveTick, stock]);
 
-  const effectivePrice = pricingType === "LIMIT" && limitPrice ? parseFloat(limitPrice) : (stock?.price ?? 0);
+  const effectivePrice = pricingType === "LIMIT" && limitPrice ? parseFloat(limitPrice) : displayPrice;
 
   // Pre-compute candle data with deterministic offsets to avoid purity errors
   const candleData = useMemo(() => {
@@ -89,7 +101,7 @@ export default function StockDetailPage({
       orderType,
       pricingType,
       qty,
-      price: stock.price,
+      price: displayPrice,
       ...(pricingType === "LIMIT" && limitPrice ? { limitPrice: parseFloat(limitPrice) } : {}),
     });
     setOrderMsg({ text: result.message, success: result.success });
@@ -239,12 +251,15 @@ export default function StockDetailPage({
             className="mb-7 md:mb-8"
           >
             <p className="font-[var(--font-anton)] text-3xl md:text-4xl tracking-tight mb-1.5">
-              {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              {"\u20B9"}{displayPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </p>
             <div className="flex items-center gap-3">
               <p className={`text-[12px] font-medium ${stock.changePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
                 {stock.changePercent >= 0 ? "+" : ""}{stock.changePercent.toFixed(2)}% {"\u00B7"} {range}
               </p>
+              {isLive && (
+                <span className="text-[8px] tracking-[0.15em] text-[#00D26A] border border-[#00D26A]/40 bg-[#00D26A]/10 px-2 py-0.5">LIVE</span>
+              )}
               {position && (
                 <span className="text-[10px] text-white/40 border border-white/10 px-2 py-0.5">
                   {position.qty} shares held
@@ -446,8 +461,8 @@ export default function StockDetailPage({
             <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-4">3-DAY RANGE <span className="text-[9px] text-white/25 font-normal tracking-[0.1em]">APR 24{"\u2013"}26</span></h3>
             <div className="border border-white/8 p-5">
               {(() => {
-                const low3d = +(stock.price * 0.965).toFixed(2);
-                const high3d = +(stock.price * 1.035).toFixed(2);
+                const low3d = +(displayPrice * 0.965).toFixed(2);
+                const high3d = +(displayPrice * 1.035).toFixed(2);
                 return (
                   <>
                     <div className="flex justify-between mb-2">
@@ -458,7 +473,7 @@ export default function StockDetailPage({
                       <div
                         className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white border border-white/40"
                         style={{
-                          left: `${Math.min(100, Math.max(0, ((stock.price - low3d) / (high3d - low3d)) * 100))}%`,
+                          left: `${Math.min(100, Math.max(0, ((displayPrice - low3d) / (high3d - low3d)) * 100))}%`,
                           transform: "translate(-50%, -50%)",
                         }}
                       />
@@ -468,7 +483,7 @@ export default function StockDetailPage({
                       />
                     </div>
                     <p className="text-[9px] text-white/20 mt-2 text-center">
-                      CURRENT: {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      CURRENT: {"\u20B9"}{displayPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                     </p>
                   </>
                 );
@@ -764,7 +779,7 @@ export default function StockDetailPage({
                     checked={pricingType === "MARKET"}
                     onChange={(e) => {
                       if (e.target.checked) { setPricingType("MARKET"); setLimitPrice(""); }
-                      else { setPricingType("LIMIT"); setLimitPrice(stock.price.toFixed(2)); }
+                      else { setPricingType("LIMIT"); setLimitPrice(displayPrice.toFixed(2)); }
                     }}
                     className="w-3 h-3 accent-white"
                   />
@@ -773,10 +788,10 @@ export default function StockDetailPage({
               </div>
               <input
                 type="number"
-                value={pricingType === "MARKET" ? stock.price.toFixed(2) : limitPrice}
+                value={pricingType === "MARKET" ? displayPrice.toFixed(2) : limitPrice}
                 onChange={(e) => setLimitPrice(e.target.value)}
                 disabled={pricingType === "MARKET"}
-                placeholder={stock.price.toFixed(2)}
+                placeholder={displayPrice.toFixed(2)}
                 className={`w-full h-10 bg-transparent border px-4 text-center font-[var(--font-anton)] text-lg text-white outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                   pricingType === "MARKET" ? "text-white/40 border-white/10 cursor-not-allowed" : "border-white/20 focus:border-white"
                 }`}
@@ -853,7 +868,7 @@ export default function StockDetailPage({
                 ))}
                 <div className="px-4 py-2 bg-white/[0.03] border-y border-white/8">
                   <p className="text-[10px] text-white/40 text-center font-[var(--font-anton)]">
-                    {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })} LTP
+                    {"\u20B9"}{displayPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })} LTP
                   </p>
                 </div>
                 <div className="grid grid-cols-3 gap-0 px-4 py-2 border-b border-white/6">
@@ -981,7 +996,7 @@ export default function StockDetailPage({
               <div className="flex items-center justify-between px-5 py-3 border-b border-white/8 shrink-0">
                 <div className="flex items-center gap-3">
                   <span className="font-[var(--font-anton)] text-base tracking-[0.05em]">{stock.ticker}</span>
-                  <span className="text-[10px] text-white/40">{"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  <span className="text-[10px] text-white/40">{"\u20B9"}{displayPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                 </div>
                 <button onClick={() => setMobileOrderOpen(false)} className="w-10 h-10 flex items-center justify-center border border-white/15 hover:border-white/40 transition-colors">
                   <X size={14} className="text-white/50" />
@@ -1052,7 +1067,7 @@ export default function StockDetailPage({
                             checked={pricingType === "MARKET"}
                             onChange={(e) => {
                               if (e.target.checked) { setPricingType("MARKET"); setLimitPrice(""); }
-                              else { setPricingType("LIMIT"); setLimitPrice(stock.price.toFixed(2)); }
+                              else { setPricingType("LIMIT"); setLimitPrice(displayPrice.toFixed(2)); }
                             }}
                             className="w-3 h-3 accent-white"
                           />
@@ -1061,10 +1076,10 @@ export default function StockDetailPage({
                       </div>
                       <input
                         type="number"
-                        value={pricingType === "MARKET" ? stock.price.toFixed(2) : limitPrice}
+                        value={pricingType === "MARKET" ? displayPrice.toFixed(2) : limitPrice}
                         onChange={(e) => setLimitPrice(e.target.value)}
                         disabled={pricingType === "MARKET"}
-                        placeholder={stock.price.toFixed(2)}
+                        placeholder={displayPrice.toFixed(2)}
                         className={`w-full h-10 bg-transparent border px-4 text-center font-[var(--font-anton)] text-lg text-white outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                           pricingType === "MARKET" ? "text-white/40 border-white/10 cursor-not-allowed" : "border-white/20 focus:border-white"
                         }`}
@@ -1130,7 +1145,7 @@ export default function StockDetailPage({
                     ))}
                     <div className="px-2 py-2.5 bg-white/[0.03] border-y border-white/8 text-center">
                       <span className="text-[11px] text-white/40 font-[var(--font-anton)]">
-                        {"\u20B9"}{stock.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })} LTP
+                        {"\u20B9"}{displayPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })} LTP
                       </span>
                     </div>
                     <div className="grid grid-cols-3 gap-0 px-2 py-2 border-b border-white/6">

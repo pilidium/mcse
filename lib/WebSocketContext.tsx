@@ -20,6 +20,7 @@ export interface MarketTickData {
   volume: number;
   bid: number;
   ask: number;
+  book?: { bids: [number, number][]; asks: [number, number][] };
 }
 
 export interface DayTickUpdate {
@@ -67,8 +68,8 @@ const WebSocketContext = createContext<WebSocketState>({
 
 // ─── Mock WebSocket for Development ────────────────────────────────────────────
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "";
-const USE_MOCK = !WS_URL;
+const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_BASE_URL || "";
+const USE_MOCK = !WS_BASE_URL;
 
 // Mock price ticks - simulates real-time price updates
 function createMockTicker(initialPrice: number): () => MarketTickData {
@@ -163,7 +164,7 @@ const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     setStatus("connecting");
-    const ws = new WebSocket(WS_URL);
+    const ws = new WebSocket(`${WS_BASE_URL}/stream/market`);
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -176,25 +177,48 @@ const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     ws.onmessage = (event) => {
       try {
-        const message: WSMessage = JSON.parse(event.data);
-        setLastMessage(message);
+        const message = JSON.parse(event.data) as Record<string, unknown> & { type: string };
+        setLastMessage({ type: message.type, payload: message, timestamp: new Date().toISOString() });
 
         // Route message to appropriate state
         switch (message.type) {
-          case "market:tick":
-            const tickData = message.payload as MarketTickData;
+          case "PRICES_UPDATE": {
+            const prices = (message.prices as { ticker: string; price: number }[]) ?? [];
+            const orderbooks = (message.orderbooks as { ticker: string; book: { bids: [number, number][]; asks: [number, number][] } }[]) ?? [];
+            const newTicks: Record<string, MarketTickData> = {};
+            for (const p of prices) {
+              const book = orderbooks.find((ob) => ob.ticker === p.ticker)?.book;
+              newTicks[p.ticker] = {
+                ticker: p.ticker,
+                price: p.price,
+                change: 0,
+                changePercent: 0,
+                volume: 0,
+                bid: book?.bids?.[0]?.[0] ?? p.price,
+                ask: book?.asks?.[0]?.[0] ?? p.price,
+                book,
+              };
+            }
+            setMarketTicks((prev) => ({ ...prev, ...newTicks }));
+            break;
+          }
+
+          case "market:tick": {
+            const tickData = message as unknown as MarketTickData;
             setMarketTicks((prev) => ({ ...prev, [tickData.ticker]: tickData }));
             break;
+          }
 
           case "admin:day":
-            setDayTick(message.payload as DayTickUpdate);
+            setDayTick(message as unknown as DayTickUpdate);
             break;
 
-          case "notification":
-            const notif = message.payload as NotificationPush;
+          case "notification": {
+            const notif = message as unknown as NotificationPush;
             setNotifications((prev) => [notif, ...prev.slice(0, 49)]);
             setUnreadCount((prev) => prev + 1);
             break;
+          }
 
           default:
             // Unknown message type - log in dev
