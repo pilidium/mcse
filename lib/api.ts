@@ -8,8 +8,17 @@
  * - Request/response logging in dev mode
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const USE_MOCK = !API_BASE; // Fall back to mock when no API URL configured
+
+// ─── Token Injection ────────────────────────────────────────────────────────────
+// Call registerTokenGetter once on app boot (e.g. in AuthContext) to wire
+// Clerk's getToken() into every API request automatically.
+
+let _tokenGetter: (() => Promise<string | null>) | null = null;
+export function registerTokenGetter(fn: () => Promise<string | null>): void {
+  _tokenGetter = fn;
+}
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -21,6 +30,7 @@ export interface ApiResponse<T> {
 
 export interface MarketStatus {
   isOpen: boolean;
+  phase: string;
   dayNumber: number;
   dayTickCounter: number;
   ticksPerDay: number;
@@ -179,10 +189,30 @@ export interface Investor {
   portfolioValue: number;
 }
 
+export interface StockListItem {
+  ticker: string;
+  name: string;
+  sector: string;
+  parent: { ticker: string; name: string };
+  price: number | null;
+}
+
+export interface StockDetail extends StockListItem {
+  ohlcv: {
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+    macro_tick: number;
+  } | null;
+}
+
 // ─── Mock Data ─────────────────────────────────────────────────────────────────
 
 const mockMarketStatus: MarketStatus = {
   isOpen: true,
+  phase: "RUNNING",
   dayNumber: 1,
   dayTickCounter: 5,
   ticksPerDay: 18,
@@ -307,25 +337,25 @@ const mockInvestors: Investor[] = [
 
 // ─── Core Fetch Wrapper ────────────────────────────────────────────────────────
 
-async function apiFetch<T>(
+async function apiFetch<T, Raw = T>(
   endpoint: string,
   options: RequestInit = {},
-  mockData?: T
+  mockData?: T,
+  transform?: (data: Raw) => T
 ): Promise<ApiResponse<T>> {
   if (USE_MOCK && mockData !== undefined) {
-    // Simulate network delay in dev
     await new Promise((r) => setTimeout(r, 100 + Math.random() * 200));
     return { data: mockData, error: null, status: 200 };
   }
 
   try {
+    const token = _tokenGetter ? await _tokenGetter() : null;
     const res = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
       headers: {
         "Content-Type": "application/json",
         ...options.headers,
-        // TODO: Add Clerk auth token when integrated
-        // "Authorization": `Bearer ${token}`,
+        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
       },
     });
 
@@ -334,7 +364,8 @@ async function apiFetch<T>(
       return { data: null, error: errorBody || res.statusText, status: res.status };
     }
 
-    const data = await res.json();
+    const raw = await res.json();
+    const data: T = transform ? transform(raw as Raw) : raw;
     return { data, error: null, status: res.status };
   } catch (err) {
     return { data: null, error: (err as Error).message, status: 0 };
@@ -346,55 +377,109 @@ async function apiFetch<T>(
 // === Market Status & Admin ===
 
 export async function getMarketStatus(): Promise<ApiResponse<MarketStatus>> {
-  return apiFetch("/admin/market/status", {}, mockMarketStatus);
+  return apiFetch<MarketStatus, Record<string, unknown>>(
+    "/admin/market/status",
+    {},
+    mockMarketStatus,
+    (raw) => ({
+      isOpen: Boolean(raw.is_open),
+      phase: String(raw.phase ?? "IDLE"),
+      dayNumber: Number(raw.day_number ?? 0),
+      dayTickCounter: Number(raw.day_tick_counter ?? 0),
+      ticksPerDay: Number(raw.ticks_per_day ?? 18),
+      lastUpdated: new Date().toISOString(),
+    })
+  );
 }
 
-export async function toggleMarketStatus(open: boolean): Promise<ApiResponse<MarketStatus>> {
-  return apiFetch(
-    "/admin/market/toggle",
-    { method: "POST", body: JSON.stringify({ open }) },
-    { ...mockMarketStatus, isOpen: open }
-  );
+// currentPhase: the phase value from the last getMarketStatus() call
+// IDLE → start, RUNNING → pause, PAUSED|DAY_ENDED → resume
+export async function toggleMarketStatus(currentPhase: string): Promise<ApiResponse<{ ok: boolean }>> {
+  let endpoint: string;
+  if (currentPhase === "IDLE") endpoint = "/admin/market/start";
+  else if (currentPhase === "RUNNING") endpoint = "/admin/market/pause";
+  else if (currentPhase === "PAUSED" || currentPhase === "DAY_ENDED") endpoint = "/admin/market/resume";
+  else return { data: null, error: `Cannot toggle market from phase: ${currentPhase}`, status: 409 };
+
+  return apiFetch(endpoint, { method: "POST" }, { ok: true });
 }
 
 export type MarketDay = { dayNumber: number; dayTickCounter: number; ticksPerDay: number };
 
 export async function getMarketDay(): Promise<ApiResponse<MarketDay>> {
-  return apiFetch(
+  return apiFetch<MarketDay, Record<string, unknown>>(
     "/admin/market/day",
     {},
-    { dayNumber: mockMarketStatus.dayNumber, dayTickCounter: mockMarketStatus.dayTickCounter, ticksPerDay: mockMarketStatus.ticksPerDay }
+    { dayNumber: mockMarketStatus.dayNumber, dayTickCounter: mockMarketStatus.dayTickCounter, ticksPerDay: mockMarketStatus.ticksPerDay },
+    (raw) => ({
+      dayNumber: Number(raw.day_number ?? 0),
+      dayTickCounter: Number(raw.day_tick_counter ?? 0),
+      ticksPerDay: Number(raw.ticks_per_day ?? 18),
+    })
   );
 }
 
+const normalizeSessionConfig = (raw: Record<string, unknown>): SessionConfig => ({
+  ticksPerDay: Number(raw.ticks_per_day ?? 18),
+  macroTickSeconds: Number(raw.macro_tick_interval_secs ?? 1200),
+  microTickSeconds: Number(raw.micro_tick_interval_secs ?? 5),
+  circuitBreakerPctMicro: Number(raw.circuit_breaker_micro_pct ?? 3),
+  circuitBreakerPctMacro: Number(raw.circuit_breaker_macro_pct ?? 10),
+});
+
 export async function getSessionConfig(): Promise<ApiResponse<SessionConfig>> {
-  return apiFetch("/admin/session/config", {}, mockSessionConfig);
+  return apiFetch<SessionConfig, Record<string, unknown>>(
+    "/admin/session/config", {}, mockSessionConfig, normalizeSessionConfig
+  );
 }
 
 export async function updateSessionConfig(config: Partial<SessionConfig>): Promise<ApiResponse<SessionConfig>> {
-  return apiFetch(
+  // Map camelCase frontend keys to snake_case DB column names
+  const body: Record<string, unknown> = {};
+  if (config.ticksPerDay !== undefined) body.ticks_per_day = config.ticksPerDay;
+  if (config.macroTickSeconds !== undefined) body.macro_tick_interval_secs = config.macroTickSeconds;
+  if (config.microTickSeconds !== undefined) body.micro_tick_interval_secs = config.microTickSeconds;
+  if (config.circuitBreakerPctMicro !== undefined) body.circuit_breaker_micro_pct = config.circuitBreakerPctMicro;
+  if (config.circuitBreakerPctMacro !== undefined) body.circuit_breaker_macro_pct = config.circuitBreakerPctMacro;
+
+  return apiFetch<SessionConfig, Record<string, unknown>>(
     "/admin/session/config",
-    { method: "PUT", body: JSON.stringify(config) },
-    { ...mockSessionConfig, ...config }
+    { method: "PUT", body: JSON.stringify(body) },
+    { ...mockSessionConfig, ...config },
+    normalizeSessionConfig
   );
 }
 
 // === Announcements ===
 
+type RawAnnouncement = { id: string; title: string; content: string; is_pinned: boolean; published_at: string };
+const normalizeAnnouncement = (raw: RawAnnouncement): Announcement => ({
+  id: String(raw.id),
+  title: raw.title,
+  content: raw.content,
+  timestamp: new Date(raw.published_at).getTime(),
+  priority: raw.is_pinned ? "HIGH" : "NORMAL",
+});
+
 export async function getAnnouncements(): Promise<ApiResponse<Announcement[]>> {
-  return apiFetch("/market/announcements", {}, mockAnnouncements);
+  return apiFetch<Announcement[], RawAnnouncement[]>(
+    "/market/announcements", {}, mockAnnouncements,
+    (rows) => rows.map(normalizeAnnouncement)
+  );
 }
 
 export async function createAnnouncement(announcement: Omit<Announcement, "id" | "timestamp">): Promise<ApiResponse<Announcement>> {
-  const newAnn: Announcement = {
-    id: `ANN-${Date.now()}`,
-    ...announcement,
-    timestamp: Date.now(),
+  const newAnn: Announcement = { id: `ANN-${Date.now()}`, ...announcement, timestamp: Date.now() };
+  const body = {
+    title: announcement.title,
+    content: announcement.content,
+    is_pinned: announcement.priority === "HIGH",
   };
-  return apiFetch(
+  return apiFetch<Announcement, RawAnnouncement>(
     "/admin/announcements",
-    { method: "POST", body: JSON.stringify(announcement) },
-    newAnn
+    { method: "POST", body: JSON.stringify(body) },
+    newAnn,
+    normalizeAnnouncement
   );
 }
 
@@ -678,4 +763,15 @@ export async function suspendInvestor(id: string, suspend: boolean): Promise<Api
     { method: "POST", body: JSON.stringify({ suspend }) },
     { success: true }
   );
+}
+
+// === Market Stocks ===
+// In mock mode both functions return empty/null so pages fall back to mockData.
+
+export async function getStocks(): Promise<ApiResponse<StockListItem[]>> {
+  return apiFetch<StockListItem[]>("/market/stocks", {}, []);
+}
+
+export async function getStock(ticker: string): Promise<ApiResponse<StockDetail | null>> {
+  return apiFetch<StockDetail | null>(`/market/stocks/${ticker.toUpperCase()}`, {}, null);
 }

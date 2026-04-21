@@ -10,7 +10,7 @@ import { stockDirectory, holdings, newsItems, formatRelativeTime, generateOrderB
 import { useTrading } from "@/lib/TradingContext";
 import { usePreferences } from "@/lib/PreferencesContext";
 import { useMarketTick } from "@/lib/WebSocketContext";
-import { getShareholders, Shareholder } from "@/lib/api";
+import { getShareholders, getStock, Shareholder, StockDetail } from "@/lib/api";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
 import Sparkline from "@/components/Sparkline";
 
@@ -25,7 +25,8 @@ export default function StockDetailPage({
   const router = useRouter();
   const stock = stockDirectory[ticker.toUpperCase()];
   const liveTick = useMarketTick(ticker.toUpperCase());
-  const displayPrice = liveTick?.price ?? stock?.price ?? 0;
+  const [apiStock, setApiStock] = useState<StockDetail | null>(null);
+  const displayPrice = liveTick?.price ?? stock?.price ?? apiStock?.price ?? 0;
   const isLive = liveTick != null;
   const { placeOrder, getOrdersForTicker, positions, balance, isWatched: checkWatched, toggleWatchlist } = useTrading();
   const [range, setRange] = useState<string>("1D");
@@ -44,6 +45,10 @@ export default function StockDetailPage({
   const [chartType, setChartType] = useState<"LINE" | "CANDLE">("LINE");
   const { confirmOrders } = usePreferences();
   // expandedNewsIndex removed — news now navigates to /news/[id] page
+
+  useEffect(() => {
+    getStock(ticker).then(res => { if (res.data) setApiStock(res.data); });
+  }, [ticker]);
 
   // Fetch shareholders when tab is selected
   useEffect(() => {
@@ -67,8 +72,8 @@ export default function StockDetailPage({
         asks: liveTick.book.asks.map(([price, qty]) => ({ price, qty, orders: Math.ceil(qty / 100) })),
       };
     }
-    return stock ? generateOrderBook(stock.price) : null;
-  }, [liveTick, stock]);
+    return stock ? generateOrderBook(displayPrice) : null;
+  }, [liveTick, stock, displayPrice]);
 
   const effectivePrice = pricingType === "LIMIT" && limitPrice ? parseFloat(limitPrice) : displayPrice;
 
@@ -107,7 +112,7 @@ export default function StockDetailPage({
     setOrderMsg({ text: result.message, success: result.success });
     if (result.success) { setQty(1); setLimitPrice(""); }
     setTimeout(() => setOrderMsg(null), 3000);
-  }, [stock, placeOrder, buySellTab, orderType, pricingType, limitPrice, qty]);
+  }, [stock, placeOrder, buySellTab, orderType, pricingType, limitPrice, qty, displayPrice]);
 
   const handleOrder = useCallback(() => {
     if (confirmOrders) {
