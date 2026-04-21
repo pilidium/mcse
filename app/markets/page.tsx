@@ -10,7 +10,7 @@ import {
   allStocksEnriched,
   marketBreadth as mockMarketBreadth,
 } from "@/lib/mockData";
-import { getMarketBreadth, MarketBreadth } from "@/lib/api";
+import { getMarketBreadth, getStocks, MarketBreadth } from "@/lib/api";
 
 const sectors = ["ALL", ...Array.from(new Set(allStocksEnriched.map((s) => s.sector)))];
 
@@ -33,10 +33,20 @@ export default function MarketsPage() {
   const [mobileSortOpen, setMobileSortOpen] = useState(false);
   const [mobileValue, setMobileValue] = useState<MobileValueKey>("dayChangePercent");
   const [marketBreadth, setMarketBreadth] = useState<MarketBreadth>(mockMarketBreadth);
+  const [stocks, setStocks] = useState(allStocksEnriched);
 
   useEffect(() => {
     getMarketBreadth().then(res => {
       if (res.data) setMarketBreadth(res.data);
+    });
+    getStocks().then(res => {
+      if (!res.data || res.data.length === 0) return;
+      const priceMap: Record<string, number> = {};
+      for (const s of res.data) if (s.price !== null) priceMap[s.ticker] = s.price;
+      setStocks(allStocksEnriched.map(s => ({
+        ...s,
+        price: priceMap[s.ticker] ?? s.price,
+      })));
     });
   }, []);
 
@@ -45,9 +55,9 @@ export default function MarketsPage() {
   const decPct = ((marketBreadth.declines / totalBreadth) * 100).toFixed(1);
 
   const filtered = useMemo(() => {
-    const stocks = sectorFilter === "ALL" ? [...allStocksEnriched] : allStocksEnriched.filter((s) => s.sector === sectorFilter);
+    const list = sectorFilter === "ALL" ? [...stocks] : stocks.filter((s) => s.sector === sectorFilter);
     const key = sortKey;
-    stocks.sort((a, b) => {
+    list.sort((a, b) => {
       let av: string | number, bv: string | number;
       if (key === "ticker") { av = a.ticker; bv = b.ticker; }
       else if (key === "sector") { av = a.sector; bv = b.sector; }
@@ -55,12 +65,12 @@ export default function MarketsPage() {
       if (typeof av === "string") return sortDir === "asc" ? av.localeCompare(bv as string) : (bv as string).localeCompare(av);
       return sortDir === "asc" ? (av as number) - (bv as number) : (bv as number) - (av as number);
     });
-    return stocks;
-  }, [sectorFilter, sortKey, sortDir]);
+    return list;
+  }, [stocks, sectorFilter, sortKey, sortDir]);
 
   const mobileFiltered = useMemo(() => {
-    const stocks = sectorFilter === "ALL" ? [...allStocksEnriched] : allStocksEnriched.filter((s) => s.sector === sectorFilter);
-    stocks.sort((a, b) => {
+    const list = sectorFilter === "ALL" ? [...stocks] : stocks.filter((s) => s.sector === sectorFilter);
+    list.sort((a, b) => {
       const key = mobileSort;
       let av: string | number, bv: string | number;
       if (key === "ticker") { av = a.ticker; bv = b.ticker; }
@@ -69,8 +79,8 @@ export default function MarketsPage() {
       if (typeof av === "string") return av.localeCompare(bv as string);
       return (bv as number) - (av as number);
     });
-    return stocks;
-  }, [sectorFilter, mobileSort]);
+    return list;
+  }, [stocks, sectorFilter, mobileSort]);
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -98,7 +108,7 @@ export default function MarketsPage() {
       <div className="flex items-end justify-between mb-8">
         <div>
           <h1 className="font-[var(--font-anton)] text-xl md:text-2xl tracking-[0.1em] uppercase">MARKETS</h1>
-          <p className="text-[10px] tracking-[0.15em] text-white/30 mt-1">{allStocksEnriched.length} STOCKS</p>
+          <p className="text-[10px] tracking-[0.15em] text-white/30 mt-1">{stocks.length} STOCKS</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-up animate-pulse" />

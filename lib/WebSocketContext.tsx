@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef, type ReactNode } from "react";
+import { useAuth } from "@clerk/nextjs";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -106,6 +107,7 @@ const mockTickers: Record<string, () => MarketTickData> = {
 // ─── Provider ──────────────────────────────────────────────────────────────────
 
 export function WebSocketProvider({ children }: { children: ReactNode }) {
+  const { getToken } = useAuth();
   const [status, setStatus] = useState<WebSocketStatus>("disconnected");
   const [lastMessage, setLastMessage] = useState<WSMessage | null>(null);
   const [marketTicks, setMarketTicks] = useState<Record<string, MarketTickData>>({});
@@ -125,7 +127,7 @@ const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const connectRef = useRef<() => void>(undefined);
 
   // Connect to WebSocket
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     if (USE_MOCK) {
       // Mock mode - simulate WebSocket with intervals
       setStatus("connected");
@@ -164,7 +166,12 @@ const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     setStatus("connecting");
-    const ws = new WebSocket(`${WS_BASE_URL}/stream/market`);
+    // /stream/market is public (Phase 4); token only needed for admin/company streams
+    const token = await getToken().catch(() => null);
+    const url = token
+      ? `${WS_BASE_URL}/stream/market?token=${encodeURIComponent(token)}`
+      : `${WS_BASE_URL}/stream/market`;
+    const ws = new WebSocket(url);
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -185,9 +192,10 @@ const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
           case "PRICES_UPDATE": {
             const prices = (message.prices as { ticker: string; price: number }[]) ?? [];
             const orderbooks = (message.orderbooks as { ticker: string; book: { bids: [number, number][]; asks: [number, number][] } }[]) ?? [];
+            const orderbooksByTicker = new Map(orderbooks.map((ob) => [ob.ticker, ob]));
             const newTicks: Record<string, MarketTickData> = {};
             for (const p of prices) {
-              const book = orderbooks.find((ob) => ob.ticker === p.ticker)?.book;
+              const book = orderbooksByTicker.get(p.ticker)?.book;
               newTicks[p.ticker] = {
                 ticker: p.ticker,
                 price: p.price,

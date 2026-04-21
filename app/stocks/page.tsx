@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Sparkline from "@/components/Sparkline";
 import { stockDirectory } from "@/lib/mockData";
+import { getStocks } from "@/lib/api";
 
-const allStocks = Object.values(stockDirectory);
+const mockStocks = Object.values(stockDirectory);
 
 type SortKey = "ticker" | "price" | "changePercent" | "sector";
 type SortDir = "asc" | "desc";
@@ -16,11 +17,24 @@ export default function StocksPage() {
   const [sortKey, setSortKey] = useState<SortKey>("ticker");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [sectorFilter, setSectorFilter] = useState("ALL");
+  const [allStocks, setAllStocks] = useState(mockStocks);
+
+  useEffect(() => {
+    getStocks().then(res => {
+      if (!res.data || res.data.length === 0) return;
+      const priceMap: Record<string, number> = {};
+      for (const s of res.data) if (s.price !== null) priceMap[s.ticker] = s.price;
+      setAllStocks(mockStocks.map(s => ({
+        ...s,
+        price: priceMap[s.ticker] ?? s.price,
+      })));
+    });
+  }, []);
 
   const sectors = useMemo(() => {
     const s = new Set(allStocks.map((st) => st.fundamentals.sector));
     return ["ALL", ...Array.from(s).sort()];
-  }, []);
+  }, [allStocks]);
 
   const filtered = useMemo(() => {
     let arr = allStocks;
@@ -30,7 +44,7 @@ export default function StocksPage() {
       arr = arr.filter((s) => s.ticker.toLowerCase().includes(q) || s.name.toLowerCase().includes(q));
     }
     return arr;
-  }, [search, sectorFilter]);
+  }, [allStocks, search, sectorFilter]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
