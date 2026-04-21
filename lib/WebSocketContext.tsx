@@ -124,7 +124,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const subscriptionsRef = useRef<Set<string>>(new Set());
 const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const mockIntervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
-  const connectRef = useRef<() => void>(undefined);
+  const connectRef = useRef<() => Promise<void>>(undefined);
 
   // Connect to WebSocket
   const connect = useCallback(async () => {
@@ -166,12 +166,8 @@ const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     setStatus("connecting");
-    // /stream/market is public (Phase 4); token only needed for admin/company streams
-    const token = await getToken().catch(() => null);
-    const url = token
-      ? `${WS_BASE_URL}/stream/market?token=${encodeURIComponent(token)}`
-      : `${WS_BASE_URL}/stream/market`;
-    const ws = new WebSocket(url);
+    // /stream/market is public; do not attach authentication tokens to the URL
+    const ws = new WebSocket(`${WS_BASE_URL}/stream/market`);
     wsRef.current = ws;
 
     ws.onopen = () => {

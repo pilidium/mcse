@@ -386,7 +386,7 @@ export async function getMarketStatus(): Promise<ApiResponse<MarketStatus>> {
       phase: String(raw.phase ?? "IDLE"),
       dayNumber: Number(raw.day_number ?? 0),
       dayTickCounter: Number(raw.day_tick_counter ?? 0),
-      ticksPerDay: 0,
+      ticksPerDay: Number(raw.ticks_per_day ?? 18),
       lastUpdated: new Date().toISOString(),
     })
   );
