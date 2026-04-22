@@ -768,13 +768,19 @@ function TotalAdminDashboard() {
   const pendingNews = companyNews.filter((n) => n.status === "PENDING");
 
   // Use API metrics or fallback to mock
-  const stats = metrics || {
+  const stats: PlatformMetrics = metrics || {
     totalInvestors: platformStats.totalUsers,
     totalCompanies: platformStats.listedStocks,
     totalTrades: platformStats.totalTrades,
     totalVolume: platformStats.totalVolume,
     marketCap: 0,
     activeToday: platformStats.activeToday,
+    connectedWsUsers: 0,
+    orderRatePerMin: 0,
+    llmLatencyP50: 0,
+    llmLatencyP99: 0,
+    redisHitRate: 0,
+    macroTickDurationSecs: null,
   };
 
   function publishAnnouncement() {
@@ -1552,6 +1558,48 @@ function TotalAdminDashboard() {
           </div>
         </motion.div>
       </div>
+
+      {/* Phase 15 — System Health Metrics */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.22 }}
+        className="mt-8 border border-white/10"
+      >
+        <div className="px-5 py-4 border-b border-white/8">
+          <p className="text-[9px] tracking-[0.15em] text-white/30">SYSTEM HEALTH</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-[1px] bg-white/8">
+          <div className="bg-bg px-5 py-4">
+            <p className="text-[8px] tracking-[0.1em] text-white/25 mb-1">WS CONNECTIONS</p>
+            <p className="font-[var(--font-anton)] text-lg">{stats.connectedWsUsers}</p>
+          </div>
+          <div className="bg-bg px-5 py-4">
+            <p className="text-[8px] tracking-[0.1em] text-white/25 mb-1">ORDERS / MIN</p>
+            <p className="font-[var(--font-anton)] text-lg">{stats.orderRatePerMin}</p>
+          </div>
+          <div className="bg-bg px-5 py-4">
+            <p className="text-[8px] tracking-[0.1em] text-white/25 mb-1">LLM P50 / P99</p>
+            <p className="font-[var(--font-anton)] text-lg">
+              {stats.llmLatencyP50 > 0
+                ? `${(stats.llmLatencyP50 / 1000).toFixed(0)}s / ${(stats.llmLatencyP99 / 1000).toFixed(0)}s`
+                : "—"}
+            </p>
+          </div>
+          <div className="bg-bg px-5 py-4">
+            <p className="text-[8px] tracking-[0.1em] text-white/25 mb-1">REDIS HIT RATE</p>
+            <p className="font-[var(--font-anton)] text-lg">
+              {stats.redisHitRate > 0 ? `${(stats.redisHitRate * 100).toFixed(1)}%` : "—"}
+            </p>
+          </div>
+          <div className="bg-bg px-5 py-4">
+            <p className="text-[8px] tracking-[0.1em] text-white/25 mb-1">MACRO TICK DUR.</p>
+            <p className="font-[var(--font-anton)] text-lg">
+              {stats.macroTickDurationSecs != null ? `${stats.macroTickDurationSecs.toFixed(0)}s` : "—"}
+            </p>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Pending News Approvals */}
       {pendingNews.length > 0 && (

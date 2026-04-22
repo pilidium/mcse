@@ -156,12 +156,20 @@ export interface Notification {
 }
 
 export interface PlatformMetrics {
+  // Overview
   totalInvestors: number;
   totalCompanies: number;
   totalTrades: number;
   totalVolume: number;
   marketCap: number;
   activeToday: number;
+  // Phase 15 live system metrics
+  connectedWsUsers: number;
+  orderRatePerMin: number;
+  llmLatencyP50: number;
+  llmLatencyP99: number;
+  redisHitRate: number;
+  macroTickDurationSecs: number | null;
 }
 
 export interface LedgerEntry {
@@ -318,6 +326,12 @@ const mockPlatformMetrics: PlatformMetrics = {
   totalVolume: 2487693,
   marketCap: 156000000,
   activeToday: 67,
+  connectedWsUsers: 0,
+  orderRatePerMin: 0,
+  llmLatencyP50: 0,
+  llmLatencyP99: 0,
+  redisHitRate: 0,
+  macroTickDurationSecs: null,
 };
 
 const mockLedgerEntries: LedgerEntry[] = [
@@ -704,7 +718,25 @@ export async function updatePriceAlerts(
 // === Admin Metrics ===
 
 export async function getPlatformMetrics(): Promise<ApiResponse<PlatformMetrics>> {
-  return apiFetch("/admin/metrics", {}, mockPlatformMetrics);
+  return apiFetch<PlatformMetrics, Record<string, unknown>>(
+    "/admin/metrics",
+    {},
+    mockPlatformMetrics,
+    (raw) => ({
+      totalInvestors:        Number(raw.total_investors ?? 0),
+      totalCompanies:        Number(raw.total_companies ?? 0),
+      totalTrades:           Number(raw.total_trades ?? 0),
+      totalVolume:           Number(raw.total_volume ?? 0),
+      marketCap:             0,
+      activeToday:           Number(raw.active_today ?? 0),
+      connectedWsUsers:      Number(raw.connected_ws_users ?? 0),
+      orderRatePerMin:       Number(raw.order_rate_per_min ?? 0),
+      llmLatencyP50:         Number((raw.llm_latency_p50_p99 as Record<string, number>)?.p50 ?? 0),
+      llmLatencyP99:         Number((raw.llm_latency_p50_p99 as Record<string, number>)?.p99 ?? 0),
+      redisHitRate:          Number(raw.redis_hit_rate ?? 0),
+      macroTickDurationSecs: raw.macro_tick_duration_secs != null ? Number(raw.macro_tick_duration_secs) : null,
+    })
+  );
 }
 
 // === Admin Ledger ===
