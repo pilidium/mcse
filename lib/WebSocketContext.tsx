@@ -224,6 +224,24 @@ const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
             break;
           }
 
+          case "ETF_NAV_UPDATE": {
+            const updates = (message.etf_navs as { ticker: string; nav: number; market_price: number }[]) ?? [];
+            const newTicks: Record<string, MarketTickData> = {};
+            for (const e of updates) {
+              newTicks[e.ticker] = {
+                ticker:        e.ticker,
+                price:         e.market_price,
+                change:        0,
+                changePercent: 0,
+                volume:        0,
+                bid:           e.nav,
+                ask:           e.market_price,
+              };
+            }
+            setMarketTicks((prev) => ({ ...prev, ...newTicks }));
+            break;
+          }
+
           default:
             // Unknown message type - log in dev
             if (process.env.NODE_ENV === "development") {

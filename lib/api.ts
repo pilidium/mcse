@@ -775,3 +775,48 @@ export async function getStocks(): Promise<ApiResponse<StockListItem[]>> {
 export async function getStock(ticker: string): Promise<ApiResponse<StockDetail | null>> {
   return apiFetch<StockDetail | null>(`/market/stocks/${ticker.toUpperCase()}`, {}, null);
 }
+
+// === ETFs ===
+
+export interface ETFListItem {
+  ticker: string;
+  name: string;
+  category: string;
+  benchmark_index: string | null;
+  expense_ratio_bps: number;
+  shares_outstanding: number;
+  nav: number;
+  price: number;
+}
+
+export interface ETFNavPoint {
+  macro_tick: number;
+  micro_tick: number;
+  nav: number;
+  market_price: number;
+  recorded_at: string;
+}
+
+export interface ETFDetail extends ETFListItem {
+  nav_history: ETFNavPoint[];
+}
+
+export interface ETFHolding {
+  ticker: string;
+  name: string;
+  sector: string;
+  weight: number;
+  price: number | null;
+}
+
+export async function getEtfs(): Promise<ApiResponse<ETFListItem[]>> {
+  return apiFetch<ETFListItem[]>("/market/etfs", {}, []);
+}
+
+export async function getEtf(ticker: string): Promise<ApiResponse<ETFDetail | null>> {
+  return apiFetch<ETFDetail | null>(`/market/etfs/${ticker.toUpperCase()}`, {}, null);
+}
+
+export async function getEtfHoldings(ticker: string): Promise<ApiResponse<ETFHolding[]>> {
+  return apiFetch<ETFHolding[]>(`/market/etfs/${ticker.toUpperCase()}/holdings`, {}, []);
+}
