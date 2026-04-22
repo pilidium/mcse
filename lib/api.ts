@@ -750,10 +750,30 @@ export async function getLedger(params?: {
   limit?: number;
 }): Promise<ApiResponse<{ entries: LedgerEntry[]; total: number; page: number; limit: number }>> {
   const query = params ? "?" + new URLSearchParams(params as Record<string, string>).toString() : "";
-  return apiFetch(
+  return apiFetch<
+    { entries: LedgerEntry[]; total: number; page: number; limit: number },
+    { rows: Record<string, unknown>[]; total: number; limit: number; offset: number }
+  >(
     `/admin/ledger${query}`,
     {},
-    { entries: mockLedgerEntries, total: mockLedgerEntries.length, page: 1, limit: 50 }
+    { entries: mockLedgerEntries, total: mockLedgerEntries.length, page: 1, limit: 50 },
+    (raw) => ({
+      entries: (raw.rows ?? []).map((r) => ({
+        id:         String(r.id ?? ""),
+        timestamp:  String(r.created_at ?? ""),
+        type:       String(r.event_type ?? "BUY") as LedgerEntry["type"],
+        ticker:     String(r.subsidiary_id ?? ""),
+        qty:        Number(r.quantity ?? 0),
+        price:      Number(r.price_per_unit ?? 0),
+        buyerId:    r.investor_id ? String(r.investor_id) : null,
+        sellerId:   null,
+        buyerName:  null,
+        sellerName: null,
+      })),
+      total:  Number(raw.total ?? 0),
+      page:   Math.floor(Number(raw.offset ?? 0) / Number(raw.limit ?? 100)) + 1,
+      limit:  Number(raw.limit ?? 100),
+    })
   );
 }
 
@@ -765,10 +785,27 @@ export async function getInvestors(params?: {
   limit?: number;
 }): Promise<ApiResponse<{ investors: Investor[]; total: number }>> {
   const query = params ? "?" + new URLSearchParams(params as Record<string, string>).toString() : "";
-  return apiFetch(
+  return apiFetch<
+    { investors: Investor[]; total: number },
+    { rows: Record<string, unknown>[]; total: number }
+  >(
     `/admin/investors${query}`,
     {},
-    { investors: mockInvestors, total: mockInvestors.length }
+    { investors: mockInvestors, total: mockInvestors.length },
+    (raw) => ({
+      investors: (raw.rows ?? []).map((r) => ({
+        investorId:     String(r.id ?? ""),
+        email:          String(r.email ?? ""),
+        name:           String(r.email ?? "").split("@")[0],
+        balance:        Number(r.balance ?? 0),
+        kycStatus:      (r.kyc_status as Investor["kycStatus"]) ?? "PENDING",
+        joinedAt:       String(r.created_at ?? ""),
+        isSuspended:    false,
+        totalTrades:    Number(r.trade_count ?? 0),
+        portfolioValue: 0,
+      })),
+      total: Number(raw.total ?? 0),
+    })
   );
 }
 
@@ -786,6 +823,14 @@ export async function adjustInvestorBalance(id: string, amount: number, reason: 
     `/admin/investors/${id}/balance`,
     { method: "POST", body: JSON.stringify({ amount, reason }) },
     { success: true, newBalance: (investor?.balance || 0) + amount }
+  );
+}
+
+export async function topupInvestor(id: string, amount: number): Promise<ApiResponse<{ ok: boolean; new_balance: number }>> {
+  return apiFetch(
+    `/admin/investors/${id}/topup`,
+    { method: "POST", body: JSON.stringify({ amount }) },
+    { ok: true, new_balance: amount }
   );
 }
 

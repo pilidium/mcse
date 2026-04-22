@@ -32,7 +32,7 @@ import {
 import { useAuth, type UserRole } from "@/lib/AuthContext";
 import { useAdmin } from "@/lib/AdminContext";
 import { useDayTick } from "@/lib/WebSocketContext";
-import { injectEvent, getPlatformMetrics, PlatformMetrics, getLedger, LedgerEntry, getInvestors, Investor } from "@/lib/api";
+import { injectEvent, getPlatformMetrics, PlatformMetrics, getLedger, LedgerEntry, getInvestors, Investor, topupInvestor } from "@/lib/api";
 import {
   enigmaCompanyData,
   stockDirectory,
@@ -715,6 +715,8 @@ function TotalAdminDashboard() {
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [investorsLoading, setInvestorsLoading] = useState(false);
   const [investorSearch, setInvestorSearch] = useState("");
+  const [topupTarget, setTopupTarget] = useState<string | null>(null);
+  const [topupAmount, setTopupAmount] = useState("");
   
   useEffect(() => {
     (async () => {
@@ -1051,13 +1053,14 @@ function TotalAdminDashboard() {
         />
         
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="border border-white/10">
-          <div className="hidden md:grid grid-cols-[2fr_2fr_100px_80px_100px_80px] gap-4 px-5 py-3 border-b border-white/8">
+          <div className="hidden md:grid grid-cols-[2fr_2fr_100px_80px_100px_60px_140px] gap-4 px-5 py-3 border-b border-white/8">
             <span className="text-[9px] tracking-[0.15em] text-white/25">NAME</span>
             <span className="text-[9px] tracking-[0.15em] text-white/25">EMAIL</span>
             <span className="text-[9px] tracking-[0.15em] text-white/25">BALANCE</span>
             <span className="text-[9px] tracking-[0.15em] text-white/25">KYC</span>
             <span className="text-[9px] tracking-[0.15em] text-white/25">PORTFOLIO</span>
             <span className="text-[9px] tracking-[0.15em] text-white/25">TRADES</span>
+            <span className="text-[9px] tracking-[0.15em] text-white/25">TOPUP</span>
           </div>
           {investorsLoading ? (
             <div className="px-5 py-8 text-center">
@@ -1071,7 +1074,7 @@ function TotalAdminDashboard() {
           ) : (
             investors.map((investor, i) => (
               <div key={investor.investorId} className={`px-5 py-3.5 ${i < investors.length - 1 ? "border-b border-white/6" : ""} ${investor.isSuspended ? "opacity-50" : ""}`}>
-                <div className="hidden md:grid grid-cols-[2fr_2fr_100px_80px_100px_80px] gap-4 items-center">
+                <div className="hidden md:grid grid-cols-[2fr_2fr_100px_80px_100px_60px_140px] gap-4 items-center">
                   <div className="flex items-center gap-3">
                     <div className="w-7 h-7 border border-white/20 flex items-center justify-center shrink-0">
                       <span className="text-[7px] tracking-wider text-white/40">
@@ -1094,6 +1097,61 @@ function TotalAdminDashboard() {
                   }`}>{investor.kycStatus}</span>
                   <span className="text-[10px] text-white/50">{"\u20B9"}{investor.portfolioValue.toLocaleString("en-IN")}</span>
                   <span className="text-[10px] text-white/40">{investor.totalTrades}</span>
+                  {topupTarget === investor.investorId ? (
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="number"
+                        value={topupAmount}
+                        onChange={e => setTopupAmount(e.target.value)}
+                        placeholder="Amount"
+                        className="w-16 bg-white/5 border border-white/15 px-1.5 py-1 text-[9px] text-white outline-none placeholder:text-white/20"
+                        autoFocus
+                        onKeyDown={async e => {
+                          if (e.key === "Enter") {
+                            const amt = parseFloat(topupAmount);
+                            if (amt > 0) {
+                              const res = await topupInvestor(investor.investorId, amt);
+                              if (res.data) {
+                                setInvestors(prev => prev.map(inv =>
+                                  inv.investorId === investor.investorId
+                                    ? { ...inv, balance: res.data!.new_balance }
+                                    : inv
+                                ));
+                              }
+                            }
+                            setTopupTarget(null);
+                            setTopupAmount("");
+                          } else if (e.key === "Escape") {
+                            setTopupTarget(null);
+                            setTopupAmount("");
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={async () => {
+                          const amt = parseFloat(topupAmount);
+                          if (amt > 0) {
+                            const res = await topupInvestor(investor.investorId, amt);
+                            if (res.data) {
+                              setInvestors(prev => prev.map(inv =>
+                                inv.investorId === investor.investorId
+                                  ? { ...inv, balance: res.data!.new_balance }
+                                  : inv
+                              ));
+                            }
+                          }
+                          setTopupTarget(null);
+                          setTopupAmount("");
+                        }}
+                        className="text-[8px] tracking-[0.1em] text-up border border-up/20 px-1.5 py-1 hover:bg-up/5"
+                      >OK</button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setTopupTarget(investor.investorId); setTopupAmount(""); }}
+                      className="text-[8px] tracking-[0.1em] text-white/40 border border-white/10 px-2 py-1 hover:text-white/70 hover:border-white/25"
+                    >TOPUP</button>
+                  )}
                 </div>
                 <div className="md:hidden space-y-1">
                   <div className="flex items-center justify-between">
