@@ -649,6 +649,28 @@ export async function triggerScandal(ticker: string, magnitude: number): Promise
   );
 }
 
+// === Portfolio ===
+
+export interface PortfolioHolding {
+  ticker: string;
+  name: string;
+  sector: string;
+  quantity: number;
+  avg_price: number;
+  current_price: number | null;
+  pnl: number | null;
+  updated_at: string;
+}
+
+export interface Portfolio {
+  balance: number;
+  holdings: PortfolioHolding[];
+}
+
+export async function getPortfolio(): Promise<ApiResponse<Portfolio>> {
+  return apiFetch<Portfolio>("/investor/portfolio", {}, { balance: 0, holdings: [] });
+}
+
 // === Portfolio Analysis ===
 
 export async function getPortfolioAnalysis(): Promise<ApiResponse<PortfolioAnalysis>> {
@@ -685,18 +707,36 @@ export async function markAllNotificationsRead(): Promise<ApiResponse<{ success:
 
 // === Watchlist with Price Alerts ===
 
-export async function addToWatchlistWithAlerts(
-  ticker: string,
-  priceAlertAbove?: number,
-  priceAlertBelow?: number
-): Promise<ApiResponse<{ success: boolean }>> {
+export interface WatchlistItem {
+  id: string;
+  ticker: string;
+  name: string;
+  sector: string;
+  price_alert_above: number | null;
+  price_alert_below: number | null;
+  alert_above_armed: boolean;
+  alert_below_armed: boolean;
+  added_at: string;
+  current_price: number | null;
+}
+
+export async function getWatchlist(): Promise<ApiResponse<WatchlistItem[]>> {
+  return apiFetch<WatchlistItem[]>("/investor/watchlist", {}, []);
+}
+
+export async function addToWatchlist(ticker: string): Promise<ApiResponse<{ ok: boolean }>> {
   return apiFetch(
     "/investor/watchlist",
-    {
-      method: "POST",
-      body: JSON.stringify({ ticker, priceAlertAbove, priceAlertBelow }),
-    },
-    { success: true }
+    { method: "POST", body: JSON.stringify({ ticker }) },
+    { ok: true }
+  );
+}
+
+export async function removeFromWatchlist(ticker: string): Promise<ApiResponse<{ ok: boolean }>> {
+  return apiFetch(
+    `/investor/watchlist/${ticker}`,
+    { method: "DELETE" },
+    { ok: true }
   );
 }
 
@@ -704,14 +744,14 @@ export async function updatePriceAlerts(
   ticker: string,
   priceAlertAbove?: number | null,
   priceAlertBelow?: number | null
-): Promise<ApiResponse<{ success: boolean }>> {
+): Promise<ApiResponse<{ ok: boolean }>> {
   return apiFetch(
-    `/investor/watchlist/${ticker}/alerts`,
+    `/investor/watchlist/${ticker}`,
     {
       method: "PUT",
-      body: JSON.stringify({ priceAlertAbove, priceAlertBelow }),
+      body: JSON.stringify({ price_alert_above: priceAlertAbove, price_alert_below: priceAlertBelow }),
     },
-    { success: true }
+    { ok: true }
   );
 }
 
@@ -896,4 +936,128 @@ export async function getEtf(ticker: string): Promise<ApiResponse<ETFDetail | nu
 
 export async function getEtfHoldings(ticker: string): Promise<ApiResponse<ETFHolding[]>> {
   return apiFetch<ETFHolding[]>(`/market/etfs/${ticker.toUpperCase()}/holdings`, {}, []);
+}
+
+// === News ===
+
+export interface NewsItem {
+  id: string;
+  headline: string;
+  body: string;
+  related_tickers: string[];
+  sentiment: number;
+  source: string;
+  macro_tick: number;
+  published_at: string | null;
+}
+
+export async function getNews(params?: {
+  limit?: number;
+  offset?: number;
+  ticker?: string;
+}): Promise<ApiResponse<NewsItem[]>> {
+  const q = new URLSearchParams();
+  if (params?.limit)  q.set('limit',  String(params.limit));
+  if (params?.offset) q.set('offset', String(params.offset));
+  if (params?.ticker) q.set('ticker', params.ticker);
+  const qs = q.toString() ? `?${q}` : '';
+  return apiFetch<NewsItem[]>(`/market/news${qs}`, {}, []);
+}
+
+export async function getNewsItem(id: string): Promise<ApiResponse<NewsItem | null>> {
+  return apiFetch<NewsItem | null>(`/market/news/${id}`, {}, null);
+}
+
+// === Screener ===
+
+export interface ScreenerItem {
+  ticker: string;
+  name: string;
+  sector: string;
+  price: number | null;
+  change_pct: number | null;
+  volume: number | null;
+  market_cap: number | null;
+  pe_ratio: number | null;
+}
+
+export async function getScreener(params?: {
+  sector?: string;
+  min_price?: number;
+  max_price?: number;
+  min_change_pct?: number;
+  max_change_pct?: number;
+  min_pe?: number;
+  max_pe?: number;
+}): Promise<ApiResponse<ScreenerItem[]>> {
+  const q = new URLSearchParams();
+  if (params?.sector)         q.set('sector',         params.sector);
+  if (params?.min_price)      q.set('min_price',      String(params.min_price));
+  if (params?.max_price)      q.set('max_price',      String(params.max_price));
+  if (params?.min_change_pct) q.set('min_change_pct', String(params.min_change_pct));
+  if (params?.max_change_pct) q.set('max_change_pct', String(params.max_change_pct));
+  if (params?.min_pe)         q.set('min_pe',         String(params.min_pe));
+  if (params?.max_pe)         q.set('max_pe',         String(params.max_pe));
+  const qs = q.toString() ? `?${q}` : '';
+  return apiFetch<ScreenerItem[]>(`/market/screener${qs}`, {}, []);
+}
+
+// === IPO ===
+
+export interface IpoListing {
+  id: string;
+  status: "UPCOMING" | "LIVE" | "CLOSED" | "LISTED";
+  price_band_low: number;
+  price_band_high: number;
+  lot_size: number;
+  max_lots_per_investor: number;
+  open_date: string;
+  close_date: string;
+  subscription_times: number | null;
+  opening_price: number | null;
+  ticker: string;
+  name: string;
+  sector: string;
+  total_applicants?: number;
+  total_lots_applied?: number;
+}
+
+export interface IpoApplication {
+  application_id: string;
+  ipo_id: string;
+  lots_applied: number;
+  lots_allotted: number | null;
+  amount_blocked: number;
+  application_status: string;
+  applied_at: string;
+  ticker: string;
+  name: string;
+}
+
+export async function getIpoListings(): Promise<ApiResponse<IpoListing[]>> {
+  return apiFetch<IpoListing[]>("/market/ipo", {}, []);
+}
+
+export async function getIpoListing(id: string): Promise<ApiResponse<IpoListing | null>> {
+  return apiFetch<IpoListing | null>(`/market/ipo/${id}`, {}, null);
+}
+
+export async function getMyIpoApplications(): Promise<ApiResponse<IpoApplication[]>> {
+  return apiFetch<IpoApplication[]>("/investor/ipo", {}, []);
+}
+
+export async function applyForIpo(ipoId: string, lots: number): Promise<ApiResponse<{ ok: boolean; error?: string }>> {
+  return apiFetch(
+    "/investor/ipo/apply",
+    { method: "POST", body: JSON.stringify({ ipo_id: ipoId, lots }) },
+    { ok: true }
+  );
+}
+
+export async function withdrawIpoApplication(ipoId: string): Promise<ApiResponse<{ ok: boolean }>> {
+  return apiFetch(
+    `/investor/ipo/${ipoId}`,
+    { method: "DELETE" },
+    { ok: true }
+  );
 }

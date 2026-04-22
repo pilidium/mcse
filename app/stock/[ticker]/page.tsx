@@ -6,11 +6,11 @@ import Portal from "@/components/Portal";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { stockDirectory, holdings, newsItems, formatRelativeTime, generateOrderBook, parentCompanies } from "@/lib/mockData";
+import { stockDirectory, parentCompanies } from "@/lib/mockData";
 import { useTrading } from "@/lib/TradingContext";
 import { usePreferences } from "@/lib/PreferencesContext";
 import { useMarketTick } from "@/lib/WebSocketContext";
-import { getShareholders, getStock, Shareholder, StockDetail } from "@/lib/api";
+import { getShareholders, getStock, getNews, Shareholder, StockDetail, type NewsItem } from "@/lib/api";
 import OrderConfirmModal from "@/components/OrderConfirmModal";
 import Sparkline from "@/components/Sparkline";
 
@@ -41,6 +41,7 @@ export default function StockDetailPage({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [sectionTab, setSectionTab] = useState<"OVERVIEW" | "NEWS" | "EVENTS" | "COMPANY" | "SHAREHOLDERS">("OVERVIEW");
   const [shareholders, setShareholders] = useState<Shareholder[]>([]);
+  const [stockNews, setStockNews] = useState<NewsItem[]>([]);
   const [tickerCopied, setTickerCopied] = useState(false);
   const [chartType, setChartType] = useState<"LINE" | "CANDLE">("LINE");
   const { confirmOrders } = usePreferences();
@@ -48,6 +49,9 @@ export default function StockDetailPage({
 
   useEffect(() => {
     getStock(ticker).then(res => { if (res.data) setApiStock(res.data); });
+    getNews({ ticker: ticker.toUpperCase(), limit: 10 }).then(res => {
+      if (res.data) setStockNews(res.data);
+    });
   }, [ticker]);
 
   // Fetch shareholders when tab is selected
@@ -59,12 +63,10 @@ export default function StockDetailPage({
     }
   }, [sectionTab, ticker, shareholders.length]);
 
-  const isHeld = holdings.some((h) => h.ticker === ticker.toUpperCase());
   const watched = checkWatched(ticker.toUpperCase());
   const tickerOrders = getOrdersForTicker(ticker.toUpperCase());
   const position = positions.find((p) => p.ticker === ticker.toUpperCase());
-  const stockNews = newsItems.filter((n) => n.ticker === ticker.toUpperCase());
-  const stockNewsWithIds = stockNews.map((n) => ({ news: n, id: newsItems.indexOf(n) }));
+  const isHeld = position !== undefined;
   const orderBook = useMemo(() => {
     if (liveTick?.book) {
       return {
@@ -72,8 +74,8 @@ export default function StockDetailPage({
         asks: liveTick.book.asks.map(([price, qty]) => ({ price, qty, orders: Math.ceil(qty / 100) })),
       };
     }
-    return stock ? generateOrderBook(displayPrice) : null;
-  }, [liveTick, stock, displayPrice]);
+    return null;
+  }, [liveTick]);
 
   const effectivePrice = pricingType === "LIMIT" && limitPrice ? parseFloat(limitPrice) : displayPrice;
 
@@ -523,13 +525,17 @@ export default function StockDetailPage({
           {/* News tab content */}
           {sectionTab === "NEWS" && (
             <div className="space-y-3">
-              {stockNewsWithIds.length > 0 ? stockNewsWithIds.map(({ news, id }) => (
-                <Link key={id} href={`/news/${id}`} className="block border border-white/8 p-4 hover:bg-white/[0.02] transition-colors">
+              {stockNews.length > 0 ? stockNews.map(news => (
+                <Link key={news.id} href={`/news/${news.id}`} className="block border border-white/8 p-4 hover:bg-white/[0.02] transition-colors">
                   <p className="text-[12px] text-white/60 leading-relaxed mb-2">{news.headline}</p>
                   <div className="flex items-center gap-3">
-                    <span className="text-[9px] tracking-[0.1em] text-white/25">{formatRelativeTime(news.timestamp)}</span>
-                    <span className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
-                      {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
+                    {news.published_at && (
+                      <span className="text-[9px] tracking-[0.1em] text-white/25">
+                        {new Date(news.published_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
+                      </span>
+                    )}
+                    <span className={`text-[10px] font-medium ${news.sentiment > 0.1 ? "text-[#00D26A]" : news.sentiment < -0.1 ? "text-[#FF5252]" : "text-white/30"}`}>
+                      {news.sentiment > 0.1 ? "BULLISH" : news.sentiment < -0.1 ? "BEARISH" : "NEUTRAL"}
                     </span>
                   </div>
                 </Link>
@@ -538,7 +544,7 @@ export default function StockDetailPage({
                   <div className="w-10 h-10 mx-auto border border-white/8 flex items-center justify-center mb-3">
                     <Copy size={16} className="text-white/15" />
                   </div>
-                  <p className="text-[11px] tracking-[0.1em] text-white/25">NO NEWS FOR {stock.ticker}</p>
+                  <p className="text-[11px] tracking-[0.1em] text-white/25">NO NEWS FOR {stock?.ticker ?? ticker.toUpperCase()}</p>
                   <p className="text-[9px] text-white/12 mt-1.5">News will appear here during trading</p>
                 </div>
               )}
@@ -583,7 +589,8 @@ export default function StockDetailPage({
           {sectionTab === "COMPANY" && (() => {
             const parent = parentCompanies.find(p => p.subsidiaries.includes(ticker.toUpperCase()));
             if (!parent) return <p className="text-[11px] text-white/25 py-12 text-center tracking-[0.1em]">NO PARENT COMPANY DATA</p>;
-            const siblings = parent.subsidiaries.filter(t => t !== ticker.toUpperCase()).map(t => stockDirectory[t]).filter(Boolean);
+            const siblingTickers = parent.subsidiaries.filter(t => t !== ticker.toUpperCase());
+            const siblings = siblingTickers.map(t => stockDirectory[t]).filter(Boolean);
             return (
               <div className="space-y-6">
                 <div className="border border-white/6 p-5">
@@ -896,13 +903,17 @@ export default function StockDetailPage({
             <div>
               <h3 className="font-[var(--font-anton)] text-sm tracking-[0.1em] uppercase mb-3">NEWS</h3>
                 <div className="space-y-2">
-                  {stockNewsWithIds.map(({ news, id }) => (
-                    <Link key={id} href={`/news/${id}`} className="block border border-white/8 p-4 hover:bg-white/[0.02] transition-colors">
+                  {stockNews.map(news => (
+                    <Link key={news.id} href={`/news/${news.id}`} className="block border border-white/8 p-4 hover:bg-white/[0.02] transition-colors">
                       <p className="text-[11px] text-white/60 leading-relaxed mb-2">{news.headline}</p>
                       <div className="flex items-center gap-3">
-                        <span className="text-[9px] tracking-[0.1em] text-white/25">{formatRelativeTime(news.timestamp)}</span>
-                        <span className={`text-[10px] font-medium ${news.dayChangePercent >= 0 ? "text-[#00D26A]" : "text-[#FF5252]"}`}>
-                          {news.dayChangePercent >= 0 ? "+" : ""}{news.dayChangePercent.toFixed(2)}%
+                        {news.published_at && (
+                          <span className="text-[9px] tracking-[0.1em] text-white/25">
+                            {new Date(news.published_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
+                          </span>
+                        )}
+                        <span className={`text-[10px] font-medium ${news.sentiment > 0.1 ? "text-[#00D26A]" : news.sentiment < -0.1 ? "text-[#FF5252]" : "text-white/30"}`}>
+                          {news.sentiment > 0.1 ? "BULLISH" : news.sentiment < -0.1 ? "BEARISH" : "NEUTRAL"}
                         </span>
                       </div>
                     </Link>
